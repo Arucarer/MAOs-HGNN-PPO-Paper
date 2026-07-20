@@ -1,0 +1,70 @@
+\section{Proposed \method{} Method}
+\label{sec:method}
+
+\subsection{Overall Framework}
+\label{subsec:overview}
+
+% Describe the data flow from environment state to graph construction, HGNN
+% encoding, policy/value estimation, action sampling, environment transition,
+% and PPO update. Insert a framework figure and refer to it in the text.
+
+\subsection{Heterogeneous Graph Construction}
+\label{subsec:graph_construction}
+
+% Explain when the graph is rebuilt or updated. Define feature normalization,
+% feasibility masks, dynamic attributes, and computational complexity.
+
+\subsection{HGNN-based State Encoder}
+\label{subsec:hgnn_encoder}
+
+% Specify type-specific projection, neighborhood aggregation, attention/message
+% functions, layer count, pooling, and the final decision representation.
+\begin{equation}
+  \boldsymbol{h}_{v}^{(l+1)}=
+  \operatorname{UPDATE}_{\phi(v)}\!\left(
+  \boldsymbol{h}_{v}^{(l)},
+  \operatorname{AGG}_{r\in\mathcal{R}}
+  \{\boldsymbol{m}_{u\rightarrow v,r}^{(l)}\}\right).
+  \label{eq:hgnn_update}
+\end{equation}
+
+\subsection{PPO-based Decision Policy}
+\label{subsec:ppo_policy}
+
+% Define actor and critic inputs/outputs, action masking, sampling or decoding,
+% reward composition, advantage estimation, and entropy regularization.
+\begin{equation}
+  L^{\mathrm{clip}}(\theta)=
+  \mathbb{E}_t\!\left[
+  \min\!\left(\rho_t(\theta)\hat{A}_t,
+  \operatorname{clip}(\rho_t(\theta),1-\epsilon,1+\epsilon)\hat{A}_t\right)
+  \right].
+  \label{eq:ppo_clip}
+\end{equation}
+
+\subsection{Training Algorithm}
+\label{subsec:training_algorithm}
+
+\begin{algorithm}[t]
+\caption{Training procedure of the \method{} framework}
+\label{alg:training}
+\begin{algorithmic}[1]
+\Require Training instances, policy parameters $\theta$, value parameters $\omega$
+\Ensure Trained policy $\policy$
+\For{each training iteration}
+  \State Construct or update the heterogeneous graph from the environment state
+  \State Encode node and graph representations with the HGNN
+  \State Sample feasible actions and collect a rollout
+  \State Compute returns and advantage estimates
+  \State Update actor and critic parameters using the PPO objectives
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+% Replace generic steps with your exact training process and stopping criterion.
+
+\subsection{Computational Complexity}
+\label{subsec:complexity}
+
+% Analyze graph construction, HGNN message passing, action scoring, and policy
+% update separately. State complexity using nodes, edges, embedding size, and layers.

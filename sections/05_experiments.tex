@@ -4,33 +4,51 @@
 \subsection{Instances and Experimental Settings}
 \label{subsec:settings}
 
-% Describe datasets/instance generation, train-validation-test separation,
-% hardware, software, random seeds, repetitions, and implementation details.
-% Include a parameter table and justify important parameter choices.
+% 实验
+
+% 描述实验数据集或测试实例的构建方式，包括公开数据集、
+% 自定义实例生成方法以及训练集、验证集和测试集的划分方式。
+% 说明实验所使用的硬件环境、软件环境、随机种子设置、
+% 实验重复次数以及关键实现细节。
+% 给出实验参数表，并对重要参数的设置依据进行说明。
+
 
 \subsection{Baselines and Evaluation Metrics}
 \label{subsec:baselines_metrics}
 
-% Select strong and recent baselines from relevant categories. Explain how each
-% was tuned and how fairness was maintained. Define every metric mathematically.
+% 选择具有代表性的、最新的对比算法作为基线方法，
+% 覆盖相关研究领域中的不同方法类别。
+% 说明各基线算法的参数调节方式以及实验公平性的保证方法。
+% 对所有评价指标给出严格的数学定义。
+
 
 \subsection{Parameter and Ablation Studies}
 \label{subsec:ablation}
 
-% Isolate contributions from graph heterogeneity, relation/meta-path design,
-% HGNN layers, action masking, reward terms, and PPO-specific mechanisms.
+% 通过参数实验和消融实验分析各个模块对算法性能的贡献。
+% 分别验证以下设计因素的有效性：
+% 异构图结构设计、节点关系/元路径设计、HGNN网络层数、
+% 动作可行性掩码机制、奖励函数组成以及PPO相关优化机制。
+
 
 \subsection{Comparative Results}
 \label{subsec:comparative_results}
 
-% Report central tendency and variability across repeated runs. Use statistical
-% tests where appropriate. Discuss both wins and failures without overstating them.
+% 展示本文方法与基线方法的实验对比结果。
+% 在多次独立实验运行基础上报告平均性能和结果波动情况。
+% 根据需要采用统计检验方法验证性能差异的显著性。
+% 对算法取得优势的场景和性能不足的情况进行客观分析，
+% 避免过度强调实验结果。
 
-% Example modular table usage:
+
+% 示例：模块化表格调用方式
 % \input{tables/table_template}
+
 
 \subsection{Generalization and Runtime Analysis}
 \label{subsec:generalization_runtime}
 
-% Evaluate unseen sizes, distributions, dynamic conditions, or system layouts.
-% Report decision latency and scaling behavior relevant to real-time deployment.
+% 分析算法在未见过的问题规模、数据分布、动态扰动条件
+% 或不同系统布局下的泛化能力。
+% 报告算法在线决策时间、计算开销以及随着问题规模增长时的扩展性能，
+% 验证其满足实际实时调度应用需求的能力。

@@ -4,21 +4,28 @@
 \subsection{Overall Framework}
 \label{subsec:overview}
 
-% Describe the data flow from environment state to graph construction, HGNN
-% encoding, policy/value estimation, action sampling, environment transition,
-% and PPO update. Insert a framework figure and refer to it in the text.
+% 所提方法
+
+% 描述本文方法的整体流程，包括从环境状态获取、
+% 时态异构图构建、HGNN状态编码、策略网络/价值网络估计、
+% 动作选择、环境状态转移以及PPO参数更新的完整数据流。
+% 插入整体框架图，并在正文中对该图进行引用和说明。
 
 \subsection{Heterogeneous Graph Construction}
 \label{subsec:graph_construction}
 
-% Explain when the graph is rebuilt or updated. Define feature normalization,
-% feasibility masks, dynamic attributes, and computational complexity.
+% 介绍异构图的构建过程，包括图的重新构建或动态更新时机。
+% 定义节点和边特征的归一化方法、可行性约束掩码（feasibility mask）、
+% 动态属性表示方式以及图构建过程的计算复杂度。
 
 \subsection{HGNN-based State Encoder}
 \label{subsec:hgnn_encoder}
 
-% Specify type-specific projection, neighborhood aggregation, attention/message
-% functions, layer count, pooling, and the final decision representation.
+% 详细说明HGNN状态编码器的结构。
+% 包括不同类型节点的特征映射方式、
+% 邻居信息聚合机制、注意力机制或消息传递函数、
+% 网络层数、图池化方式以及最终用于决策的状态表示。
+
 \begin{equation}
   \boldsymbol{h}_{v}^{(l+1)}=
   \operatorname{UPDATE}_{\phi(v)}\!\left(
@@ -28,11 +35,15 @@
   \label{eq:hgnn_update}
 \end{equation}
 
+
 \subsection{PPO-based Decision Policy}
 \label{subsec:ppo_policy}
 
-% Define actor and critic inputs/outputs, action masking, sampling or decoding,
-% reward composition, advantage estimation, and entropy regularization.
+% 定义基于PPO的调度决策策略。
+% 描述Actor网络和Critic网络的输入输出形式、
+% 动作可行性掩码机制、动作采样或动作解码方式、
+% 奖励函数组成、优势函数估计方法以及熵正则化策略。
+
 \begin{equation}
   L^{\mathrm{clip}}(\theta)=
   \mathbb{E}_t\!\left[
@@ -42,29 +53,45 @@
   \label{eq:ppo_clip}
 \end{equation}
 
+
 \subsection{Training Algorithm}
 \label{subsec:training_algorithm}
+
 
 \begin{algorithm}[t]
 \caption{Training procedure of the \method{} framework}
 \label{alg:training}
 \begin{algorithmic}[1]
+
 \Require Training instances, policy parameters $\theta$, value parameters $\omega$
+
 \Ensure Trained policy $\policy$
+
 \For{each training iteration}
+
   \State Construct or update the heterogeneous graph from the environment state
+
   \State Encode node and graph representations with the HGNN
+
   \State Sample feasible actions and collect a rollout
+
   \State Compute returns and advantage estimates
+
   \State Update actor and critic parameters using the PPO objectives
+
 \EndFor
+
 \end{algorithmic}
 \end{algorithm}
 
-% Replace generic steps with your exact training process and stopping criterion.
+
+% 将上述通用训练流程替换为本文实际采用的训练过程，
+% 包括数据生成方式、经验采样机制、更新频率以及训练停止条件。
+
 
 \subsection{Computational Complexity}
 \label{subsec:complexity}
 
-% Analyze graph construction, HGNN message passing, action scoring, and policy
-% update separately. State complexity using nodes, edges, embedding size, and layers.
+% 分析算法各个模块的计算复杂度。
+% 分别讨论异构图构建、HGNN消息传递、动作评分以及PPO策略更新过程。
+% 使用节点数量、边数量、隐藏层维度以及网络层数等变量表示时间复杂度。

@@ -1,11 +1,30 @@
 \section{Discussion}
 \label{sec:discussion}
 
-% Explain why the method behaves as observed, linking evidence to architecture.
-% Discuss practical implications, interpretability, and deployment requirements.
+% 讨论本文方法产生的实验结果，并解释其意义。
+
+% 讨论本文方法产生当前实验表现的原因，并将实验结果与模型结构设计进行关联分析。
+% 结合实验现象解释不同模块的作用，例如：
+% 时态异构图如何刻画复杂制造关系，
+% HGNN编码器如何提取有效状态特征，
+% PPO策略如何实现动态环境下的自适应决策。
+%
+% 进一步讨论本文方法的实际应用意义，包括：
+% 在智能制造调度系统中的应用价值、
+% 决策过程的可解释性，
+% 以及实际工业部署所需的计算资源、系统条件和工程要求。
+
 
 \subsection{Limitations}
 \label{subsec:limitations}
 
-% State modeling, data, algorithmic, computational, and evaluation limitations.
-% Describe the likely effect of each limitation rather than listing generic caveats.
+% 分析本文方法存在的局限性，包括：
+% 1. 建模方面的限制，例如异构图结构和约束关系依赖人工设计；
+% 2. 数据方面的限制，例如训练实例分布可能影响模型泛化能力；
+% 3. 算法方面的限制，例如强化学习训练过程中的稳定性和样本效率问题；
+% 4. 计算方面的限制，例如HGNN消息传递和策略推理带来的计算开销；
+% 5. 实验评价方面的限制，例如测试场景和动态事件覆盖范围有限。
+%
+% 对每个局限性，需要进一步说明其可能造成的影响，
+% 例如对模型性能、泛化能力、计算效率或实际部署适用性的影响，
+% 而不是简单罗列不足。

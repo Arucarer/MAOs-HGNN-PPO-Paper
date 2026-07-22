@@ -1,7 +1,9 @@
-\section{Problem Formulation and Preliminaries}
+% 第三章-问题建模
+\section{Problem Description and Temporal Heterogeneous Graph Modeling}
 \label{sec:problem}
 
-\subsection{Problem Description}
+% 3.1-问题描述
+\subsection{Problem Description of Dynamic Manufacturing-Assembly Scheduling}
 \label{subsec:problem_description}
 
 % 问题定义与预备知识
@@ -18,7 +20,9 @@ The considered scheduling problem is illustrated in Fig.~\ref{fig:problem_descri
   \label{fig:problem_description}
 \end{figure}
 
-\subsection{Mathematical Formulation}
+
+% 3.2-数学模型建模
+\subsection{Mathematical Formulation of the Scheduling Problem}
 \label{subsec:mathematical_model}
 
 % 在建立数学模型前，首先定义集合、索引、参数以及决策变量。
@@ -35,7 +39,8 @@ The considered scheduling problem is illustrated in Fig.~\ref{fig:problem_descri
   \label{eq:generic_constraints}
 \end{align}
 
-\subsection{Heterogeneous Graph Representation}
+% 3.3-图结构建模
+\subsection{Temporal Heterogeneous Graph Representation}
 \label{subsec:graph_representation}
 
 Define the time-dependent heterogeneous graph as
@@ -50,15 +55,8 @@ edge types, raw features, update timing, and how constraints are encoded.
 
 % 添加一个图结构示意图，用于展示节点类型、边类型以及它们之间的语义关系。
 
-\subsection{Markov Decision Process}
-\label{subsec:mdp}
 
 % 定义马尔可夫决策过程（MDP）的基本形式，
 % 并分别介绍状态（state）、动作（action）、
 % 状态转移/决策时刻（transition/decision epoch）、
 % 奖励函数（reward）以及终止条件（termination condition）。
-
-\begin{equation}
-  \mathcal{M}=\langle\mathcal{S},\mathcal{A},P,R,\gamma\rangle.
-  \label{eq:mdp}
-\end{equation}

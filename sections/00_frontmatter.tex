@@ -1,7 +1,10 @@
 \begin{frontmatter}
 
+%题目
 \title{A Heterogeneous Graph Neural Network and Proximal Policy Optimization Framework for [Problem Name]}
 
+
+% 作者、单位
 \author[aff1]{First Author}
 \author[aff1]{Second Author\corref{cor1}}
 \ead{corresponding.author@example.com}
@@ -9,12 +12,35 @@
 \affiliation[aff1]{organization={Department, University},
   city={City}, postcode={Postcode}, country={Country}}
 
+% 摘要
 \begin{abstract}
-% 用一个紧凑的段落依次概述：研究背景、研究空白、所提出的
-% HGNN--PPO框架、关键技术组成、实验设置、主要数值结果及实际意义。
-% 除非目标期刊明确要求，否则摘要中不要引用参考文献。
+  Reconfigurable manufacturing systems with auxiliary modules enhance flexibility but complicate resource allocation. 
+  Furthermore, traditional scheduling often ignores how post-processing aging treatments affect final product performance. 
+  This paper introduces a novel performance-aware flexible job shop scheduling problem with aging-time windows and machine reconfiguration (PFJSP-AW-MR) to simultaneously minimize total weighted tardiness and total performance deviation. 
+  First, a mixed-integer linear programming (MILP) model employing piecewise linear fitting is formulated to capture the non-linear temporal evolution of material properties. 
+  To solve this strongly NP-hard problem, an improved NSGA-II with a hybrid neighborhood search (INSGA-II\_NS) is proposed. 
+  A problem-specific three-layer encoding resolves the spatio-temporal coupling of discrete configurations and continuous aging times. 
+  Moreover, a customized two-stage neighborhood search—integrating an improved K-insertion method on an extended disjunctive graph—significantly enhances local exploitation. 
+  Extensive benchmark experiments and a real-world industrial case demonstrate that INSGA-II\_NS outperforms well-known multi-objective algorithms, effectively balancing manufacturing performance and production efficiency.
+
+% 配备辅助模块的可重构制造系统增加了资源配置的复杂性，
+% 且传统调度常忽视时效处理对产品最终性能的决定性影响。
+% 为此，本文提出一类考虑时效时间窗与机器重构的性能感知柔性作业车间调度新问题（PFJSP-AW-MR），
+% 旨在同时最小化总加权拖期与总性能偏差。
+% 首先，构建混合整数线性规划（MILP）模型，
+% 并利用分段线性拟合精确刻画材料属性的非线性时间演化规律。
+% 针对该强NP-hard问题，提出一种融合混合邻域搜索的改进NSGA-II算法（INSGA-II\_NS）。
+% 其中，定制的三层编码机制有效解决了离散机器配置与连续时效时间之间的时空耦合难题；
+% 两阶段邻域搜索算子（结合扩展析取图上的改进K-插入方法）显著增强了算法的局部开发能力。
+% 基准算例实验与真实的工业案例研究均表明，
+% INSGA-II\_NS在收敛性和多样性上显著优于SPEA2、MOEA/D等先进算法，
+% 成功实现了制造性能与生产效率的有效平衡。
 \end{abstract}
 
+
+
+
+%关键词
 \begin{keyword}
 heterogeneous graph neural network \sep proximal policy optimization \sep
 deep reinforcement learning \sep scheduling \sep [application keyword]

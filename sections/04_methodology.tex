@@ -1,7 +1,24 @@
-\section{Proposed \method{} Method}
+% 第四章-所提出的时态注意力增强HGNN-PPO框架
+\section{Proposed Temporal Attention-Enhanced HGNN-PPO Framework}
 \label{sec:method}
 
-\subsection{Overall Framework}
+
+% 4.1-动态调度马尔可夫决策过程建模 
+\subsection{Markov Decision Process Formulation for Dynamic Scheduling}
+\label{subsec:mdp}
+
+% Define the state, action, transition, decision epoch, reward, and termination
+% condition of the dynamic scheduling Markov decision process.
+\begin{equation}
+  \mathcal{M}=\langle\mathcal{S},\mathcal{A},P,R,\gamma\rangle.
+  \label{eq:mdp}
+\end{equation}
+
+
+
+
+% 4.2-时态注意力增强HGNN状态表示   
+\subsection{Temporal Attention-Enhanced HGNN State Representation}
 \label{subsec:overview}
 
 % 所提方法
@@ -11,14 +28,12 @@
 % 动作选择、环境状态转移以及PPO参数更新的完整数据流。
 % 插入整体框架图，并在正文中对该图进行引用和说明。
 
-\subsection{Heterogeneous Graph Construction}
 \label{subsec:graph_construction}
 
 % 介绍异构图的构建过程，包括图的重新构建或动态更新时机。
 % 定义节点和边特征的归一化方法、可行性约束掩码（feasibility mask）、
 % 动态属性表示方式以及图构建过程的计算复杂度。
 
-\subsection{HGNN-based State Encoder}
 \label{subsec:hgnn_encoder}
 
 % 详细说明HGNN状态编码器的结构。
@@ -36,7 +51,8 @@
 \end{equation}
 
 
-\subsection{PPO-based Decision Policy}
+% 基于PPO的自适应规则选择框架
+\subsection{PPO-Based Adaptive Rule Selection Framework}
 \label{subsec:ppo_policy}
 
 % 定义基于PPO的调度决策策略。
@@ -54,7 +70,6 @@
 \end{equation}
 
 
-\subsection{Training Algorithm}
 \label{subsec:training_algorithm}
 
 
@@ -89,7 +104,6 @@
 % 包括数据生成方式、经验采样机制、更新频率以及训练停止条件。
 
 
-\subsection{Computational Complexity}
 \label{subsec:complexity}
 
 % 分析算法各个模块的计算复杂度。

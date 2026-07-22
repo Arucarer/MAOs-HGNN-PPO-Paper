@@ -2,39 +2,81 @@
 \label{sec:introduction}
 % 第一章：引言
 
-% 第1段：
-% 介绍研究背景和实际应用场景，阐述所研究的调度或决策问题
-% 在智能制造、柔性生产等实际应用中的重要性和现实需求。
+Driven by the increasing complexity and uncertainty of modern manufacturing environments, 
+high-mix and low-volume production modes have imposed higher requirements for flexible and intelligent scheduling systems.
+Reconfigurable manufacturing systems and manufacturing-assembly integration have attracted increasing attention due to their ability to handle diverse production requirements.
+However, practical manufacturing environments are frequently affected by dynamic disturbances, 
+such as machine failures, processing-time variations, and urgent order insertions.
+Therefore, achieving efficient scheduling while maintaining adaptability has become a critical challenge in dynamic manufacturing-assembly environments.
+% 中文注释：
+% 第一段：
+% 研究背景与问题引入。
+% 主要说明现代制造模式向高混合、低批量方向发展，
+% 可重构制造系统和制造-装配一体化场景受到关注，
+% 但动态扰动导致生产环境不断变化，
+% 因此动态制造-装配调度问题具有重要研究意义。
+
+Existing studies on flexible job shop scheduling and intelligent scheduling optimization have achieved significant progress in improving production efficiency.
+Recently, graph neural networks and reinforcement learning methods have provided new opportunities for solving complex scheduling problems by learning structural information and making sequential decisions.
+However, most existing approaches mainly focus on static scheduling scenarios or simplified production structures, 
+while insufficient attention has been paid to the dynamic evolution of manufacturing systems and heterogeneous interactions among operations, machines, and assembly relationships.
+Moreover, existing methods often lack effective state representations and adaptive decision mechanisms for continuously changing production environments.
+
+% 中文注释：
+% 第二段：
+% 现有研究与不足分析。
+% 主要介绍柔性作业车间调度、图神经网络和强化学习的发展，
+% 指出现有方法在动态制造-装配场景下存在不足：
+% 1. 难以描述工序、机器和装配关系之间的异构交互；
+% 2. 难以捕获生产状态随时间变化的动态特征；
+% 3. 缺少面向动态环境的在线自适应决策能力。
 
 
-% 第2段：
-% 描述该问题面临的核心挑战，例如：
-% 生产过程柔性、多阶段加工与装配耦合、动态扰动、
-% 不确定性因素、多重约束以及实时在线决策需求。
+To address these challenges, this paper investigates a dynamic manufacturing-assembly scheduling problem 
+and proposes a temporal attention-enhanced HGNN-PPO framework for adaptive scheduling decision-making.
+The proposed framework first constructs a temporal heterogeneous graph to represent the evolving relationships among operations, machines, and assembly processes.
+Then, a temporal attention-enhanced HGNN encoder is developed to extract dynamic scheduling states, 
+which are further utilized by PPO for online scheduling rule selection.
+The main contributions of this paper are summarized as follows:
+
+% 中文注释：
+% 第三段：
+% 本文方法与贡献引出。
+% 主要说明本文针对动态制造-装配调度问题，
+% 提出时态注意力增强HGNN-PPO在线决策框架：
+% 1. 利用时态异构图描述动态制造系统状态；
+% 2. 利用HGNN提取复杂状态特征；
+% 3. 利用PPO实现动态环境下调度规则的自适应选择。
+% 随后进入论文主要贡献列表。
 
 
-% 第3段：
-% 总结现有传统优化方法以及基于向量状态表示的深度强化学习方法的不足。
-% 重点分析其在复杂制造关系建模、动态环境适应、
-% 问题规模扩展以及实时响应能力方面存在的局限。
+The main contributions of this paper are summarized as follows:
 
-
-% 第4段：
-% 说明图结构表示方法和PPO强化学习方法适用于该问题的原因。
-% 进一步指出现有研究仍存在的具体不足，
-% 明确本文需要解决的研究空白（research gap）。
-
-
-% 第5段：
-% 简要介绍本文提出的\method{}框架及整体设计思想。
-% 说明该方法如何通过状态表示、特征编码和策略优化实现动态调度决策。
-
-The main contributions should be stated as verifiable claims:
 \begin{itemize}
-  \item {[Contribution 1: problem formulation or decision framework.]}
-  \item {[Contribution 2: heterogeneous graph construction or encoder design.]}
-  \item {[Contribution 3: PPO policy, reward, action, or training design.]}
-  \item {[Contribution 4: experimental evidence and practical significance.]}
+
+\item A dynamic manufacturing-assembly scheduling problem considering complex disturbances is formulated, 
+and a temporal heterogeneous graph representation is developed to characterize the dynamic interactions among operations, machines, and assembly relationships.
+% 中文注释：
+% 贡献1：提出动态制造-装配调度问题建模方法。
+% 主要体现：
+% 1. 考虑加工与装配过程之间的耦合关系；
+% 2. 考虑机器故障、加工时间波动、紧急插单等动态扰动；
+% 3. 构建时态异构图描述工序、机器和装配关系随时间变化的状态信息。
+% 对应论文：
+% 第3章 Problem Description and Temporal Heterogeneous Graph Modeling。
+
+
+\item A temporal attention-enhanced HGNN-PPO online decision-making framework is proposed for dynamic scheduling. 
+The framework integrates heterogeneous graph-based state encoding with PPO policy optimization to enable adaptive scheduling rule selection under continuously changing production environments.
+% 中文注释：
+% 贡献2：提出基于时态注意力增强HGNN与PPO的在线调度决策框架。
+% 主要体现：
+% 1. 利用Temporal Attention-enhanced HGNN提取动态调度状态特征；
+% 2. 将图结构状态表示与强化学习策略相结合；
+% 3. 通过PPO实现动态环境下调度规则的自适应选择。
+% 对应论文：
+% 第4章 Proposed Temporal Attention-Enhanced HGNN-PPO Framework。
+
 \end{itemize}
 
 % 文章最后给出全文组织结构说明。

@@ -8,35 +8,29 @@ HGNN-PPO with Attention Mechanism for Multi-Objective Dynamic Flexible Job Shop 
 
 章节标题与小标题润色版
 
-| 章节编号 | 英文标题 | 中文标题 |
-| --- | --- | --- |
-| 1 | Introduction | 引言 |
-| 2 | Literature Review | 文献综述 |
-| 2.1 | Meta-Heuristic Approaches for FJSP | 面向FJSP的元启发式方法 |
-| 2.2 | Vector-Based Deep Reinforcement Learning Approaches for FJSP | 面向FJSP的向量型深度强化学习方法 |
-| 2.3 | Graph-Based Deep Reinforcement Learning Approaches for FJSP | 面向FJSP的图深度强化学习方法 |
-| 3 | Preliminaries and Problem Formulation | 预备知识与问题建模 |
-| 3.1 | Problem Description | 问题描述 |
-| 3.2 | Heterogeneous Graph Representation of MODFJSP | MODFJSP的异构图表示 |
-| 3.3 | Multi-Objective Problem Decomposition Strategy | 多目标问题分解策略 |
-| 4 | Proposed Method | 所提方法 |
-| 4.1 | Multi-Objective Markov Decision Process Formulation | 多目标马尔可夫决策过程建模 |
-| 4.2 | HGNN-Based State Representation with Attention Mechanism | 基于HGNN与注意力机制的状态表征 |
-| 4.2.1 | Operation Node Representation | 工序节点表征 |
-| 4.2.2 | Machine Node Representation | 机器节点表征 |
-| 4.2.3 | Global State Features | 全局状态特征 |
-| 4.3 | Multi-Objective Decision-Making Framework | 多目标决策框架 |
-| 4.3.1 | Preference-Guided PPO with Two-Stage Sampling | 基于两阶段采样的偏好引导PPO |
-| 4.3.2 | Meta-Learning-Based Optimization Strategy for Multi-Objective Scheduling | 面向多目标调度的元学习优化策略 |
-| 5 | Experiments and Case Studies | 实验与案例研究 |
-| 5.1 | Experimental Settings and Performance Evaluation Metrics | 实验设置与性能评价指标 |
-| 5.2 | Hyperparameter Sensitivity Analysis | 超参数敏感性分析 |
-| 5.3 | Results and Analysis | 结果与分析 |
-| 5.3.1 | Comparison with Other Encoding Methods | 与其他编码方法的比较 |
-| 5.3.2 | Comparison with Well-Known Priority Dispatching Rules | 与经典优先调度规则的比较 |
-| 5.3.3 | Comparison with Other DRL- and MOEA-Based Methods | 与其他DRL及MOEA方法的比较 |
-| 5.4 | Discussion | 讨论 |
-| 6 | Conclusion | 结论 |
+| 章节编号 | English Title                                                        | 中文标题                  |
+| ---- | -------------------------------------------------------------------- | ---------------------       |
+| 1    | Introduction                                                         | 引言                                |
+| 2    | Literature Review                                                    | 文献综述                            |
+| 2.1  | Evolution of Dynamic Scheduling Problems                             | 动态调度问题的发展演变              |
+| 2.2  | Evolution of Intelligent Optimization Methods for Dynamic Scheduling | 动态调度智能优化方法的发展演变       |
+| 2.3  | Research Gaps and Motivation                                         | 研究空白与研究动机                  |
+| 3    | Problem Description and Temporal Heterogeneous Graph Modeling        | 问题描述与时态异构图建模            |
+| 3.1  | Problem Description of Dynamic Manufacturing-Assembly Scheduling     | 动态加工-装配调度问题描述           |
+| 3.2  | Mathematical Formulation of the Scheduling Problem                   | 调度问题数学建模                    |
+| 3.3  | Temporal Heterogeneous Graph Representation                          | 时态异构图表示                      |
+| 4    | Proposed Temporal Attention-Enhanced HGNN-PPO Framework              | 所提出的时态注意力增强HGNN-PPO框架   |
+| 4.1  | Markov Decision Process Formulation for Dynamic Scheduling           | 动态调度马尔可夫决策过程建模         |
+| 4.2  | Temporal Attention-Enhanced HGNN State Representation                | 时态注意力增强HGNN状态表示           |
+| 4.3  | PPO-Based Adaptive Rule Selection Framework                          | 基于PPO的自适应规则选择框架          |
+| 5    | Experiments and Results Analysis                                     | 实验与结果分析                      |
+| 5.1  | Experimental Setup and Evaluation Metrics                            | 实验设置与评价指标                  |
+| 5.2  | Hyperparameter Sensitivity Analysis                                  | 超参数敏感性分析                    |
+| 5.3  | Ablation Study                                                       | 消融实验                           |
+| 5.4  | Comparison on Randomly Generated Problems                            | 随机生成问题上的对比实验             |
+| 5.5  | Comparison on Benchmark Problems                                     | 基准测试问题上的对比实验            |
+| 6    | Conclusion and Future Work                                           | 结论与未来工作                        |
+
 
 润色说明：
 1. 将原先与 Transformer 直接相关的表述替换为更贴合当前方法的 HGNN 与注意力机制表述，避免标题与实际模型不一致。

@@ -1,0 +1,17 @@
+parameter,panel_title,level_order,level,fitness_mean,fitness_sd,data_status
+Generation,进化代数,1,10,0.234,0.012,PLANNING DATA - replace before submission
+Generation,进化代数,2,25,0.212,0.009,PLANNING DATA - replace before submission
+Generation,进化代数,3,50,0.198,0.006,PLANNING DATA - replace before submission
+Generation,进化代数,4,100,0.202,0.007,PLANNING DATA - replace before submission
+Parent size,父代规模,1,2,0.244,0.015,PLANNING DATA - replace before submission
+Parent size,父代规模,2,10,0.207,0.008,PLANNING DATA - replace before submission
+Parent size,父代规模,3,20,0.198,0.006,PLANNING DATA - replace before submission
+Parent size,父代规模,4,50,0.200,0.006,PLANNING DATA - replace before submission
+parent/offspring,父子代比例,1,0.2,0.209,0.008,PLANNING DATA - replace before submission
+parent/offspring,父子代比例,2,0.5,0.197,0.006,PLANNING DATA - replace before submission
+parent/offspring,父子代比例,3,1,0.201,0.007,PLANNING DATA - replace before submission
+parent/offspring,父子代比例,4,2,0.218,0.010,PLANNING DATA - replace before submission
+$\tau_D$,结构趋同阈值,1,0.02,0.224,0.011,PLANNING DATA - replace before submission
+$\tau_D$,结构趋同阈值,2,0.05,0.198,0.006,PLANNING DATA - replace before submission
+$\tau_D$,结构趋同阈值,3,0.10,0.203,0.007,PLANNING DATA - replace before submission
+$\tau_D$,结构趋同阈值,4,0.20,0.229,0.013,PLANNING DATA - replace before submission

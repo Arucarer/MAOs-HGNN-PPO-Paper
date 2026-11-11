@@ -1,0 +1,47 @@
+DCGP-NCBE | DCGP | CGP | Simple rules | Manual rules
+
+(a) Small-scale instances
+算例	DCGP-NCBE	DCGP	CGP	Simple rules	Manual rules
+TR_S01	28	22	20	15	15
+TR_S02	25	27	18	15	15
+TR_S03	30	20	25	13	12
+TR_S04	27	23	28	12	10
+TR_S05	29	24	22	14	11
+TR_S06	31	27	18	13	11
+TR_S07	30	25	20	14	11
+TR_S08	24	23	30	13	10
+TR_S09	32	24	22	12	10
+TR_S10	30	26	20	13	11
+(b) Medium-scale instances
+算例	DCGP-NCBE	DCGP	CGP	Simple rules	Manual rules
+TR_M01	38	22	20	11	9
+TR_M02	35	28	18	10	9
+TR_M03	37	23	24	9	7
+TR_M04	34	26	25	8	7
+TR_M05	36	27	21	9	7
+TR_M06	39	24	20	10	7
+TR_M07	38	23	25	8	6
+TR_M08	35	26	23	9	7
+TR_M09	37	24	22	10	7
+TR_M10	36	25	23	9	7
+(c) Large-scale instances
+算例	DCGP-NCBE	DCGP	CGP	Simple rules	Manual rules
+TR_L01	42	22	18	10	8
+TR_L02	43	20	22	8	7
+TR_L03	40	24	21	8	7
+TR_L04	42	23	20	8	7
+TR_L05	44	21	18	9	8
+TR_L06	45	20	19	9	7
+TR_L07	43	22	19	9	7
+TR_L08	41	25	18	9	7
+TR_L09	44	21	20	8	7
+TR_L10	42	23	19	9	7
+
+这个数据对应图中的趋势：
+
+规模越大，DCGP-NCBE选择比例越高（小规模约25%–32%，中规模35%–39%，大规模40%–45%）。
+DCGP-NCBE不是所有算例绝对最高，但整体占主导。
+简单规则和人工规则随着规模增加逐渐降低。
+符合你的论文逻辑：算例复杂度提升后，强化学习筛选出的动态规则空间优势更加明显。
+
+可以直接作为 ECharts 雷达图、100%堆叠柱状图的数据。

@@ -1,62 +1,199 @@
-% 第三章-问题建模
-\section{Problem Description and Temporal Heterogeneous Graph Modeling}
+% 第三章精简稿：引用已有静态模型，仅展开动态扩展、双目标与执行环境。
+\section{Problem Description and Mathematical Formulation}
 \label{sec:problem}
 
-% 3.1-问题描述
-\subsection{Problem Description of Dynamic Manufacturing-Assembly Scheduling}
+\subsection{Problem Description}
 \label{subsec:problem_description}
 
-% 问题定义与预备知识
-% 描述研究问题的基本定义，包括系统中的实体对象、决策过程、
-% 约束条件、动态事件以及优化目标。
-% 明确列出建模过程中采用的假设，并对每个假设的合理性进行说明。
+This study extends the flexible job shop scheduling problem with multi-level assembly operations
+(FJSP-MAOs) of Ning et al.~\cite{ning2027fjspmaos} to dynamic production. Jobs follow prescribed
+routes, operations use eligible processing or assembly machines, and compatible jobs can be matched
+flexibly to product requirements. Each assembly starts once its required components are ready,
+allowing processing and assembly to overlap. The base model supplies technological, machine-capacity,
+product-assignment, and assembly-matching constraints.
 
-The considered scheduling problem is illustrated in Fig.~\ref{fig:problem_description}.
+% 沿用Ning等的工艺、资源及柔性装配模型，保留分级齐套与加工装配并行。
+% 不再重复推导已有静态约束，后文仅定义动态执行所需的扩展。
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\textwidth]{figures/F1动态加工-装配调度场景图.png}
-  \caption{Illustration of the considered scheduling problem.}
-  \label{fig:problem_description}
-\end{figure}
+Figure~\ref{fig:problem_description} illustrates three disturbances: processing-time variations change
+operation durations, machine failures interrupt capacity and possibly running work, and urgent arrivals
+introduce new jobs and assembly requirements. Their effects propagate through shared machines,
+precedence chains, and assembly dependencies. Scheduling uses only revealed information and adjusts
+unstarted or interrupted work while preserving completed records and unaffected execution. The
+objectives are makespan and deviation from the initial baseline plan.
 
+% 三类事件分别改变工时、机器可用性与任务集合，其影响沿资源和装配依赖传播。
+% 冻结已完成记录及正常在制安排，只调整等待或中断任务，并兼顾效率与稳定性。
 
-% 3.2-数学模型建模
-\subsection{Mathematical Formulation of the Scheduling Problem}
+\begin{figure*}[t]
+ \centering
+ \captionsetup{name=Figure}
+ \includegraphics[width=0.9\textwidth]{figures/F1动态加工-装配调度场景图.png}
+ \caption{Dynamic processing--assembly scheduling under duration changes, failures, and urgent arrivals.}
+ \label{fig:problem_description}
+\end{figure*}
+
+\subsection{Reactive Scheduling Model}
 \label{subsec:mathematical_model}
 
-% 在建立数学模型前，首先定义集合、索引、参数以及决策变量。
-% 将下面的通用数学模型替换为与本文问题完全对应的目标函数和约束条件。
-
+Let $S^0$ be the baseline for initial operation set $\mathcal O^0$, with start times $B^0_{ij}$,
+machine assignments $X^0_{ijk}$, and makespan $C^0_{\max}>0$. At time $t$, admitted operations are
+$\mathcal O(t)=\mathcal O^0\cup\mathcal O^{\mathrm{new}}(t)$, where the second set contains arrived
+urgent orders. Waiting and failure-interrupted operations form the adjustable set
 \begin{equation}
-  \min \; f(\boldsymbol{x})
-  \label{eq:generic_objective}
+ \mathcal O^R(t)=\mathcal O^{\mathrm{wait}}(t)\cup\mathcal O^{\mathrm{int}}(t).
+ \label{eq:adjustable_operations}
 \end{equation}
+Variables $B_{ij},E_{ij}$ describe the next successful execution attempt; interrupted attempts remain
+in the log. Binary variables $X_{ijk}$ and $Y_{iji'j'}$ encode assignment and machine order.
+For eligible machines $K_{ij}$, current durations are
+$\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$, with $\varepsilon_{ij}(t)>-1$.
 
-\begin{align}
-  g_k(\boldsymbol{x}) &\le 0, && k \in \mathcal{K}, \\
-  h_l(\boldsymbol{x}) &= 0, && l \in \mathcal{L}.
-  \label{eq:generic_constraints}
-\end{align}
+% 基准计划只覆盖原订单；插单到达后扩展工序集合。B和E表示成功执行段，
+% 中断历史仍保留。工时波动只使用当前已观测信息。
 
-% 3.3-图结构建模
-\subsection{Temporal Heterogeneous Graph Representation}
-\label{subsec:graph_representation}
-
-Define the time-dependent heterogeneous graph as
-
+The two objectives are
 \begin{equation}
-  \graph=(\nodes,\edges,\phi,\psi),
-  \label{eq:heterogeneous_graph}
+ \begin{aligned}
+ \min\ f_1(S)&=C_{\max},\\
+ \min\ f_2(S)&=D_{\mathrm{dev}}(S,S^0),
+ \end{aligned}
+ \label{eq:scheduling_objectives}
 \end{equation}
+with normalized deviation
+\begin{equation}
+ \begin{aligned}
+ D_{\mathrm{dev}}(S,S^0)
+ &=\frac{\lambda_B}{|\mathcal O^0|C^0_{\max}}
+ \sum_{O_{ij}\in\mathcal O^0}|B_{ij}-B^0_{ij}|\\
+ &\quad+\frac{\lambda_X}{2|\mathcal O^0|}
+ \sum_{O_{ij}\in\mathcal O^0}\sum_{k\in K_{ij}}|X_{ijk}-X^0_{ijk}|.
+ \end{aligned}
+ \label{eq:objective_deviation}
+\end{equation}
+where $\lambda_B,\lambda_X\ge0$ and $\lambda_B+\lambda_X=1$. Deviation measures start-time changes
+and reassignment of baseline operations; the factor two accounts for the two assignment entries
+changed by a machine switch. Urgent orders contribute to makespan but have no baseline deviation.
 
-where $\phi$ and $\psi$ map nodes and edges to their types. Specify node types,
-edge types, raw features, update timing, and how constraints are encoded.
+% 双目标保留原定义；插单没有基准记录，不计偏离度，但必须计入工期。
 
-% 添加一个图结构示意图，用于展示节点类型、边类型以及它们之间的语义关系。
+For $O_{ij}\in\mathcal O^R(t)$, assignment, completion, and release constraints are
+\begin{equation}
+ \begin{aligned}
+ \sum_{k\in K_{ij}}X_{ijk}&=1, \\
+ E_{ij}&=B_{ij}+\sum_{k\in K_{ij}}X_{ijk}\widetilde{pt}_{ijk}(t),
+ \\
+ B_{ij}&\ge\max\{t,r_i\}, \\
+ C_{\max}&\ge E_{ij},\quad O_{ij}\in\mathcal O(t).
+ \end{aligned}
+ \label{eq:execution_constraints}
+\end{equation}
+Here $r_i$ is no earlier than the arrival of its order. Technological and assembly predecessor sets
+$\mathcal P^{\mathrm{pro}}_{ij}$ and $\mathcal P^{\mathrm{asm}}_{ij}$ impose
+\begin{equation}
+ \begin{aligned}
+ B_{ij}&\ge E_{i'j'}, &&O_{i'j'}\in\mathcal P^{\mathrm{pro}}_{ij},
+ \\
+ B_{ij}&\ge E_{i'j'}, &&O_{i'j'}\in\mathcal P^{\mathrm{asm}}_{ij},
+ \\
+ B_{ij}&\ge\sum_{k\in K_{ij}}X_{ijk}t_k^{\mathrm{ava}}(t).
+ \end{aligned}
+ \label{eq:precedence_constraints}
+\end{equation}
+Machine availability $t_k^{\mathrm{ava}}(t)$ includes running work and known repair intervals;
+machines with unknown recovery times remain unavailable until recovery. Assembly predecessors follow
+the selected feasible matching. Completed assemblies and committed component usage cannot be undone.
 
+% 保留资源分配、释放、前驱和可用时间约束。装配前驱随合法匹配确定，
+% 不提前固定所有工件归属；已完成装配及已投入组成件不可撤销。
 
-% 定义马尔可夫决策过程（MDP）的基本形式，
-% 并分别介绍状态（state）、动作（action）、
-% 状态转移/决策时刻（transition/decision epoch）、
-% 奖励函数（reward）以及终止条件（termination condition）。
+For an interrupted operation, let $k^f_{ij}$ be its failed machine. Waiting for repair
+($u^{\mathrm{rec}}_{ij}=0$) or rerouting ($u^{\mathrm{rec}}_{ij}=1$) satisfies
+\begin{equation}
+ \begin{aligned}
+ X_{ij k^f_{ij}}&=1-u^{\mathrm{rec}}_{ij}, \\
+ \sum_{k\in K_{ij}\setminus\{k^f_{ij}\}}X_{ijk}&=u^{\mathrm{rec}}_{ij}.
+ \end{aligned}
+ \label{eq:recovery_constraints}
+\end{equation}
+Both alternatives restart the operation with its updated full duration. An empty alternative-machine
+set forces waiting. Records representing one joint assembly share the same recovery decision.
+
+% 故障工序可等待或改派，均按完整工时重新加工；联合装配一致恢复。
+
+For distinct adjustable execution activities and $k\in K_{ij}\cap K_{i'j'}$, non-overlap requires
+\begin{equation}
+ \begin{aligned}
+ B_{i'j'}&\ge E_{ij}-M(1-Y_{iji'j'})
+ -M(2-X_{ijk}-X_{i'j'k}), \\
+ B_{ij}&\ge E_{i'j'}-MY_{iji'j'}
+ -M(2-X_{ijk}-X_{i'j'k}),
+ \end{aligned}
+ \label{eq:machine_capacity}
+\end{equation}
+with sufficiently large $M$. Component records of the same physical assembly instead obey the
+inherited synchronization constraints. Completed records are fixed; unaffected running operations retain
+their assignments and start times. Their completion estimates change only with observed duration
+updates. All time variables are nonnegative and assignment, order, and recovery variables are binary.
+
+% 同机互斥针对不同物理活动，不排斥同一次联合装配的同步记录。
+% 冻结执行历史，保留变量域与已观测信息边界。
+% TODO：基准生成、权重、扰动分布及随机种子仍须在实验设置中核验。
+
+\subsection{Event-driven Discrete-event Simulation Environment}
+\label{subsec:dynamic_environment}
+
+The simulator takes an initial instance, baseline $S^0$, finite scenario $\Xi$, and scheduling
+policy $\pi$. Its internal state $\mathcal X$ records operation status, timing, assignments, machine
+availability, assembly commitments, and an event calendar. Completion, failure, recovery, duration
+updates, and order arrivals induce event transitions; executable scheduling decisions induce decision
+transitions:
+\begin{equation}
+ \begin{aligned}
+ \mathcal X(t^+)&=\mathcal T_{\mathrm{evt}}(\mathcal X(t^-),\mathcal E(t)),\\
+ \mathcal X_{n+1}&=\mathcal T_{\mathrm{dec}}(\mathcal X_n,d_n).
+ \end{aligned}
+ \label{eq:event_decision_transition}
+\end{equation}
+The observation $x_n$ excludes unrevealed future events. At a shared timestamp, completion precedes
+failure, followed by recovery, duration updates, and arrivals. Failure cancels the interrupted
+attempt's completion event; a duration change replaces the affected completion prediction without
+scheduling an event in the past. Arrivals add tasks and their assembly requirements.
+
+% 仿真仅保留事件转移与决策转移的统一接口，删除与伪代码重复的展开公式。
+% 同刻先完成后故障，再处理恢复、工时更新与插单；未来事件不向策略泄露。
+
+Algorithm~\ref{alg:reactive_simulation} repeatedly executes decisions from the current feasible set
+$\mathcal D_n$. When no decision remains, time advances to the next event. Feasibility includes
+machine capacity, predecessor readiness, and assembly matching. The episode ends only after all orders
+in the finite scenario have arrived and completed; unfinished work with an empty calendar is reported
+as infeasible. Outputs are the execution log, makespan, and baseline deviation.
+
+% 无可行决策才推进时间；存在后续插单时不提前结束，空队列未完工报告不可行。
+
+\begin{algorithm}[t]
+\caption{Event-driven reactive scheduling}
+\label{alg:reactive_simulation}
+\small
+\begin{algorithmic}[1]
+\Require Instance, baseline $S^0$, scenario $\Xi$, policy $\pi$
+\Ensure $S$, $C_{\max}(S)$, $D_{\mathrm{dev}}(S,S^0)$
+\State Set $t\gets0$, $n\gets0$; initialize state and events
+\While{unfinished work or future arrivals remain}
+ \State Process current events; update state
+ \State Construct feasible set $\mathcal D_n$
+ \While{$\mathcal D_n\ne\varnothing$}
+  \State Select $d_n\gets\pi(x_n,S^0,\mathcal D_n)$
+  \State Execute $d_n$; update state and events
+  \State $n\gets n+1$; recompute $\mathcal D_n$
+ \EndWhile
+ \If{unfinished work or future arrivals remain}
+  \If{the event calendar is empty}
+   \State Report infeasibility and stop
+  \EndIf
+  \State Advance time to the next event
+ \EndIf
+\EndWhile
+\State \Return $S$, $C_{\max}(S)$, $D_{\mathrm{dev}}(S,S^0)$
+\end{algorithmic}
+\end{algorithm}

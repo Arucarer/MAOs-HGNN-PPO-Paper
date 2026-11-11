@@ -1,13 +1,42 @@
-\documentclass[preprint,12pt]{elsarticle}
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+\documentclass[final,5p,twocolumn,10pt]{elsarticle}
 
 \usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,multirow}
+\usepackage{booktabs,multirow,makecell}
 \usepackage{graphicx}
 \usepackage{xcolor}
+
+% Preserve English sizing and spacing while supporting Chinese filenames/notes.
+\usepackage[UTF8,scheme=plain,zihao=false,linespread=1]{ctex}
+\setmainfont{Times New Roman}
+% Use NewTX's encoded Times family for math operators, retaining the OpenType body font.
+\let\PaperTextFamily\rmdefault
+\renewcommand{\rmdefault}{ntxtlf}
+\usepackage{newtxmath}
+\let\rmdefault\PaperTextFamily
+% Use one consistent left-aligned display style in the two-column manuscript.
+\setlength{\mathindent}{0pt}
+\setlength{\jot}{3pt}
+\usepackage{placeins}
+\usepackage{bicaption}
+
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{siunitx}
 \usepackage{hyperref}
+% Keep algorithm line hyperlinks unique when multiple algorithms are present.
+\makeatletter
+\providecommand{\theHALG@line}{}
+\renewcommand{\theHALG@line}{\thealgorithm.\arabic{ALG@line}}
+% Align float-only pages at the top instead of stretching gaps vertically.
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{12pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{12pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
 \usepackage[nameinlink,capitalise,noabbrev]{cleveref}
 
 \graphicspath{{figures/}}
@@ -16,6 +45,7 @@
 \journal{Target Journal Name}
 
 \begin{document}
+\raggedbottom
 
 \input{sections/00_frontmatter}
 \input{sections/01_introduction}

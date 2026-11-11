@@ -25,19 +25,25 @@ The root also contains `main.tex` (the only compilation entry), `latexmkrc`, thi
 
 ## Compile
 
+The manuscript uses the Elsevier `elsarticle` 5p two-column layout. Document-class settings belong in `main.tex`; they are not PowerShell commands. Wide figures, tables, and algorithms use starred float environments.
+
+English body text uses Times New Roman at 10 pt with single spacing, with coordinated NewTX mathematics. Display equations are left aligned; related calculations share a numbered equation group. The `ctex` package uses `scheme=plain` to preserve the English template's font sizes and spacing; Times New Roman and the MiKTeX `newtx` package must be installed when compiling with XeLaTeX.
+
 With a current TeX Live or MiKTeX installation:
 
 ```powershell
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+latexmk -interaction=nonstopmode -halt-on-error main.tex
 ```
 
-Manual fallback:
+The project configuration selects XeLaTeX to support Chinese text and UTF-8 image filenames. The output is `build/main.pdf`. Select XeLaTeX in your editor as well; do not override this with `latexmk -pdf` (pdfLaTeX).
+
+Manual fallback (output in the project root):
 
 ```powershell
-pdflatex main.tex
+xelatex main.tex
 bibtex main
-pdflatex main.tex
-pdflatex main.tex
+xelatex main.tex
+xelatex main.tex
 ```
 
 Run commands from this folder. If `elsarticle.cls` is missing, install the `elsarticle` package through your TeX distribution.

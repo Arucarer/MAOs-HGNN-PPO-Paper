@@ -1,84 +1,88 @@
+%【说明】第一章按照应用背景、技术挑战、研究缺口、本文方法、贡献和全文结构展开。
 \section{Introduction}
 \label{sec:introduction}
-% 第一章：引言
 
-Driven by the increasing complexity and uncertainty of modern manufacturing environments, 
-high-mix and low-volume production modes have imposed higher requirements for flexible and intelligent scheduling systems.
-Reconfigurable manufacturing systems and manufacturing-assembly integration have attracted increasing attention due to their ability to handle diverse production requirements.
-However, practical manufacturing environments are frequently affected by dynamic disturbances, 
-such as machine failures, processing-time variations, and urgent order insertions.
-Therefore, achieving efficient scheduling while maintaining adaptability has become a critical challenge in dynamic manufacturing-assembly environments.
-% 中文注释：
-% 第一段：
-% 研究背景与问题引入。
-% 主要说明现代制造模式向高混合、低批量方向发展，
-% 可重构制造系统和制造-装配一体化场景受到关注，
-% 但动态扰动导致生产环境不断变化，
-% 因此动态制造-装配调度问题具有重要研究意义。
+Complex products such as aircraft are manufactured through tightly coupled machining and
+multi-level assembly processes. Individual parts follow technological routes on shared
+resources, while downstream assemblies can start only after all required parts and
+subassemblies are available. Scheduling decisions must therefore coordinate resource
+competition with synchronization at multiple kitting points. This coordination directly
+affects production lead time and the timely delivery of the final product.
 
-Existing studies on flexible job shop scheduling and intelligent scheduling optimization have achieved significant progress in improving production efficiency.
-Recently, graph neural networks and reinforcement learning methods have provided new opportunities for solving complex scheduling problems by learning structural information and making sequential decisions.
-However, most existing approaches mainly focus on static scheduling scenarios or simplified production structures, 
-while insufficient attention has been paid to the dynamic evolution of manufacturing systems and heterogeneous interactions among operations, machines, and assembly relationships.
-Moreover, existing methods often lack effective state representations and adaptive decision mechanisms for continuously changing production environments.
+%【TODO】补充复杂产品制造装配调度、飞机装配生产组织及齐套约束的已核验参考文献。
 
-% 中文注释：
-% 第二段：
-% 现有研究与不足分析。
-% 主要介绍柔性作业车间调度、图神经网络和强化学习的发展，
-% 指出现有方法在动态制造-装配场景下存在不足：
-% 1. 难以描述工序、机器和装配关系之间的异构交互；
-% 2. 难以捕获生产状态随时间变化的动态特征；
-% 3. 缺少面向动态环境的在线自适应决策能力。
+The scheduling problem becomes more difficult when the production state changes during
+execution. Machine breakdowns temporarily remove capacity, and processing-time variations
+alter the completion times of affected operations. A local delay may postpone a downstream
+kitting point, block an upper-level assembly, and change the competition for shared
+resources. Consequently, the scheduling state is determined by the current resource status
+and by the paths through which a disturbance can propagate across technological and
+assembly dependencies.
 
+%【说明】本段把本文的动态性限定为机器故障和加工时间波动，不引入尚未建模的紧急插单。
+%【TODO】补充机器故障、工时波动及扰动传播相关研究的已核验参考文献。
 
-To address these challenges, this paper investigates a dynamic manufacturing-assembly scheduling problem 
-and proposes a temporal attention-enhanced HGNN-PPO framework for adaptive scheduling decision-making.
-The proposed framework first constructs a temporal heterogeneous graph to represent the evolving relationships among operations, machines, and assembly processes.
-Then, a temporal attention-enhanced HGNN encoder is developed to extract dynamic scheduling states, 
-which are further utilized by PPO for online scheduling rule selection.
-The main contributions of this paper are summarized as follows:
+Existing dynamic scheduling methods commonly rely on dispatching rules, rescheduling
+procedures, mathematical programming, or population-based search. These approaches provide
+useful mechanisms for reacting to shop-floor changes, but their online use often requires a
+trade-off between solution quality and response time. More critically for multi-level
+manufacturing-assembly systems, a compact vector of aggregate statistics does not explicitly
+retain the heterogeneous relations among operations, resources, components, and assembly
+nodes. The loss of this structure makes it difficult to distinguish a local resource delay
+from a delay that is likely to propagate through a critical kitting branch.
 
-% 中文注释：
-% 第三段：
-% 本文方法与贡献引出。
-% 主要说明本文针对动态制造-装配调度问题，
-% 提出时态注意力增强HGNN-PPO在线决策框架：
-% 1. 利用时态异构图描述动态制造系统状态；
-% 2. 利用HGNN提取复杂状态特征；
-% 3. 利用PPO实现动态环境下调度规则的自适应选择。
-% 随后进入论文主要贡献列表。
+%【TODO】补充派工规则、反应式重调度、数学规划和元启发式动态调度方法的代表性文献。
 
+Deep reinforcement learning provides an alternative by learning a scheduling policy through
+repeated interaction with a simulated environment. Graph neural networks further allow the
+policy to operate on scheduling instances with relational structure. However, a homogeneous
+or static graph can still merge relations with different scheduling meanings and can leave
+event-driven state changes implicit. For the problem considered here, the representation
+must distinguish technological precedence, resource eligibility and occupation, component
+membership, and multi-level kitting. It must also update these relations and their features
+after each observed event without exposing future disturbances to the policy.
 
-The main contributions of this paper are summarized as follows:
+%【TODO】补充图神经网络调度、异构图表示及深度强化学习动态调度的已核验文献。
+
+This study develops a disturbance-aware dynamic HGNN-PPO method for event-driven
+multi-level manufacturing-assembly scheduling. A discrete-event simulator first records
+operation progress, resource availability, realized processing times, and kitting readiness.
+At each decision epoch, these records are converted into a typed heterogeneous graph. A
+multi-relation heterogeneous graph neural network (HGNN) propagates and fuses information
+according to relation semantics, and proximal policy optimization (PPO) learns a scheduling
+policy from the resulting graph representation \cite{schulman2017ppo}. The method thereby
+connects the physical event process, the structural paths of disturbance propagation, and
+the executable scheduling decision within one closed loop.
+
+%【说明】核心术语统一为dynamic multi-level manufacturing-assembly scheduling、dynamic heterogeneous graph、HGNN和PPO。
+
+The contributions of this study are summarized as follows.
 
 \begin{itemize}
+  \item A dynamic multi-level manufacturing-assembly scheduling formulation is established
+  for machine breakdowns and processing-time variations. The formulation separates
+  immutable execution history from adjustable operations and embeds technological,
+  resource, and kitting constraints in a common event-driven environment.
 
-\item A dynamic manufacturing-assembly scheduling problem considering complex disturbances is formulated, 
-and a temporal heterogeneous graph representation is developed to characterize the dynamic interactions among operations, machines, and assembly relationships.
-% 中文注释：
-% 贡献1：提出动态制造-装配调度问题建模方法。
-% 主要体现：
-% 1. 考虑加工与装配过程之间的耦合关系；
-% 2. 考虑机器故障、加工时间波动、紧急插单等动态扰动；
-% 3. 构建时态异构图描述工序、机器和装配关系随时间变化的状态信息。
-% 对应论文：
-% 第3章 Problem Description and Temporal Heterogeneous Graph Modeling。
+  \item A disturbance-aware dynamic heterogeneous graph is constructed to represent
+  manufacturing operations, assembly operations, assembly objects, and resources. Typed
+  relations preserve the routes along which local disturbances affect shared capacity and
+  downstream kitting conditions.
 
-
-\item A temporal attention-enhanced HGNN-PPO online decision-making framework is proposed for dynamic scheduling. 
-The framework integrates heterogeneous graph-based state encoding with PPO policy optimization to enable adaptive scheduling rule selection under continuously changing production environments.
-% 中文注释：
-% 贡献2：提出基于时态注意力增强HGNN与PPO的在线调度决策框架。
-% 主要体现：
-% 1. 利用Temporal Attention-enhanced HGNN提取动态调度状态特征；
-% 2. 将图结构状态表示与强化学习策略相结合；
-% 3. 通过PPO实现动态环境下调度规则的自适应选择。
-% 对应论文：
-% 第4章 Proposed Temporal Attention-Enhanced HGNN-PPO Framework。
-
+  \item A multi-relation semantic HGNN-PPO framework is developed to encode the evolving
+  graph state and learn an executable scheduling policy. The experimental design evaluates
+  parameter settings, component contributions, performance on 30 training instances, and
+  generalization on 15 independent test instances.
 \end{itemize}
 
-% 文章最后给出全文组织结构说明。
-% 各章节安排应与本文实际内容保持一致，
-% 简要介绍后续章节分别介绍的问题建模、方法设计、实验验证和结论分析。
+%【TODO】在实验结果全部核验后，重新检查三项贡献中的强度用词，并补充对应的定量证据摘要。
+%【TODO】动作空间确定后，将“executable scheduling policy”替换为精确的动作定义。
+
+The remainder of this paper is organized as follows. Section~\ref{sec:literature} reviews
+dynamic scheduling, deep reinforcement learning, and graph-based scheduling methods.
+Section~\ref{sec:problem} defines the scheduling problem, mathematical formulation, and
+discrete-event environment. Section~\ref{sec:method} presents the dynamic heterogeneous
+graph, the multi-relation HGNN encoder, and the PPO policy. Section~\ref{sec:experiments}
+reports the experimental dataset, parameter setting, ablation experiment, comparative
+results, and generalization analysis. The final section concludes the study and outlines
+directions for further work.

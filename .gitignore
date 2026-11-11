@@ -9,3 +9,10 @@ build/
 *.synctex.gz
 main.pdf
 *.spl
+
+# Local manuscript backups, PDF extraction, and temporary dependencies.
+tmp/
+
+# Python-generated cache files.
+__pycache__/
+*.py[cod]

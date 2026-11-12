@@ -1,58 +1,173 @@
-% 第三章精简稿：引用已有静态模型，仅展开动态扩展、双目标与执行环境。
+
+%【第 3 节大标题｜Problem Description and Mathematical Formulation】
 \section{Problem Description and Mathematical Formulation}
+%【章节标题译文】
+
+% 问题描述与数学建模
 \label{sec:problem}
 
+% ---------------------------------------------------------------------------
+%【第 3.1 节｜Problem Description】
+% ---------------------------------------------------------------------------
 \subsection{Problem Description}
+%【章节标题译文】
+% 问题描述
 \label{subsec:problem_description}
 
-This study extends the flexible job shop scheduling problem with multi-level assembly operations
-(FJSP-MAOs) of Ning et al.~\cite{ning2027fjspmaos} to dynamic production. Jobs follow prescribed
-routes, operations use eligible processing or assembly machines, and compatible jobs can be matched
-flexibly to product requirements. Each assembly starts once its required components are ready,
-allowing processing and assembly to overlap. The base model supplies technological, machine-capacity,
-product-assignment, and assembly-matching constraints.
+%【第 3.1 节｜第 01 段｜3.1-P01】
+This study extends the flexible job shop scheduling problem with multi-level assembly operations (FJSP-MAOs) of Ning et al.~\cite{ning2027fjspmaos} to dynamic production. Jobs follow prescribed routes,
+operations use eligible processing or assembly machines, and compatible jobs can be matched flexibly to product requirements. Each assembly starts once its required components are ready, allowing processing and assembly to overlap.
+The base model supplies technological, machine-capacity, product-assignment,
+and assembly-matching constraints.
+%【完整中文译文｜3.1-P01】
+% 本文将Ning等提出的具有多级装配工序的柔性作业车间调度问题（FJSP-MAOs）扩展到动态生产场景~\cite{ning2027fjspmaos}。
+% 工件按照规定路线执行，工序在符合候选资格的加工或装配机器上完成，兼容工件可与产品需求进行柔性匹配。
+% 每项装配在其所需组成部分就绪后即可开始，从而允许加工与装配交叠执行。基础模型提供工艺、机器容量、产品分配和装配匹配约束。
 
-% 沿用Ning等的工艺、资源及柔性装配模型，保留分级齐套与加工装配并行。
-% 不再重复推导已有静态约束，后文仅定义动态执行所需的扩展。
+% 沿用Ning等的工艺、资源及柔性装配模型，保留分级齐套与加工装配并行。不再重复推导已有静态约束，后文仅定义动态执行所需的扩展。
 
-Figure~\ref{fig:problem_description} illustrates three disturbances: processing-time variations change
-operation durations, machine failures interrupt capacity and possibly running work, and urgent arrivals
-introduce new jobs and assembly requirements. Their effects propagate through shared machines,
-precedence chains, and assembly dependencies. Scheduling uses only revealed information and adjusts
-unstarted or interrupted work while preserving completed records and unaffected execution. The
-objectives are makespan and deviation from the initial baseline plan.
+%【第 3.1 节｜第 02 段｜3.1-P02】
+Figure~\ref{fig:problem_description} illustrates three disturbances: processing-time variations change operation durations,
+machine failures interrupt capacity and possibly running work, and urgent arrivals introduce new jobs and assembly requirements. Their effects propagate through shared machines, precedence chains,
+and assembly dependencies. Scheduling uses only revealed information and adjusts unstarted or interrupted work while preserving completed records and unaffected execution. The objectives are makespan
+and deviation from the initial baseline plan.
+%【完整中文译文｜3.1-P02】
+% 图~\ref{fig:problem_description}展示三类扰动：工时波动改变工序持续时间；机器故障中断产能，
+% 并可能中断正在执行的任务；紧急订单到达引入新的工件和装配需求。其影响经由共享机器、前序链和装配依赖传播。
+% 调度仅使用已经揭示的信息，在保留已完成记录和未受影响执行安排的同时，调整尚未开始或被中断的任务。
+% 优化目标为最大完工时间及相对于初始基准计划的偏离度。
 
-% 三类事件分别改变工时、机器可用性与任务集合，其影响沿资源和装配依赖传播。
-% 冻结已完成记录及正常在制安排，只调整等待或中断任务，并兼顾效率与稳定性。
+% 三类事件分别改变工时、机器可用性与任务集合，其影响沿资源和装配依赖传播。冻结已完成记录及正常在制安排，
+% 只调整等待或中断任务，并兼顾效率与稳定性。
 
-\begin{figure*}[t]
+%【图块 3.1-F01｜fig:problem_description】
+\begin{figure*}[!t]
  \centering
  \captionsetup{name=Figure}
- \includegraphics[width=0.9\textwidth]{figures/F1动态加工-装配调度场景图.png}
+ \includegraphics[width=0.98\textwidth,height=0.45\textheight,keepaspectratio]{figures/F1动态加工-装配调度场景图.png}
+%【图表标题｜第 3.1 节；引用时保留后面的label】
  \caption{Dynamic processing--assembly scheduling under duration changes, failures, and urgent arrivals.}
+%【图表或算法标题译文】
+% 工时变化、机器故障及紧急订单到达下的动态加工—装配调度。
  \label{fig:problem_description}
 \end{figure*}
 
+% ---------------------------------------------------------------------------
+%【第 3.2 节｜Reactive Scheduling Model】
+% ---------------------------------------------------------------------------
 \subsection{Reactive Scheduling Model}
+%【章节标题译文】
+% 反应式调度模型
 \label{subsec:mathematical_model}
 
+%【主要符号表｜仅补充已有模型符号，不改动式(1)—(8)】
+The main model notation is summarized in Table~\ref{tab:reactive_model_notation}.
+%【完整中文译文｜符号表引导】
+% 反应式调度模型的主要符号汇总于表~\ref{tab:reactive_model_notation}。
+\begin{table}[!htbp]
+\centering
+\captionsetup{name=Table}
+\caption{Main notations used in the reactive scheduling model}
+%【表题完整中文译文】
+% 反应式调度模型使用的主要符号。
+\label{tab:reactive_model_notation}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.96}
+\begin{tabular}{@{}p{0.31\columnwidth}p{0.65\columnwidth}@{}}
+\toprule
+Notation & Description \\
+%【表头译文】符号；含义。
+\midrule
+\multicolumn{2}{@{}l}{\textit{Scheduling objects and given data}} \\
+$S^0$, $S$ & Baseline schedule and resulting execution schedule. \\
+% 初始基准计划与最终形成的实际执行计划。
+$O_{ij}$ & Operation $j$ of job $i$. \\
+% 工件i的第j道工序，可为加工工序或装配工序。
+$\mathcal O^0$ & Initial operation set covered by the baseline. \\
+% 具有初始基准记录的工序集合。
+$\mathcal O^{\mathrm{new}}(t)$ & Operations of urgent orders admitted by time $t$. \\
+% 截至时刻t已经到达并纳入系统的紧急订单工序集合。
+$\mathcal O(t)$ & Admitted operations: $\mathcal O^0\cup\mathcal O^{\mathrm{new}}(t)$. \\
+% 当前已纳入系统的全部工序集合，为初始工序与已到达新增工序的并集。
+$\mathcal O^R(t)$ & Waiting or failure-interrupted operations. \\
+% 可调整的等待工序与故障中断工序集合。
+$K_{ij}$ & Eligible machines for operation $O_{ij}$. \\
+% 工序Oij具有候选资格的机器集合，不等同于当前可用机器集合。
+$r_i$ & Release time of job $i$. \\
+% 工件i的释放时间，不早于其所属订单的到达时刻。
+$\widetilde{pt}_{ijk}(t)$ & Current duration of $O_{ij}$ on machine $k$. \\
+% 时刻t用于机器k上该工序执行的当前加工或装配时长。
+$t_k^{\mathrm{ava}}(t)$ & Earliest availability of machine $k$ known at time $t$. \\
+% 时刻t已知的机器k最早可用时刻；未知维修恢复时刻的数值处理另待核验。
+$k^f_{ij}$ & Failed machine used by $O_{ij}$. \\
+% 工序Oij因故障中断时所占用的机器，是已知参数而非恢复决策变量。
+$B^0_{ij}$, $X^0_{ijk}$, $C^0_{\max}$ & Baseline starts, assignments, and makespan. \\
+% 基准计划的工序开始时刻、机器分配和最大完工时间。
+\midrule
+\multicolumn{2}{@{}l}{\textit{Decision variables}} \\
+$B_{ij}$, $E_{ij}$ & Start/completion of a successful execution attempt. \\
+% 成功执行段的开始与完成时刻；中断尝试仍保留在执行日志中。
+$X_{ijk}$ & Binary; 1 if $O_{ij}$ uses machine $k$, and 0 otherwise. \\
+% 机器分配二元变量：工序Oij使用机器k时为1，否则为0。
+$Y_{iji'j'}$ & Binary; 1 if $O_{ij}$ precedes $O_{i'j'}$ on a shared machine. \\
+% 同机顺序二元变量：两个不同执行活动使用同一机器时，前者先于后者执行取1；相反顺序取0。
+$u^{\mathrm{rec}}_{ij}$ & Binary; 0 waits for repair and 1 uses another machine. \\
+% 故障恢复二元变量：0表示等待原机器维修，1表示选择其他候选机器。
+\midrule
+\multicolumn{2}{@{}l}{\textit{Objectives and weights}} \\
+$C_{\max}$ & Makespan of the execution schedule. \\
+% 实际执行计划的最大完工时间。
+$D_{\mathrm{dev}}(S,S^0)$ & Deviation in baseline starts and assignments. \\
+% 实际计划相对于基准开始时刻及机器分配的偏离度。
+$\lambda_B$, $\lambda_X$ & Nonnegative deviation weights; sum equals 1. \\
+% 非负偏离度权重，分别对应开始时刻与机器分配变化，二者之和为1。
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+%【第 3.2 节｜第 01 段｜3.2-P01】
 Let $S^0$ be the baseline for initial operation set $\mathcal O^0$, with start times $B^0_{ij}$,
 machine assignments $X^0_{ijk}$, and makespan $C^0_{\max}>0$. At time $t$, admitted operations are
-$\mathcal O(t)=\mathcal O^0\cup\mathcal O^{\mathrm{new}}(t)$, where the second set contains arrived
-urgent orders. Waiting and failure-interrupted operations form the adjustable set
+$\mathcal O(t)=\mathcal O^0\cup\mathcal O^{\mathrm{new}}(t)$, where the second set contains arrived urgent orders.
+Waiting and failure-interrupted operations form the adjustable set
+%【完整中文译文｜3.2-P01】
+% 设$S^0$为初始工序集合$\mathcal O^0$的基准计划，其开始时刻为$B^0_{ij}$、机器分配为$X^0_{ijk}$、最大完工时间为$C^0_{\max}>0$。
+% 在时刻$t$，已接纳工序为$\mathcal O(t)=\mathcal O^0\cup\mathcal O^{\mathrm{new}}(t)$，
+% 其中第二个集合包含已到达紧急订单的工序。等待工序与故障中断工序组成如下可调整集合。
+%【公式 3.2-E01｜eq:adjustable_operations】
+
+
+%【公式来源核对｜小论文式(1)｜沿用定义并独立编号】
+% 大论文对应：3.1.1节正文，52页。
+% 对照说明：大论文正文已有等待工序与故障中断工序的并集，并非新增集合定义。
 \begin{equation}
  \mathcal O^R(t)=\mathcal O^{\mathrm{wait}}(t)\cup\mathcal O^{\mathrm{int}}(t).
  \label{eq:adjustable_operations}
 \end{equation}
-Variables $B_{ij},E_{ij}$ describe the next successful execution attempt; interrupted attempts remain
-in the log. Binary variables $X_{ijk}$ and $Y_{iji'j'}$ encode assignment and machine order.
-For eligible machines $K_{ij}$, current durations are
-$\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$, with $\varepsilon_{ij}(t)>-1$.
 
-% 基准计划只覆盖原订单；插单到达后扩展工序集合。B和E表示成功执行段，
-% 中断历史仍保留。工时波动只使用当前已观测信息。
+%【第 3.2 节｜第 02 段｜3.2-P02】
+Variables $B_{ij},E_{ij}$ describe the next successful execution attempt; interrupted attempts remain in the log.
+Binary variables $X_{ijk}$ and $Y_{iji'j'}$ encode assignment and machine order. For eligible machines $K_{ij}$,
+current durations are $\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$, with $\varepsilon_{ij}(t)>-1$.
+%【完整中文译文｜3.2-P02】
+% 变量$B_{ij},E_{ij}$描述下一次成功执行尝试的开始和完成时刻；中断的执行尝试仍保留在日志中。
+% 二元变量$X_{ijk}$和$Y_{iji'j'}$分别表示机器分配和同机执行顺序。对于候选机器集合$K_{ij}$，
+% 当前工时为$\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$，其中$\varepsilon_{ij}(t)>-1$。
 
+% 基准计划只覆盖原订单；插单到达后扩展工序集合。B和E表示成功执行段，中断历史仍保留。工时波动只使用当前已观测信息。
+
+%【第 3.2 节｜第 03 段｜3.2-P03】
 The two objectives are
+%【完整中文译文｜3.2-P03】
+% 两个优化目标如下。
+%【公式 3.2-E02｜eq:scheduling_objectives】
+%【公式来源核对｜小论文式(2)｜原式拆分】
+% 大论文对应：式(3.1)，53页。
+% 对照说明：将大论文目标与偏离度表达拆开编号。
 \begin{equation}
  \begin{aligned}
  \min\ f_1(S)&=C_{\max},\\
@@ -60,7 +175,14 @@ The two objectives are
  \end{aligned}
  \label{eq:scheduling_objectives}
 \end{equation}
+%【第 3.2 节｜第 04 段｜3.2-P04】
 with normalized deviation
+%【完整中文译文｜3.2-P04】
+% 其中，归一化计划偏离度定义如下。
+%【公式 3.2-E03｜eq:objective_deviation】
+%【公式来源核对｜小论文式(3)｜继承并调整统计域】
+% 大论文对应：式(3.1)，53页。
+% 对照说明：原有两项偏离度结构不变；统计域明确为初始工序集合O^0，以处理没有基准记录的插单。
 \begin{equation}
  \begin{aligned}
  D_{\mathrm{dev}}(S,S^0)
@@ -71,13 +193,24 @@ with normalized deviation
  \end{aligned}
  \label{eq:objective_deviation}
 \end{equation}
+%【第 3.2 节｜第 05 段｜3.2-P05】
 where $\lambda_B,\lambda_X\ge0$ and $\lambda_B+\lambda_X=1$. Deviation measures start-time changes
-and reassignment of baseline operations; the factor two accounts for the two assignment entries
-changed by a machine switch. Urgent orders contribute to makespan but have no baseline deviation.
+and reassignment of baseline operations; the factor two accounts for the two assignment entries changed by a machine switch.
+Urgent orders contribute to makespan but have no baseline deviation.
+%【完整中文译文｜3.2-P05】
+% 其中，$\lambda_B,\lambda_X\ge0$且$\lambda_B+\lambda_X=1$。计划偏离度衡量基准工序开始时刻的变化与机器重分配；
+% 分母中的因子2用于计及切换机器时发生变化的两个分配变量。紧急订单参与最大完工时间的计算，但不产生相对于基准计划的偏离。
 
 % 双目标保留原定义；插单没有基准记录，不计偏离度，但必须计入工期。
 
+%【第 3.2 节｜第 06 段｜3.2-P06】
 For $O_{ij}\in\mathcal O^R(t)$, assignment, completion, and release constraints are
+%【完整中文译文｜3.2-P06】
+% 对于$O_{ij}\in\mathcal O^R(t)$，机器分配、工序完成及释放时间约束如下。
+%【公式 3.2-E04｜eq:execution_constraints】
+%【公式来源核对｜小论文式(4)｜继承并补充释放时间】
+% 大论文对应：式(3.2)，53页。
+% 对照说明：分配和完成约束来自原式；B>=max(t,r_i)及到达释放时间是小论文补充，需区分适用于可调整工序的约束与全任务的Cmax边界。
 \begin{equation}
  \begin{aligned}
  \sum_{k\in K_{ij}}X_{ijk}&=1, \\
@@ -88,8 +221,15 @@ For $O_{ij}\in\mathcal O^R(t)$, assignment, completion, and release constraints 
  \end{aligned}
  \label{eq:execution_constraints}
 \end{equation}
+%【第 3.2 节｜第 07 段｜3.2-P07】
 Here $r_i$ is no earlier than the arrival of its order. Technological and assembly predecessor sets
 $\mathcal P^{\mathrm{pro}}_{ij}$ and $\mathcal P^{\mathrm{asm}}_{ij}$ impose
+%【完整中文译文｜3.2-P07】
+% 其中，$r_i$不早于其所属订单的到达时刻。工艺前驱集合$\mathcal P^{\mathrm{pro}}_{ij}$和装配前驱集合$\mathcal P^{\mathrm{asm}}_{ij}$施加如下约束。
+%【公式 3.2-E05｜eq:precedence_constraints】
+%【公式来源核对｜小论文式(5)｜基本沿用】
+% 大论文对应：式(3.3)，53页。
+% 对照说明：符号和排版调整，约束含义一致。
 \begin{equation}
  \begin{aligned}
  B_{ij}&\ge E_{i'j'}, &&O_{i'j'}\in\mathcal P^{\mathrm{pro}}_{ij},
@@ -100,15 +240,28 @@ $\mathcal P^{\mathrm{pro}}_{ij}$ and $\mathcal P^{\mathrm{asm}}_{ij}$ impose
  \end{aligned}
  \label{eq:precedence_constraints}
 \end{equation}
+%【第 3.2 节｜第 08 段｜3.2-P08】
 Machine availability $t_k^{\mathrm{ava}}(t)$ includes running work and known repair intervals;
 machines with unknown recovery times remain unavailable until recovery. Assembly predecessors follow
 the selected feasible matching. Completed assemblies and committed component usage cannot be undone.
+%【完整中文译文｜3.2-P08】
+% 机器最早可用时间$t_k^{\mathrm{ava}}(t)$包含正在执行的任务和已知维修区间；恢复时间未知的机器在实际恢复之前始终不可用。
+% 装配前驱关系服从已经选择的可行匹配。已经完成的装配和已经承诺使用的零部件均不可撤销。
 
-% 保留资源分配、释放、前驱和可用时间约束。装配前驱随合法匹配确定，
-% 不提前固定所有工件归属；已完成装配及已投入组成件不可撤销。
+% 保留资源分配、释放、前驱和可用时间约束。装配前驱随合法匹配确定，不提前固定所有工件归属；已完成装配及已投入组成件不可撤销。
 
+
+
+
+%【第 3.2 节｜第 09 段｜3.2-P09】
 For an interrupted operation, let $k^f_{ij}$ be its failed machine. Waiting for repair
 ($u^{\mathrm{rec}}_{ij}=0$) or rerouting ($u^{\mathrm{rec}}_{ij}=1$) satisfies
+%【完整中文译文｜3.2-P09】
+% 对于被中断的工序，设$k^f_{ij}$为故障发生时所用机器。等待原机器维修（$u^{\mathrm{rec}}_{ij}=0$）或转移至其他机器（$u^{\mathrm{rec}}_{ij}=1$）应满足如下关系。
+%【公式 3.2-E06｜eq:recovery_constraints】
+%【公式来源核对｜小论文式(6)｜基本沿用】
+% 大论文对应：式(3.4)，53页。
+% 对照说明：恢复选择和机器分配的耦合关系相同。
 \begin{equation}
  \begin{aligned}
  X_{ij k^f_{ij}}&=1-u^{\mathrm{rec}}_{ij}, \\
@@ -116,12 +269,25 @@ For an interrupted operation, let $k^f_{ij}$ be its failed machine. Waiting for 
  \end{aligned}
  \label{eq:recovery_constraints}
 \end{equation}
-Both alternatives restart the operation with its updated full duration. An empty alternative-machine
-set forces waiting. Records representing one joint assembly share the same recovery decision.
+%【第 3.2 节｜第 10 段｜3.2-P10】
+Both alternatives restart the operation with its updated full duration. An empty alternative-machine set forces waiting.
+Records representing one joint assembly share the same recovery decision.
+%【完整中文译文｜3.2-P10】
+% 两种恢复方式均按更新后的完整工时重新开始该工序。若其他候选机器集合为空，则必须等待原机器恢复。
+% 表示同一次联合装配的各组成部分记录共享同一个恢复决策。
 
 % 故障工序可等待或改派，均按完整工时重新加工；联合装配一致恢复。
 
+
+
+%【第 3.2 节｜第 11 段｜3.2-P11】
 For distinct adjustable execution activities and $k\in K_{ij}\cap K_{i'j'}$, non-overlap requires
+%【完整中文译文｜3.2-P11】
+% 对于不同的可调整执行活动及共同候选机器$k\in K_{ij}\cap K_{i'j'}$，不重叠执行要求如下。
+%【公式 3.2-E07｜eq:machine_capacity】
+%【公式来源核对｜小论文式(7)｜基本沿用】
+% 大论文对应：式(3.5)，54页。
+% 对照说明：大M排序约束结构相同。
 \begin{equation}
  \begin{aligned}
  B_{i'j'}&\ge E_{ij}-M(1-Y_{iji'j'})
@@ -131,23 +297,55 @@ For distinct adjustable execution activities and $k\in K_{ij}\cap K_{i'j'}$, non
  \end{aligned}
  \label{eq:machine_capacity}
 \end{equation}
-with sufficiently large $M$. Component records of the same physical assembly instead obey the
-inherited synchronization constraints. Completed records are fixed; unaffected running operations retain
-their assignments and start times. Their completion estimates change only with observed duration
-updates. All time variables are nonnegative and assignment, order, and recovery variables are binary.
+%【第 3.2 节｜第 12 段｜3.2-P12】
+with sufficiently large $M$. Component records of the same physical assembly instead obey the inherited
+synchronization constraints. Completed records are fixed; unaffected running operations retain their assignments
+and start times. Their completion estimates change only with observed duration updates.
+All time variables are nonnegative and assignment, order, and recovery variables are binary.
+%【完整中文译文｜3.2-P12】
+% 其中，$M$为充分大的常数。同一实际装配的组成部分记录则服从基础模型中的同步约束。已完成记录固定不变；
+% 未受影响的在制工序保留原机器分配和开始时刻，其预计完成时刻仅随已观测的工时更新而改变。
+% 所有时间变量均非负，分配、排序和恢复变量均为二元变量。
 
-% 同机互斥针对不同物理活动，不排斥同一次联合装配的同步记录。
-% 冻结执行历史，保留变量域与已观测信息边界。
+% 同机互斥针对不同物理活动，不排斥同一次联合装配的同步记录。冻结执行历史，保留变量域与已观测信息边界。
 % TODO：基准生成、权重、扰动分布及随机种子仍须在实验设置中核验。
 
-\subsection{Event-driven Discrete-event Simulation Environment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ---------------------------------------------------------------------------
+%【第 3.3 节｜Event-driven Simulation Environment】
+% ---------------------------------------------------------------------------
+\subsection{Event-driven Simulation Environment}
+%【章节标题译文】
+% 事件驱动的离散事件仿真环境
 \label{subsec:dynamic_environment}
 
-The simulator takes an initial instance, baseline $S^0$, finite scenario $\Xi$, and scheduling
-policy $\pi$. Its internal state $\mathcal X$ records operation status, timing, assignments, machine
-availability, assembly commitments, and an event calendar. Completion, failure, recovery, duration
-updates, and order arrivals induce event transitions; executable scheduling decisions induce decision
-transitions:
+%【第 3.3 节｜第 01 段｜3.3-P01】
+The simulator takes an initial instance, baseline $S^0$, finite scenario $\Xi$, and scheduling policy $\pi$.
+Its internal state $\mathcal X$ records operation status, timing, assignments, machine availability,
+assembly commitments, and an event calendar. Completion, failure, recovery, duration updates,
+and order arrivals induce event transitions; executable scheduling decisions induce decision transitions:
+%【完整中文译文｜3.3-P01】
+% 仿真器接收初始算例、基准计划$S^0$、有限场景$\Xi$和调度策略$\pi$。其内部状态$\mathcal X$记录工序状态、时间、机器分配、机器可用性、装配承诺及事件日历。
+% 完工、故障、恢复、工时更新和订单到达引起事件转移；可执行的调度决策引起决策转移，具体如下。
+
+%【公式 3.3-E01｜eq:event_decision_transition】
+%【公式来源核对｜小论文式(8)｜概括原有机制】
+% 大论文对应：式(3.6)、(3.7)及算法3.1，54—55页。
+% 对照说明：小论文用抽象转移算子概括事件处理和决策执行，不是新增故障处理方法；原有具体事件更新并未逐式照搬。
 \begin{equation}
  \begin{aligned}
  \mathcal X(t^+)&=\mathcal T_{\mathrm{evt}}(\mathcal X(t^-),\mathcal E(t)),\\
@@ -155,45 +353,138 @@ transitions:
  \end{aligned}
  \label{eq:event_decision_transition}
 \end{equation}
-The observation $x_n$ excludes unrevealed future events. At a shared timestamp, completion precedes
-failure, followed by recovery, duration updates, and arrivals. Failure cancels the interrupted
-attempt's completion event; a duration change replaces the affected completion prediction without
-scheduling an event in the past. Arrivals add tasks and their assembly requirements.
 
-% 仿真仅保留事件转移与决策转移的统一接口，删除与伪代码重复的展开公式。
-% 同刻先完成后故障，再处理恢复、工时更新与插单；未来事件不向策略泄露。
 
-Algorithm~\ref{alg:reactive_simulation} repeatedly executes decisions from the current feasible set
-$\mathcal D_n$. When no decision remains, time advances to the next event. Feasibility includes
-machine capacity, predecessor readiness, and assembly matching. The episode ends only after all orders
-in the finite scenario have arrived and completed; unfinished work with an empty calendar is reported
-as infeasible. Outputs are the execution log, makespan, and baseline deviation.
 
+
+
+
+
+
+
+
+
+%【第 3.3 节｜第 02 段｜3.3-P02】
+The observation $x_n$ excludes unrevealed future events. At a shared timestamp, completion precedes failure,
+followed by recovery, duration updates, and arrivals. Failure cancels the interrupted attempt's completion event;
+a duration change replaces the affected completion prediction without scheduling an event in the past.
+Arrivals add tasks and their assembly requirements.
+%【完整中文译文｜3.3-P02】
+% 观测$x_n$不包含尚未揭示的未来事件。在相同时间戳，先处理完工，再处理故障，随后依次处理恢复、工时更新和订单到达。
+% 故障取消被中断执行尝试对应的完工事件；工时变化替换受影响的预计完工事件，但不会向过去时刻安排事件。
+% 订单到达会加入相应任务及装配需求。
+% 仿真仅保留事件转移与决策转移的统一接口，删除与伪代码重复的展开公式。同刻先完成后故障，
+% 再处理恢复、工时更新与插单；未来事件不向策略泄露。
+
+
+
+
+
+
+
+
+
+
+
+
+
+%【第 3.3 节｜第 03 段｜3.3-P03】
+Algorithm~\ref{alg:reactive_simulation} repeatedly executes decisions from the current feasible set $\mathcal D_n$.
+When no decision remains, time advances to the next event. Feasibility includes machine capacity,
+predecessor readiness, and assembly matching. The episode ends only after all orders in the finite scenario have arrived and completed; unfinished work with an empty calendar is reported as infeasible.
+Outputs are the execution log, makespan, and baseline deviation.
+%【完整中文译文｜3.3-P03】
+% 算法~\ref{alg:reactive_simulation}反复执行当前可行集合$\mathcal D_n$中的决策。当没有可执行决策时，
+% 仿真时间推进到下一个事件。可行性检查包括机器容量、前驱就绪情况和装配匹配。只有有限场景中的所有订单均已到达并完成时，
+% 回合才结束；若仍有未完成任务而事件日历已空，则报告不可行。输出为执行日志、最大完工时间和相对于基准计划的偏离度。
 % 无可行决策才推进时间；存在后续插单时不提前结束，空队列未完工报告不可行。
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%【算法 3.3-A01｜alg:reactive_simulation】
 \begin{algorithm}[t]
+%【图表标题｜第 3.3 节；引用时保留后面的label】
 \caption{Event-driven reactive scheduling}
+%【图表或算法标题译文】
+% 事件驱动的反应式调度
 \label{alg:reactive_simulation}
 \small
 \begin{algorithmic}[1]
+
 \Require Instance, baseline $S^0$, scenario $\Xi$, policy $\pi$
+% 输入：算例、基准计划$S^0$、场景$\Xi$及策略$\pi$。
+
 \Ensure $S$, $C_{\max}(S)$, $D_{\mathrm{dev}}(S,S^0)$
+% 输出：执行计划$S$、最大完工时间$C_{\max}(S)$和基准偏离度$D_{\mathrm{dev}}(S,S^0)$。
+
 \State Set $t\gets0$, $n\gets0$; initialize state and events
+% 设$t\gets0$、$n\gets0$；初始化状态与事件。
+
 \While{unfinished work or future arrivals remain}
+% 当仍有未完成任务或未来订单到达时，重复循环。
+
  \State Process current events; update state
+% 处理当前事件，并更新状态。
+
  \State Construct feasible set $\mathcal D_n$
+% 构造可行决策集合$\mathcal D_n$。
+
  \While{$\mathcal D_n\ne\varnothing$}
+% 当可行集合$\mathcal D_n$非空时，重复循环。
+
   \State Select $d_n\gets\pi(x_n,S^0,\mathcal D_n)$
+% 使用策略选择$d_n\gets\pi(x_n,S^0,\mathcal D_n)$。
+
   \State Execute $d_n$; update state and events
+% 执行$d_n$，并更新状态与事件。
+
   \State $n\gets n+1$; recompute $\mathcal D_n$
+% 令$n\gets n+1$，重新计算可行集合$\mathcal D_n$。
+
  \EndWhile
+% 结束当前while循环。
+
  \If{unfinished work or future arrivals remain}
+% 若仍有未完成任务或未来订单到达，则执行后续检查。
+
   \If{the event calendar is empty}
+% 若事件日历为空。
+
    \State Report infeasibility and stop
+% 报告不可行，并停止。
+
   \EndIf
+% 结束当前条件分支。
+
   \State Advance time to the next event
+% 将时间推进到下一个事件。
+
  \EndIf
+% 结束当前条件分支。
+
 \EndWhile
+% 结束当前while循环。
 \State \Return $S$, $C_{\max}(S)$, $D_{\mathrm{dev}}(S,S^0)$
+% 返回$S$、$C_{\max}(S)$和$D_{\mathrm{dev}}(S,S^0)$。
 \end{algorithmic}
 \end{algorithm}
+
+The environment defines feasible decisions and observable transitions; Section~\ref{sec:method} explains how heterogeneous state encoding supports their selection. Operation completion is an internal execution event, whereas duration changes, failures, and arrivals are external disturbances.

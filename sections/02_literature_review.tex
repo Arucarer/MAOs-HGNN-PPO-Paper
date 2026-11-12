@@ -1,112 +1,246 @@
-%【说明】第二章按照方法类别组织相关工作，每一节均以与本文直接相关的研究缺口收束。
+%【译文使用说明】
+% 完整中文译文逐句对应当前英文，仅用于源码审阅，不进入PDF。原有简短中文注释保留为写作说明或核验提醒；二者含义不同。
+% ============================================================================
+%【源码审阅导航｜第 2 章：文献综述】
+% 实际正文编号为第 2 章；文件名：sections/02_literature_review.tex。标记仅供源码审阅，不显示在PDF中。
+% 正文按节编号；公式前后可分为编辑块。修改正文时保留引用标签、数学符号和图表数据；待补项沿用原有说明。
+% ============================================================================
+% 第二章按研究问题、求解与状态表征方法、研究需求三个层次组织。方括号Ref为可见文献占位符，
+% 不代表已核验引用；后续替换为真实cite命令。Study slot为逐篇研究内容占位符，不预设作者、方法或结论。
+% ---------------------------------------------------------------------------
+%【第 2 节｜Literature Review】
+% ---------------------------------------------------------------------------
 \section{Literature Review}
+%【章节标题译文】
+% 文献综述
 \label{sec:literature}
 
-\subsection{Dynamic Scheduling in Manufacturing Systems}
+%【第 2 节｜第 01 段｜2-P01】
+This section reviews dynamic processing--assembly scheduling and the methods used to represent production
+states for reinforcement learning. The discussion first establishes the problem context,
+then examines the transition from handcrafted state features to graph-based representations,
+and finally identifies the requirements motivating this study.
+%【完整中文译文｜2-P01】
+% 本节综述动态加工—装配调度，以及强化学习中用于表征生产状态的方法。首先介绍问题背景，
+% 然后讨论从人工设计的状态特征向图表征的转变，最后归纳推动本文研究的具体需求。
+
+% 先说明研究问题的来源，再讨论状态表征与求解方法，最后归纳本文的研究需求。
+
+% ---------------------------------------------------------------------------
+%【第 2.1 节｜Dynamic Processing--Assembly Scheduling】
+% ---------------------------------------------------------------------------
+\subsection{Dynamic Processing--Assembly Scheduling}
+%【章节标题译文】
+% 动态加工—装配调度
 \label{subsec:traditional_methods}
 
-Dynamic scheduling methods differ mainly in when they react to an event and how they
-construct the revised schedule. Reactive dispatching rules select an operation or resource
-from the currently feasible set and therefore provide short decision times. Predictive-
-reactive methods start from a baseline schedule and repair or regenerate it after a
-disturbance. Mathematical programming and metaheuristic methods can explore a wider solution
-space, whereas rolling-horizon and event-driven mechanisms restrict each optimization to the
-information available at the current time.
+%【第 2.1 节｜第 01 段｜2.1-P01】
+Flexible job shop scheduling coordinates operation sequencing and machine assignment under technological precedence
+and resource-capacity constraints. Research has extended this setting to incorporate assembly requirements,
+where several component routes must converge before a subsequent task can begin \textit{[Ref:
+integrated processing--assembly scheduling]}. Multi-level assembly introduces successive synchronization points,
+making component availability relevant to both local dispatching and final product completion.
+Ning et al.~\cite{ning2027fjspmaos} investigated the FJSP-MAOs and proposed an improved memetic algorithm.
+Their formulation provides the processing, flexible matching, and assembly structure adopted as the basis of the present study.
+%【完整中文译文｜2.1-P01】
+% 柔性作业车间调度在工艺前序和资源容量约束下协调工序排序与机器分配。已有研究将这一场景扩展到包含装配需求的情况，
+% 即多个零部件工艺路线必须汇合后，后续任务才能开始［待补文献：加工—装配集成调度］。
+% 多级装配进一步引入连续的同步点，使零部件可用性同时影响局部派工和最终产品完工。Ning等研究了FJSP-MAOs，
+% 并提出改进的模因算法~\cite{ning2027fjspmaos}。本文以其模型所定义的加工、柔性匹配和装配结构为基础。
 
-%【TODO】为派工规则、预测反应式调度、滚动时域、数学规划和元启发式调度分别补充代表性原始文献。
+% 第一层：从普通FJSP过渡到加工—装配协同与多级齐套，再明确基础模型来源。文献槽位：
+% 选取加工—装配集成调度及多级装配调度原始论文，补充各自约束与目标。
 
-These paradigms provide different balances between responsiveness and search quality.
-Dispatching rules are inexpensive but encode only the information included in their priority
-indices. Reoptimization can account for more constraints but may require substantial
-computation when disturbances occur frequently. Population-based methods can produce diverse
-solutions but repeatedly evaluating candidate schedules can limit their use at dense decision
-epochs. The choice of method is therefore inseparable from the state representation and the
-time available for online decisions.
+%【第 2.1 节｜第 02 段｜2.1-P02】
+%【待补文献】以下为原有逐篇研究占位，须核验来源后填写。
+\textit{[Study slot P1: Author(s), processing--assembly problem, assembly structure, optimization objectives,
+and the principal modeling contribution.]}
+%【完整中文译文｜2.1-P02】
+% ［文献内容占位P1：作者、研究的加工—装配问题、装配结构、优化目标，以及主要建模贡献。］
 
-Multi-level manufacturing-assembly systems introduce an additional coordination requirement.
-A manufacturing delay changes not only the completion time of one route but also the release
-time of an assembly that waits for several branches. Shared resources couple otherwise
-separate routes, and successive kitting points propagate the effect toward higher assembly
-levels. Existing dynamic scheduling formulations do not automatically preserve these paths
-when the system is summarized by global workload and utilization indicators. This motivates
-a relational representation that remains synchronized with the event-driven environment.
+%【第 2.1 节｜第 03 段｜2.1-P03】
+Dynamic scheduling additionally considers changes revealed during production execution.
+Processing-time variations alter completion estimates, machine failures reduce available capacity,
+and urgent arrivals introduce new resource demands \textit{[Ref: processing-time uncertainty;
+machine failures; dynamic arrivals]}. Predictive--reactive approaches revise an existing plan,
+whereas online dispatching constructs decisions from the currently observable state.
+Depending on the production setting, the objectives may include completion efficiency, delivery performance,
+and stability relative to a baseline \textit{[Ref: reactive scheduling and schedule stability]}.
+For multi-level assembly, these events must also be examined through their effects on component synchronization
+and downstream assembly readiness.
+%【完整中文译文｜2.1-P03】
+% 动态调度还考虑生产执行过程中逐步显现的变化。工时波动改变完工时间估计，机器故障降低可用产能，
+% 紧急订单到达引入新的资源需求［待补文献：工时不确定性、机器故障、动态订单到达］。预测—反应式方法修改已有计划，
+% 而在线派工依据当前可观测状态生成决策。根据具体生产场景，优化目标可能包括完工效率、交付表现以及相对于基准计划的稳定性［待补文献：
+% 反应式调度与计划稳定性］。对于多级装配，还需要考察这些事件对零部件同步和下游装配就绪的影响。
 
-%【TODO】补充多级装配、齐套调度和制造装配协同调度的已核验文献，并明确本文问题与柔性作业车间调度的区别。
+% 第二层：综述三类动态因素及反应式调度，并区分效率、交付与计划稳定性。具体文献是否包含多级装配、是否使用基准计划，
+% 均需逐篇核实，不能默认。
 
-\subsection{Deep Reinforcement Learning for Dynamic Scheduling}
+%【第 2.1 节｜第 04 段｜2.1-P04】
+%【待补文献】以下为原有逐篇研究占位，须核验来源后填写。
+\textit{[Study slot P2: Author(s), disturbance type, rescheduling trigger, adjustable operations,
+and treatment of efficiency or schedule stability.]}
+%【完整中文译文｜2.1-P04】
+% ［文献内容占位P2：作者、扰动类型、重调度触发机制、可调整工序，以及对效率或计划稳定性的处理方式。］
+
+%【第 2.1 节｜第 05 段｜2.1-P05】
+These studies establish the relevant production constraints and disturbance mechanisms. For the present problem,
+the additional requirement is to coordinate local adjustments with the propagation of delays through
+shared resources and successive assembly levels. This requirement connects the scheduling formulation
+to the information supplied to the online decision policy.
+%【完整中文译文｜2.1-P05】
+% 这些研究确立了相关生产约束和扰动机制。对于本文问题，还需要使局部调整与延误经由共享资源及连续装配层级的传播相协调。
+% 这一需求将调度模型与在线决策策略所接收的信息联系起来。
+
+% 本节收束到本文需求：不仅处理事件，还需把资源竞争与跨层装配影响提供给策略。
+
+% ---------------------------------------------------------------------------
+%【第 2.2 节｜Reinforcement Learning and Graph-based State Representation】
+% ---------------------------------------------------------------------------
+\subsection{Reinforcement Learning and Graph-based State Representation}
+%【章节标题译文】
+% 强化学习与基于图的状态表征
 \label{subsec:drl_scheduling}
 
-Deep reinforcement learning formulates scheduling as sequential interaction among a state,
-an action, a transition mechanism, and a reward. Value-based methods estimate the long-term
-return of discrete decisions, while policy-gradient and actor-critic methods optimize a
-parameterized policy directly. Once trained, these approaches can produce decisions through
-network inference and are therefore attractive for event-driven environments that require
-repeated online responses.
+%【第 2.2 节｜第 01 段｜2.2-P01】
+Mathematical programming, dispatching heuristics, and metaheuristic search provide alternative ways
+to solve scheduling problems \textit{[Ref: representative scheduling solution methods]}.
+Their suitability for reactive use depends on problem size, constraint complexity,
+and the computation allowed between decisions. Reinforcement learning offers another approach by learning
+a policy through repeated interactions with an environment. Rule-selection policies choose a priority rule
+that subsequently ranks feasible objects, while direct-selection policies choose operations, machines,
+or their pairs \textit{[Ref: rule-selection DRL; direct-selection DRL]}. These action designs should
+be distinguished from the state encoder used to inform the policy.
+%【完整中文译文｜2.2-P01】
+% 数学规划、派工启发式和元启发式搜索为求解调度问题提供了不同途径［待补文献：代表性调度求解方法］。
+% 其是否适用于反应式调度，取决于问题规模、约束复杂程度，以及两次决策之间允许的计算量。
+% 强化学习通过与环境反复交互来学习策略，提供了另一种方法。规则选择策略先选取优先规则，
+% 再由该规则对可行对象排序；直接选择策略则直接选择工序、机器或工序—机器组合［待补文献：
+% 规则选择型DRL、直接选择型DRL］。这些动作设计应与为策略提供信息的状态编码器区分开来。
 
-%【TODO】补充价值型、策略梯度型和Actor-Critic调度方法的代表性原始文献。
+% 从传统方法简要过渡到强化学习；区分选规则与选具体对象，避免混淆动作与状态。不将规则选择视为天然落后：
+% 本文同样采用规则选择，重点在于提供更合适的状态。
 
-The performance of a learned scheduler depends on how the Markov decision process is
-constructed. State variables must expose information needed to distinguish feasible and
-consequential actions. The action space must correspond to decisions that the simulator can
-execute, and feasibility masking must prevent violations of precedence, kitting, and resource
-capacity. The reward must remain aligned with the reported scheduling objectives. A policy
-can otherwise converge in its training environment while optimizing a surrogate that does
-not correspond to the final evaluation.
+%【第 2.2 节｜第 02 段｜2.2-P02】
+Vector-based scheduling policies represent production conditions through selected features,
+such as workload, utilization, remaining processing time, and completion progress \textit{[Ref:
+handcrafted vector states for scheduling]}. Such features provide compact summaries,
+but their ability to describe component-level dependencies depends on what is explicitly included.
+For processing--assembly systems, similar aggregate loads can correspond to different distributions
+of unfinished components across assembly branches. Reviewing vector-based methods therefore requires
+examining both the features retained and the scheduling relationships left implicit.
+%【完整中文译文｜2.2-P02】
+% 基于向量的调度策略通过选取工作负载、设备利用率、剩余加工时间和完工进度等特征，表征生产状态［待补文献：
+% 调度中的人工向量状态］。这些特征能够形成紧凑概括，但其描述零部件层面依赖关系的能力取决于显式纳入了哪些信息。
+% 对于加工—装配系统，相似的总体负载可能对应未完成零部件在不同装配分支上的不同分布。因此，综述向量方法时，
+% 需要同时考察其保留的特征和仍然隐含的调度关系。
 
-Generalization is another central issue. A policy trained on a limited set of instances may
-associate decisions with a fixed number or ordering of operations. Relational encoders,
-parameter sharing, randomized training scenarios, and independent test instances have been
-used to reduce this dependence. Nevertheless, generalization claims require an explicit
-train-test boundary and a precise description of what changes between the two partitions.
-This requirement is particularly important when topology, scale, and disturbance intensity
-can vary independently.
+% 向量状态部分重点讨论信息保留情况，不笼统否定人工特征。
 
-%【TODO】补充调度策略泛化、可行性掩码、奖励设计和独立测试协议方面的已核验文献。
+%【第 2.2 节｜第 03 段｜2.2-P03】
+%【待补文献】以下为原有逐篇研究占位，须核验来源后填写。
+\textit{[Study slot M1: Author(s), scheduling problem, selected state features, learning algorithm,
+and whether actions select rules or concrete scheduling objects.]}
+%【完整中文译文｜2.2-P03】
+% ［文献内容占位M1：作者、调度问题、所选状态特征、学习算法，以及动作是选择规则还是选择具体调度对象。］
 
-\subsection{Graph Representation Learning for Scheduling}
-\label{subsec:graph_scheduling}
+%【第 2.2 节｜第 04 段｜2.2-P04】
+Graph-based representations instead express production entities and their relationships through nodes
+and edges. Message passing can encode precedence and resource eligibility, while heterogeneous graphs
+distinguish entity and relation types \textit{[Ref: disjunctive-graph DRL; heterogeneous-graph scheduling]}.
+Attention and meta-path mechanisms further provide ways to aggregate information with different
+relational meanings \textit{[Ref: graph attention and meta-path encoding]}. Chen et al.
+combined a dynamic heterogeneous graph, meta-path-based transformer encoding, and preference-driven
+PPO for multi-objective flexible job shop scheduling with job arrivals \textit{[Ref: Chen et al.,
+ESWA 304 (2026), 130799]}. This work provides a relevant comparison for graph-based state extraction;
+its operation--machine setting and direct assignment actions differ from the multi-level processing--assembly
+and rule-selection setting considered here.
+%【完整中文译文｜2.2-P04】
+% 图表征通过节点和边描述生产实体及其关系。消息传递能够编码前序关系和资源候选资格，
+% 而异构图能够区分实体与关系类型［待补文献：析取图DRL、异构图调度］。注意力和元路径机制进一步为聚合不同关系语义的信息提供了手段［待补文献：
+% 图注意力与元路径编码］。Chen等将动态异构图、基于元路径的Transformer编码与偏好驱动PPO相结合，
+% 求解考虑订单到达的多目标柔性作业车间调度问题［待补文献：Chen等，ESWA，304（2026），130799］。
+% 该研究为基于图的状态提取提供了相关对照；其工序—机器场景和直接分配动作，与本文的多级加工—装配场景及规则选择设定不同。
 
-Graph-based scheduling methods encode operations and resources as nodes and express
-precedence or eligibility through edges. Message passing aggregates information from local
-neighborhoods, which supports variable-size instances and preserves structural constraints
-more directly than a fixed-length state vector. Attention mechanisms can further assign
-different weights to neighboring entities when their current influence on a decision differs.
+% 这里的Chen等即用户提供的“唐敦兵.pdf”，作者、问题和方法已从原文核对。该文已有动态图、元路径与注意力，
+% 不能将这些通用技术本身宣称为本文首创。后续按用户要求将占位符替换为正式文献条目；不转引其引用文献的具体结论。
 
-Homogeneous graphs use a shared transformation for all nodes or edges. This representation is
-effective when the encoded relations have similar meanings, but manufacturing-assembly
-scheduling contains several distinct semantics. A technological edge indicates an execution
-order, an eligibility edge indicates a possible resource assignment, an occupation edge
-records a current physical state, and a kitting edge synchronizes multiple branches. Treating
-these relations identically can obscure why information from a neighbor should influence the
-current operation.
+%【第 2.2 节｜第 05 段｜2.2-P05】
+%【待补文献】以下为原有逐篇研究占位，须核验来源后填写。
+\textit{[Study slot M2: Author(s), node and edge types, graph-update mechanism, attention or meta-path aggregation,
+policy outputs, and evaluated problem setting.]}
+%【完整中文译文｜2.2-P05】
+% ［文献内容占位M2：作者、节点与边类型、图更新机制、注意力或元路径聚合方式、策略输出，以及实验评价的问题场景。］
 
-Heterogeneous graph neural networks address this issue by using type-specific projections and
-relation-specific message functions. For dynamic scheduling, the graph must additionally
-distinguish persistent production structure from event-dependent features. An effective model
-should update the affected portion of the graph after an event, retain the semantic identity
-of each relation, and provide a graph-level representation for policy learning. These needs
-motivate the dynamic heterogeneous representation and multi-relation semantic encoder used in
-this study.
+%【第 2.2 节｜第 06 段｜2.2-P06】
+For this study, graph encoding must additionally distinguish processing precedence, component membership,
+and multi-level assembly readiness. The resulting representation must support routing, sequencing,
+and failure-recovery decisions, whose feasible objects and information needs differ.
+These requirements motivate examining not only graph construction, but also semantic aggregation and decision-specific readout.
+%【完整中文译文｜2.2-P06】
+% 对本文而言，图编码还必须区分加工前序、零部件归属和多级装配就绪关系。所得表征需要支持机器分配、工序排序和故障恢复决策，
+% 而这些决策的可行对象和信息需求并不相同。因此，不仅需要研究图构建，还需要考察语义聚合与面向决策的读出机制。
 
-%【TODO】补充图调度、图注意力、异构图神经网络及动态图学习的代表性原始文献。
+% 方法综述最终收束到三个问题：如何构图、如何辨别语义重要性、如何服务不同决策。
 
+% ---------------------------------------------------------------------------
+%【第 2.3 节｜Research Gaps and Motivation】
+% ---------------------------------------------------------------------------
 \subsection{Research Gaps and Motivation}
+%【章节标题译文】
+% 研究不足与研究动机
 \label{subsec:graph_drl}
 
-The literature indicates three connected gaps. First, common dynamic scheduling states do not
-explicitly preserve the propagation of a local event through shared resources and successive
-kitting levels. Second, graph-based schedulers often emphasize technological precedence and
-resource eligibility but do not distinguish all relations required by multi-level assembly.
-Third, experimental generalization is sometimes inferred from training performance without a
-strictly separated test partition or a clear definition of the distribution shift.
+%【第 2.3 节｜第 01 段｜2.3-P01】
+The comparison above motivates three connected requirements for dynamic processing--assembly scheduling.
+Their coverage in individual studies will be established through the completed literature comparison.
+%【完整中文译文｜2.3-P01】
+% 上述比较引出了动态加工—装配调度的三项相互关联的需求。各项需求在具体研究中是否得到覆盖，将通过补齐后的文献对比加以确认。
 
-The present study addresses these gaps through a common environment-representation-policy
-interface. The discrete-event simulator defines how disturbances change physical feasibility.
-The dynamic heterogeneous graph records both persistent structure and current event effects.
-The multi-relation HGNN preserves semantic differences during message propagation, and PPO
-optimizes the policy over the resulting state. The experiment design separates 30 training
-instances from 15 independent test instances so that training behavior and transfer behavior
-can be discussed independently.
+% 当前尚未补齐文献，以下写为需要核验的研究需求，避免先断言整个领域存在空白。后续逐项核实代表文献覆盖范围，
+% 再将本节定位定稿为有文献支持的具体研究缺口。
 
-%【TODO】完成文献检索后增加相关工作对比表，至少比较问题类型、扰动类型、装配关系、图类型、决策方法和泛化设置。
-%【TODO】当前参考文献库仅含PPO条目，投稿前必须补齐本章所有文献并逐条核验DOI、作者、年份和方法归属。
+\begin{enumerate}
+%【第 2.3 节｜条目 01】
+%【第 2.3 节｜第 02 段｜2.3-P02】
+\item \textbf{Assembly-aware dynamic representation.} The state must retain the dependencies linking
+component processing to successive assembly levels, together with event-induced changes in resource availability
+and component readiness. Operation--machine relations alone do not explicitly describe these additional assembly dependencies.
+%【完整中文译文｜2.3-P02】
+% 面向装配的动态表征。状态必须保留连接零部件加工与连续装配层级的依赖关系，以及事件引起的资源可用性和零部件就绪状态变化。
+% 仅有工序—机器关系，并不能显式描述这些额外的装配依赖。
+
+%【第 2.3 节｜条目 02】
+%【第 2.3 节｜第 03 段｜2.3-P03】
+\item \textbf{Adaptive aggregation of relational semantics.} Preserving different relation types is
+only part of the representation task. The encoder must also distinguish their relevance as production evolves,
+so that a local disturbance can be interpreted in relation to downstream processing and assembly needs.
+%【完整中文译文｜2.3-P03】
+% 关系语义的自适应聚合。保留不同关系类型只是状态表征任务的一部分。编码器还必须在生产演进过程中识别这些关系的相关程度，
+% 从而能够结合下游加工与装配需求理解局部扰动。
+
+%【第 2.3 节｜条目 03】
+%【第 2.3 节｜第 04 段｜2.3-P04】
+\item \textbf{Decision-specific use of the encoded state.} Routing, sequencing, and failure recovery
+require information about different feasible objects. A shared encoder therefore needs a readout mechanism
+that supplies relevant state information to each decision role while retaining their common production context.
+%【完整中文译文｜2.3-P04】
+% 面向不同决策使用编码状态。机器分配、工序排序和故障恢复需要关于不同可行对象的信息。因此，
+% 共享编码器需要一种读出机制，在保留共同生产背景的同时，为每类决策角色提供相关状态信息。
+\end{enumerate}
+
+% 三项分别对应第四章的动态异构图、元路径语义注意力与决策角色汇聚。不将复杂规则库、规则演化或三个决策头本身列为本文的核心创新。
+
+%【第 2.3 节｜第 05 段｜2.3-P05】
+The present study addresses these requirements through dynamic heterogeneous graph construction,
+meta-path semantic attention, and decision-specific state readout. The encoded states guide three PPO
+rule-selection heads within a common event-driven environment. This positions the contribution in state
+extraction for reactive processing--assembly coordination, while retaining established rule-selection
+and policy optimization mechanisms.
+%【完整中文译文｜2.3-P05】
+% 本文通过动态异构图构建、元路径语义注意力和面向决策的状态读出满足上述需求。编码后的状态在统一的事件驱动环境中引导三个PPO规则选择头。
+% 因此，本文的贡献定位于反应式加工—装配协同中的状态提取，同时沿用已有的规则选择与策略优化机制。
+
+% 占位符替换时，每项研究至少明确：问题、动态因素、状态结构、决策输出与适用边界。参考文献补齐后逐项核验以上定位，
+% 不把待验证的研究需求写成已证明的普遍结论。

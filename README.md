@@ -55,3 +55,7 @@ Run commands from this folder. If `elsarticle.cls` is missing, install the `elsa
 - Replace the journal, author, affiliation, and declaration placeholders.
 - Check the target journal's current author guide and required document options.
 - Confirm that all numerical claims can be traced to reproducible experiments.
+
+## Working files
+
+Compile from main.tex; read the latest manuscript at build/main.pdf. Root-level main.pdf, if present, is a legacy output. build/ and tmp/ are ignored generated/local working directories. Keep original figures and experimental data for provenance. Experiment placeholders are explicit pending artifacts, not results. See experiment_progress.md for the experiment map and revision_checkpoint.md for editing history.

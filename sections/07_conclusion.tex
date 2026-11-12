@@ -1,16 +1,37 @@
+%【译文使用说明】
+% 完整中文译文逐句对应当前英文，仅用于源码审阅，不进入PDF。原有简短中文注释保留为写作说明或核验提醒；二者含义不同。
+% ============================================================================
+%【源码审阅导航｜第 6 章：结论与未来工作】
+% 实际正文编号为第 6 章；文件名：sections/07_conclusion.tex。标记仅供源码审阅，不显示在PDF中。
+% 正文按节编号；公式前后可分为编辑块。修改正文时保留引用标签、数学符号和图表数据；待补项沿用原有说明。
+% ============================================================================
+%【待补正文】本文件当前只有章节标题与写作提示，尚未写入结论正文。
+% 第六章使用本文件；06_discussion.tex未被main.tex引用。
+% ---------------------------------------------------------------------------
+%【第 6 节｜Conclusion and Future Work】
+% ---------------------------------------------------------------------------
 \section{Conclusion and Future Work}
+%【章节标题译文】
+% 结论与未来工作
 \label{sec:conclusion}
 
 % 结论
 
-% 总结本文研究工作，包括研究问题、提出的方法以及主要实验验证结果。
-% 不应简单重复摘要内容，而应从研究目标、方法贡献和实验发现三个方面
-% 对全文进行归纳总结。
+% 总结本文研究工作，包括研究问题、提出的方法以及主要实验验证结果。不应简单重复摘要内容，
+% 而应从研究目标、方法贡献和实验发现三个方面对全文进行归纳总结。
 %
-% 所有关于算法性能提升、有效性或优势的描述，
-% 都必须能够在第5章实验结果中找到对应的实验依据。
+% 所有关于算法性能提升、有效性或优势的描述，都必须能够在第5章实验结果中找到对应的实验依据。
 % 避免在结论中加入未经实验验证的泛化性结论。
 %
-% 最后一部分应结合本文提出的局限性，
-% 给出具有针对性的未来研究方向，
-% 而不是简单罗列宽泛的未来工作。
+% 最后一部分应结合本文提出的局限性，给出具有针对性的未来研究方向，而不是简单罗列宽泛的未来工作。
+
+This study examines heterogeneous state encoding for reactive FJSP-MAOs scheduling with makespan
+and baseline deviation as objectives. The representation retains changing processing, machine, and
+assembly relations. Meta-path semantic attention combines complementary dependencies, and
+role-specific readout connects the shared encoding to routing, sequencing, and recovery.
+PPO and fixed dispatching rules provide the policy-learning and execution mechanism.
+
+The supplied mixed-pool comparisons provide the current experimental basis. They do not establish the performance of the planned offline-screened simple and manual rule
+pools, nor independently identify every encoder component's contribution. Further work must verify
+rule definitions and model provenance, retrain the planned configuration, and complete controlled
+encoder ablations and disturbance-specific evaluation, including urgent arrivals.

@@ -1,58 +1,42 @@
+%【译文使用说明】
+% 完整中文译文逐句对应当前英文，仅用于源码审阅，不进入PDF。原有简短中文注释保留为写作说明或核验提醒；二者含义不同。
 \begin{frontmatter}
 
-%题目
-\title{A Heterogeneous Graph Neural Network and Proximal Policy Optimization Framework for [Problem Name]}
+% 题目
+\title{Meta-path Semantic Attention-enhanced Heterogeneous Graph Encoding for Reactive Multi-level Assembly Scheduling}
+%【题目完整中文译文】
+% 面向［问题名称］的异构图神经网络与近端策略优化框架。
 
 
 % 作者、单位
-\author[aff1]{First Author}
+\author[aff1]{Yanjun Shi}
 \author[aff1]{Second Author\corref{cor1}}
 \ead{corresponding.author@example.com}
 \cortext[cor1]{Corresponding author.}
 \affiliation[aff1]{organization={Department, University},
-  city={City}, postcode={Postcode}, country={Country}}
+city={City}, postcode={Postcode}, country={Country}}
 
 % 摘要
 \begin{abstract}
-  Reconfigurable manufacturing systems with auxiliary modules enhance flexibility but complicate resource allocation. 
-  Furthermore, traditional scheduling often ignores how post-processing aging treatments affect final product performance. 
-  This paper introduces a novel performance-aware flexible job shop scheduling problem with aging-time windows and machine reconfiguration (PFJSP-AW-MR) to simultaneously minimize total weighted tardiness and total performance deviation. 
-  First, a mixed-integer linear programming (MILP) model employing piecewise linear fitting is formulated to capture the non-linear temporal evolution of material properties. 
-  To solve this strongly NP-hard problem, an improved NSGA-II with a hybrid neighborhood search (INSGA-II\_NS) is proposed. 
-  A problem-specific three-layer encoding resolves the spatio-temporal coupling of discrete configurations and continuous aging times. 
-  Moreover, a customized two-stage neighborhood search—integrating an improved K-insertion method on an extended disjunctive graph—significantly enhances local exploitation. 
-  Extensive benchmark experiments and a real-world industrial case demonstrate that INSGA-II\_NS outperforms well-known multi-objective algorithms, effectively balancing manufacturing performance and production efficiency.
-
-% 配备辅助模块的可重构制造系统增加了资源配置的复杂性，
-% 且传统调度常忽视时效处理对产品最终性能的决定性影响。
-% 为此，本文提出一类考虑时效时间窗与机器重构的性能感知柔性作业车间调度新问题（PFJSP-AW-MR），
-% 旨在同时最小化总加权拖期与总性能偏差。
-% 首先，构建混合整数线性规划（MILP）模型，
-% 并利用分段线性拟合精确刻画材料属性的非线性时间演化规律。
-% 针对该强NP-hard问题，提出一种融合混合邻域搜索的改进NSGA-II算法（INSGA-II\_NS）。
-% 其中，定制的三层编码机制有效解决了离散机器配置与连续时效时间之间的时空耦合难题；
-% 两阶段邻域搜索算子（结合扩展析取图上的改进K-插入方法）显著增强了算法的局部开发能力。
-% 基准算例实验与真实的工业案例研究均表明，
-% INSGA-II\_NS在收敛性和多样性上显著优于SPEA2、MOEA/D等先进算法，
-% 成功实现了制造性能与生产效率的有效平衡。
+Reactive scheduling in flexible job shops with multi-level assembly operations requires production states that retain technological precedence, resource competition, and assembly dependencies. Processing-time variations, machine breakdowns, and urgent order arrivals can propagate through these relations, affecting both makespan and deviation from a baseline schedule. This study investigates dynamic heterogeneous graph state encoding within an HGNN-PPO rule-selection framework. Typed relation aggregation distinguishes production entities and dependencies, while six meta-path patterns represent complementary processing--assembly semantics. Semantic attention and residual fusion combine these representations, and decision-specific readout supplies routing, sequencing, and recovery states. PPO selects a dispatching rule for the active decision type; the environment decodes the rule into a feasible scheduling decision. Available comparative results are reported for the supplied mixed rule pool. An offline-screened pool of simple and manually designed rules is a planned configuration requiring separate implementation and training. Controlled encoder comparisons and verified disturbance coverage are needed to establish the scope of the representation benefit.
 \end{abstract}
 
 
 
 
-%关键词
+% 关键词
 \begin{keyword}
-heterogeneous graph neural network \sep proximal policy optimization \sep
-deep reinforcement learning \sep scheduling \sep [application keyword]
+heterogeneous graph neural network \sep proximal policy optimization \sep deep reinforcement learning
+\sep scheduling \sep multi-level assembly
+%【关键词完整中文译文】
+% 异构图神经网络；近端策略优化；深度强化学习；调度；［应用关键词］。
 \end{keyword}
 
 \end{frontmatter}
 
 % 以下Highlights为Elsevier投稿的可选内容；若目标期刊不使用，请删除。
 \begin{highlights}
-% 依次填写：问题层面的贡献、HGNN表示贡献、PPO决策贡献和最有力的实验结果。
-\item [State the problem-level contribution in one sentence.]
-\item [State the HGNN representation contribution in one sentence.]
-\item [State the PPO decision-making contribution in one sentence.]
-\item [State the strongest evidence-based experimental finding.]
+\item Dynamic heterogeneous graphs retain processing and multi-level assembly dependencies.
+\item Meta-path semantic attention combines complementary production relations.
+\item Decision-specific readout supplies state encodings for reactive rule selection.
 \end{highlights}

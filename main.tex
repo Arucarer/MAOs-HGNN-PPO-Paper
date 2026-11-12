@@ -6,6 +6,7 @@
 \usepackage{booktabs,multirow,makecell}
 \usepackage{graphicx}
 \usepackage{xcolor}
+\usepackage{colortbl}
 
 % Preserve English sizing and spacing while supporting Chinese filenames/notes.
 \usepackage[UTF8,scheme=plain,zihao=false,linespread=1]{ctex}
@@ -19,7 +20,27 @@
 \setlength{\mathindent}{0pt}
 \setlength{\jot}{3pt}
 \usepackage{placeins}
+% Allow diagrams to share a page with their explanatory text.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dbltopfraction}{0.90}
+\renewcommand{\dblfloatpagefraction}{0.75}
+\setcounter{topnumber}{2}
+\setcounter{totalnumber}{4}
+\setcounter{dbltopnumber}{1}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
 \usepackage{bicaption}
+% Permit full-width floats at the bottom as well as the top of two-column pages.
+\makeatletter
+\providecommand{\input@path}{}
+\g@addto@macro\input@path{{styles/vendor/}}
+\makeatother
+\usepackage{stfloats}
+\setcounter{dblbotnumber}{1}
 
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -48,11 +69,17 @@
 \raggedbottom
 
 \input{sections/00_frontmatter}
+%【正文第 1 章｜引言】
 \input{sections/01_introduction}
+%【正文第 2 章｜文献综述】
 \input{sections/02_literature_review}
+%【正文第 3 章｜问题描述与数学建模】
 \input{sections/03_problem_formulation}
+%【正文第 4 章｜方法】
 \input{sections/04_methodology}
+%【正文第 5 章｜实验】
 \input{sections/05_experiments}
+%【正文第 6 章｜结论与未来工作】
 \input{sections/07_conclusion}
 \input{sections/08_backmatter}
 

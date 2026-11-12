@@ -1,548 +1,1062 @@
-% 第五章沿用既有五节安排，采用实验目的、结果观察、解释与边界的论述顺序。
-% 图表数值保留；本章是基于学位论文与现有图表的实验写作稿，不代表重新运行实验。
+%【译文使用说明】
+% 完整中文译文逐句对应当前英文，仅用于源码审阅，不进入PDF。原有简短中文注释保留为写作说明或核验提醒；二者含义不同。
+% ============================================================================
+%【源码审阅导航｜第 5 章：实验】
+% 实际正文编号为第 5 章；文件名：sections/05_experiments.tex。标记仅供源码审阅，不显示在PDF中。
+% 正文按节编号；公式前后可分为编辑块。修改正文时保留引用标签、数学符号和图表数据；待补项沿用原有说明。
+% ============================================================================
+% Chapter 5: setup, configuration, ablation, comparison, generalization, discussion.图表数值保留；
+% 本章是基于学位论文与现有图表的实验写作稿，不代表重新运行实验。
+% ---------------------------------------------------------------------------
+%【第 5 节｜Experimental Results and Discussion】
+% ---------------------------------------------------------------------------
 \section{Experimental Results and Discussion}
+%【章节标题译文】
+% 实验结果与讨论
 \label{sec:experiments}
 
-The experiments evaluate whether the state representation in Section~\ref{sec:method} improves
-adaptive rule selection for multi-level processing--assembly scheduling. The analysis proceeds from
-dataset construction and parameter selection to component ablation, instance-wise performance, and
-independent testing. Makespan and schedule deviation assess production efficiency and plan stability,
-while hypervolume and spread describe the quality of the resulting objective trade-offs.
+%【第 5 节｜第 01 段｜5-P01】
+The experiments evaluate whether the state representation in Section~\ref{sec:method} improves adaptive
+rule selection for multi-level processing--assembly scheduling. The analysis proceeds from dataset construction
+and parameter selection to component ablation, instance-wise performance, and independent testing.
+Makespan and schedule deviation assess production efficiency and plan stability, while hypervolume
+and spread describe the quality of the resulting objective trade-offs.
+%【完整中文译文｜5-P01】
+% 实验用于评价第~\ref{sec:method}节的状态表征能否改善多级加工—装配调度中的自适应规则选择。
+% 分析从数据集构建和参数选择出发，依次考察模块消融、逐算例性能和独立测试。最大完工时间与计划偏离度分别评价生产效率和计划稳定性，
+% 超体积与分布指标则描述所得目标权衡解集的质量。
 
-% 实验围绕状态编码和规则选择展开，不扩展为规则演化方法的贡献验证。
-% 分别从效率、稳定性及双目标解集质量分析，不将训练曲线当作独立测试结果。
+% 实验围绕状态编码和规则选择展开，不扩展为规则演化方法的贡献验证。分别从效率、稳定性及双目标解集质量分析，
+% 不将训练曲线当作独立测试结果。
 
-\subsection{Experimental Data Set}
+% ---------------------------------------------------------------------------
+%【第 5.1 节｜Experimental Setup】
+% ---------------------------------------------------------------------------
+\subsection{Experimental Setup}
+%【章节标题译文】
+% 实验设置
 \label{subsec:settings}
 
+%【第 5.1 节｜第 01 段｜5.1-P01】
 The dataset contains 30 training instances and 15 independent test instances, divided into small,
-medium, and large groups. Each scale includes ten training instances, denoted by
-TR\_S01--TR\_S10, TR\_M01--TR\_M10, and TR\_L01--TR\_L10, and five test instances, denoted by
-S\_01--S\_05, M\_01--M\_05, and L\_01--L\_05. The instances describe machining routes, eligible
-processing and assembly machines, nominal durations, and multi-level assembly requirements.
-Differences in scale change both resource competition and the number of interacting assembly branches.
+medium, and large groups. Each scale includes ten training instances, denoted by TR\_S01--TR\_S10,
+TR\_M01--TR\_M10, and TR\_L01--TR\_L10, and five test instances, denoted by S\_01--S\_05, M\_01--M\_05,
+and L\_01--L\_05. The instances describe machining routes, eligible processing and assembly machines,
+nominal durations, and multi-level assembly requirements. Differences in scale change both resource competition
+and the number of interacting assembly branches.
+%【完整中文译文｜5.1-P01】
+% 数据集包含30个训练算例和15个独立测试算例，分为小、中、大三组。每种规模包含10个训练算例，
+% 分别记为TR\_S01--TR\_S10、TR\_M01--TR\_M10、TR\_L01--TR\_L10，以及5个测试算例，
+% 分别记为S\_01--S\_05、M\_01--M\_05、L\_01--L\_05。算例描述加工路线、候选加工与装配机器、名义工时及多级装配需求。
+% 规模差异同时改变资源竞争程度和相互作用的装配分支数量。
 
-% 总计45个算例，每种规模各10个训练算例和5个独立测试算例。
-% TODO：补充各规模产品、工件、工序、设备数量和装配深度的实际范围，
+% 总计45个算例，每种规模各10个训练算例和5个独立测试算例。TODO：补充各规模产品、工件、工序、设备数量和装配深度的实际范围，
 % 以及算例生成器、随机种子与公开获取方式，不能凭规模名称推定数值。
 
+%【第 5.1 节｜第 02 段｜5.1-P02】
 Reactive scheduling starts from a baseline plan and executes production through the event-driven
 environment in Section~\ref{subsec:dynamic_environment}. The supplied experiments concern disturbance
-responses involving machine failures and processing-time changes. Production instances identify the
-structural problem, whereas scenario realizations identify the disturbance events during execution.
-Training and testing are separated at the instance level, and test execution freezes the learned policy
-and its candidate rules.
+responses involving machine failures and processing-time changes. Production instances identify the structural problem,
+whereas scenario realizations identify the disturbance events during execution. Training
+and testing are separated at the instance level, and test execution freezes the learned policy and its candidate rules.
+%【完整中文译文｜5.1-P02】
+% 反应式调度从基准计划开始，通过第~\ref{subsec:dynamic_environment}节中的事件驱动环境执行生产。
+% 所提供的实验涉及机器故障和工时变化引起的扰动响应。生产算例定义结构性问题，而场景实现定义执行过程中的扰动事件。
+% 训练与测试按算例划分，测试执行时冻结学习得到的策略及其候选规则。
 
-% 按大论文描述现有故障与工时波动实验。第三章同时保留紧急插单模型。
-% TODO：数据说明指出泛化工作表含insert_high等标签，但缺少算例映射；
-% 核验前不声称这些图表已验证三类扰动，也不擅自把插单数据改称无插单。
-% TODO：补齐故障、维修、工时更新协议及场景映射，核对完整工时重加工假设。
+% 按大论文描述现有故障与工时波动实验。第三章同时保留紧急插单模型。TODO：数据说明指出泛化工作表含insert_high等标签，
+% 但缺少算例映射；核验前不声称这些图表已验证三类扰动，也不擅自把插单数据改称无插单。TODO：
+% 补齐故障、维修、工时更新协议及场景映射，核对完整工时重加工假设。
 
 \label{subsec:baselines_metrics}
+%【第 5.1 节｜第 03 段｜5.1-P03】
 The training-instance comparison includes a heuristic rule set (HRS), an expert rule set (ERS), DQN,
-two HGNN-PPO variants, and the complete HGNN-PPO method. Following the component definitions in the
-dissertation, HGNN-PPO-$\alpha$ removes the heterogeneous graph representation while retaining PPO,
-whereas HGNN-PPO-$\beta$ retains HGNN but removes attention. These comparisons separate the role of
-structured state information from the additional effect of semantic weighting. The independent-test
-comparison uses L2D, MPGN-MPPO, GNN-DRL, HGNNR-DRL, and MHGNN-SAC as reference methods.
+two HGNN-PPO variants, and the complete HGNN-PPO method. Following the component definitions in the dissertation,
+HGNN-PPO-$\alpha$ removes the heterogeneous graph representation while retaining PPO,
+whereas HGNN-PPO-$\beta$ retains HGNN but removes attention. These comparisons separate the role
+of structured state information from the additional effect of semantic weighting.
+The independent-test comparison uses L2D, MPGN-MPPO, GNN-DRL, HGNNR-DRL, and MHGNN-SAC as reference methods.
+%【完整中文译文｜5.1-P03】
+% 训练算例上的比较包括启发式规则集（HRS）、专家规则集（ERS）、DQN、两个HGNN-PPO变体和完整HGNN-PPO方法。
+% 按照学位论文中的模块定义，HGNN-PPO-$\alpha$移除异构图表征但保留PPO，HGNN-PPO-$\beta$保留HGNN但移除注意力。
+% 这些比较区分结构化状态信息的作用与语义加权的额外作用。独立测试采用L2D、MPGN-MPPO、GNN-DRL、HGNNR-DRL和MHGNN-SAC作为参考方法。
 
-% HRS与ERS的展开及alpha、beta组件定义来自大论文表3.1。
-% TODO：补齐外部方法原始引用、实际实现与适配说明，不猜测算法内部结构。
-% 编码器消融应保持规则库与解码机制一致；不同外部方法的接口需分别说明。
+% HRS与ERS的展开及alpha、beta组件定义来自大论文表3.1。TODO：补齐外部方法原始引用、实际实现与适配说明，
+% 不猜测算法内部结构。编码器消融应保持规则库与解码机制一致；不同外部方法的接口需分别说明。
 
-The scheduling objectives are $C_{\max}$ and $D_{\mathrm{dev}}(S,S^0)$ from
-Section~\ref{subsec:mathematical_model}, both to be minimized. For solution sets, larger hypervolume
-(HV) and smaller Spread are preferred. The former measures dominated objective-space volume under a
-common reference point, while the latter summarizes distribution uniformity according to the adopted
-spread definition. Different objective preferences are evaluated through the frozen policies described
-in Section~\ref{subsec:ppo_policy}.
+%【第 5.1 节｜第 04 段｜5.1-P04】
+The scheduling objectives are $C_{\max}$ and $D_{\mathrm{dev}}(S,S^0)$ from Section~\ref{subsec:mathematical_model},
+both to be minimized. For solution sets, larger hypervolume (HV) and smaller Spread are preferred.
+The former measures dominated objective-space volume under a common reference point,
+while the latter summarizes distribution uniformity according to the adopted spread definition.
+Different objective preferences are evaluated through the frozen policies described in Section~\ref{subsec:ppo_policy}.
+%【完整中文译文｜5.1-P04】
+% 调度目标为第~\ref{subsec:mathematical_model}节中的$C_{\max}$和$D_{\mathrm{dev}}(S,S^0)$，
+% 二者均需最小化。对解集而言，超体积（HV）越大越好，Spread越小越好。前者衡量共同参考点下被支配目标空间的体积，
+% 后者依据所采用的Spread定义概括分布均匀程度。不同目标偏好通过第~\ref{subsec:ppo_policy}节所述的冻结策略进行评价。
 
-% 指标与第三、四章的双目标口径衔接。HV越大越好，其余三项越小越好。
-% TODO：训练表偏离度约为几十至几百，而曲线为小数，须核验单位、缩放与
-% 第三章归一化公式的对应关系。保留原值，不擅自换算。
-% TODO：补齐HV参考点、目标归一化及Spread的具体公式与M03零值含义。
+% 指标与第三、四章的双目标口径衔接。HV越大越好，其余三项越小越好。TODO：训练表偏离度约为几十至几百，
+% 而曲线为小数，须核验单位、缩放与第三章归一化公式的对应关系。保留原值，不擅自换算。TODO：
+% 补齐HV参考点、目标归一化及Spread的具体公式与M03零值含义。
 
-Results are compared instance by instance, with best and top-two counts summarizing placement across
-each scale. These counts complement the objective values rather than replacing their efficiency--stability
-trade-offs. The following analysis is descriptive; no inferential significance is assigned to a curve
-separation or a difference between tabulated values.
+%【第 5.1 节｜第 05 段｜5.1-P05】
+Results are compared instance by instance, with best and top-two counts summarizing placement across each scale.
+These counts complement the objective values rather than replacing their efficiency--stability trade-offs.
+The following analysis is descriptive; no inferential significance is assigned to a curve separation
+or a difference between tabulated values.
+%【完整中文译文｜5.1-P05】
+% 结果按算例逐一比较，并用最优次数和前二次数概括各规模上的相对表现。这些次数统计补充目标值分析，
+% 而不能取代效率与稳定性的权衡。以下分析属于描述性分析，不将曲线之间的差距或表格数值之间的差异解释为推断统计意义上的显著性。
 
-% TODO：补齐硬件软件、基准计划生成、训练预算、独立运行次数、种子、
-% 检查点与汇总统计量。连续训练回合不等同于独立训练重复。
-% TODO：现有图表沿用大论文规则库，不能改称尚未确定的简化规则库结果。
+% TODO：补齐硬件软件、基准计划生成、训练预算、独立运行次数、种子、检查点与汇总统计量。
+% 连续训练回合不等同于独立训练重复。TODO：现有图表沿用大论文规则库，不能改称尚未确定的简化规则库结果。
 
-\subsection{Parameter Setting}
+% ---------------------------------------------------------------------------
+%【第 5.2 节｜Hyperparameter and Rule-set Configuration】
+% ---------------------------------------------------------------------------
+For encoder attribution, keep PPO, rules, rewards, training budgets, and evaluation scenarios fixed,
+changing only the encoder component. Existing algorithm comparisons alone cannot isolate this effect.
+The evidence priority is encoder ablation, overall comparison, and verified disturbance generalization;
+rule screening only documents the action interface.
+
+\subsection{Parameter Analysis and Rule Configuration}
+%【章节标题译文】
+% 超参数与规则库配置
 \label{subsec:sensitivity}
 
+% ---------------------------------------------------------------------------
+%【第 5.2.1 节｜Hyperparameter Sensitivity】
+% ---------------------------------------------------------------------------
+\subsubsection{Hyperparameter Sensitivity}
+%【章节标题译文】
+% 超参数敏感性
+
+%【第 5.2.1 节｜第 01 段｜5.2.1-P01】
 The parameter study compares trajectory length, encoder depth, learning rate, and PPO clipping.
-These settings affect the interaction data used for each update, the range of
-structural information propagation, and the magnitude of policy optimization. Table~\ref{tab:sensitivity_parameter_settings}
-lists the tested values and the configuration selected for subsequent comparisons.
+These settings affect the interaction data used for each update, the range of structural information propagation,
+and the magnitude of policy optimization. Table~\ref{tab:sensitivity_parameter_settings} lists the tested values
+and the configuration selected for subsequent comparisons.
+%【完整中文译文｜5.2.1-P01】
+% 参数研究比较轨迹长度、编码器深度、学习率和PPO裁剪参数。这些设置分别影响每次更新使用的交互数据量、结构信息传播范围和策略优化幅度。
+% 表~\ref{tab:sensitivity_parameter_settings}列出测试取值和为后续比较选取的配置。
 
 % 参数实验先说明参数影响什么，再报告图中趋势与固定配置。
 
-\begin{table*}[!htbp]
+\par\smallskip\noindent\begin{minipage}{\linewidth}
     \centering
-    \captionsetup{name=Table}
+    \captionsetup{type=table,name=Table}
     \songti\rmfamily
 % 敏感性实验的参数设置
+%【图表标题｜第 5.2.1 节；引用时保留后面的label】
     \caption{Parameter Settings for the Sensitivity Analysis}
+%【图表或算法标题译文】
+% 敏感性分析的参数设置
     \label{tab:sensitivity_parameter_settings}
-    \zihao{-5}
-    \setlength{\tabcolsep}{6pt}
+    \small
+    \setlength{\tabcolsep}{3pt}
     \renewcommand{\arraystretch}{1.15}
-    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} l c c @{}}
+%【表格 5.2.1-T01｜见本块图注或标签】
+    \begin{tabular}{@{}p{0.38\linewidth}p{0.36\linewidth}c@{}}
         \toprule
-        Parameter & Candidate values & Selected value \\
+        Parameter & Candidate values & \makecell{Selected\\value} \\
+%【表格文字译文】
+% Parameter：参数；Candidate values：候选取值；Selected：选定值。
         \midrule
         Trajectory sampling steps $N_{\mathrm{step}}$ & 512, 1024, 2048 & 2048 \\
+%【表格文字译文】
+% Trajectory sampling steps：轨迹采样步数。
         Number of HGNN layers $L$ & 1, 2, 3, 4 & 2 \\
-        Learning rate $\alpha$ & $3\times10^{-5}$, $1\times10^{-4}$, $3\times10^{-4}$, $1\times10^{-3}$ & $1\times10^{-4}$ \\
+%【表格文字译文】
+% Number of HGNN layers：HGNN层数。
+        Learning rate $\alpha$ & \makecell[l]{$3\times10^{-5}$, $1\times10^{-4}$,\\$3\times10^{-4}$, $1\times10^{-3}$} & $1\times10^{-4}$ \\
+%【表格文字译文】
+% Learning rate：学习率。
         PPO clipping parameter $\epsilon$ & 0.1, 0.2, 0.3, 0.4 & 0.2 \\
+%【表格文字译文】
+% PPO clipping parameter：PPO裁剪参数。
         \bottomrule
-    \end{tabular*}
-\end{table*}
+    \end{tabular}
+\end{minipage}\par\smallskip
 
-\begin{figure*}[!htbp]
+%【第 5.2.1 节｜第 02 段｜5.2.1-P02】
+Figure~\ref{fig:hyperparameter_sensitivity} compares the training trajectories under the settings
+in Table~\ref{tab:sensitivity_parameter_settings}. The curves are used to examine convergence behavior
+alongside final objective levels.
+%【完整中文译文｜5.2.1-P02】
+% 图~\ref{fig:hyperparameter_sensitivity}比较表~\ref{tab:sensitivity_parameter_settings}中不同设置对应的训练轨迹。
+% 这些曲线用于同时考察收敛行为与最终目标值水平。
+
+%【图块 5.2.1-F01｜fig:hyperparameter_sensitivity】
+\begin{figure*}[t]
     \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F5lyk敏感性参数实验图_原图.png}
+    \captionsetup{type=figure,name=Figure}
+    \includegraphics[width=0.98\textwidth,height=0.41\textheight,keepaspectratio]{figures/F5lyk敏感性参数实验图_原图.png}
+%【图表标题｜第 5.2.1 节；引用时保留后面的label】
     \caption{Sensitivity of HGNN-PPO to trajectory length, encoder depth, learning rate, and clipping parameter.}
+%【图表或算法标题译文】
+% HGNN-PPO对轨迹长度、编码器深度、学习率及裁剪参数的敏感性。
     \label{fig:hyperparameter_sensitivity}
 \end{figure*}
 
-Figure~\ref{fig:hyperparameter_sensitivity} shows a rapid initial decrease in both objectives, followed
-by slower improvement. Among the displayed settings, 2048 sampling steps yield lower late-training
-objective curves than shorter trajectories. Two HGNN layers provide lower curves than the one-,
-three-, and four-layer settings, indicating that increasing depth alone does not improve this
-configuration. A learning rate of $1\times10^{-4}$ and clipping parameter of 0.2 similarly give
-favorable late-training performance; the more aggressive settings show higher objective levels or
-more persistent fluctuations. The subsequent configuration therefore uses 2048 steps, two HGNN layers,
-a learning rate of $1\times10^{-4}$, and clipping parameter 0.2.
+%【第 5.2.1 节｜第 03 段｜5.2.1-P03】
+Figure~\ref{fig:hyperparameter_sensitivity} shows a rapid initial decrease in both objectives,
+followed by slower improvement. Among the displayed settings, 2048 sampling steps yield lower
+late-training objective curves than shorter trajectories. Two HGNN layers provide lower curves than the one-,
+three-, and four-layer settings, indicating that increasing depth alone does not improve this configuration.
+A learning rate of $1\times10^{-4}$ and clipping parameter of 0.2 similarly give favorable late-training performance;
+the more aggressive settings show higher objective levels or more persistent fluctuations.
+The subsequent configuration therefore uses 2048 steps, two HGNN layers, a learning rate of $1\times10^{-4}$,
+and clipping parameter 0.2.
+%【完整中文译文｜5.2.1-P03】
+% 图~\ref{fig:hyperparameter_sensitivity}显示，两个目标在训练初期快速下降，随后改善速度放缓。
+% 在所展示配置中，2048个采样步对应的训练后期目标曲线低于较短轨迹。两层HGNN的曲线低于一层、三层和四层配置，
+% 说明单纯增加深度并未改善当前配置。学习率$1\times10^{-4}$和裁剪参数0.2同样具有较好的后期训练表现；
+% 更激进的设置出现较高目标水平或更持续的波动。因此，后续采用2048步、两层HGNN、学习率$1\times10^{-4}$和裁剪参数0.2。
 
-% 观察来自现有F5与大论文敏感性分析，不凭曲线读取精确改善百分比。
-% 图支持所比较配置中的相对选择，不说明该参数组合对所有问题全局最优。
-% TODO：补齐每次仅改变一个参数的控制方式、重复次数及曲线阴影定义；
+% 观察来自现有F5与大论文敏感性分析，不凭曲线读取精确改善百分比。图支持所比较配置中的相对选择，
+% 不说明该参数组合对所有问题全局最优。TODO：补齐每次仅改变一个参数的控制方式、重复次数及曲线阴影定义；
 % 轨迹采样步数不等同于横轴训练回合数。
 
-\subsection{Ablation Experiment}
+
+% ---------------------------------------------------------------------------
+%【第 5.2.2 节｜Candidate Rule-set Configuration】
+% ---------------------------------------------------------------------------
+\subsubsection{Offline Rule Evaluation and Action-space Configuration}
+\label{subsubsec:offline_rule_evaluation}
+%【章节标题译文】
+% 离线规则评价与动作空间配置
+
+% 规则库配置单独验证，固定编码器、预算和验证场景；比例图只解释使用行为。最终规则库在独立测试前确定，
+% 以下待补项不代表已经完成实验。
+%【第 5.2.2 节｜第 01 段｜5.2.2-P01】
+The existing results use the supplied mixed pool, including evolved composite rules; they do not
+represent the planned offline-screened pool. Screening simple and manually designed rules is an
+auxiliary configuration step, not the main experimental claim. Candidate evaluation must use training
+or validation instances, with the other decision categories fixed. Both objectives and rule diversity
+must inform selection; the final test set must remain excluded.
+\textit{[TODO: implement screening, identify each head's rules, retrain policies, and evaluate the frozen new configuration.]}
+
+For each evaluated decision type, keep the other two decision categories at identical documented
+reference configurations. Evaluate candidates on the same validation instances and disturbance
+realizations, with common objective definitions and evaluation budgets. Record the aggregation
+statistic and variability across independent runs. These scores are conditional on the reference
+configurations; they do not establish a universally optimal rule ranking or the performance of the
+joint learned selector. Retain complementary candidates rather than selecting solely by one objective.
+
+Table~\ref{tab:offline_rule_screening} reserves the evidence needed to define the final action sets.
+After validation, list each candidate by its implemented name, both objective scores, and retention
+status, grouped by decision head. Report the retained counts and map the selected rows explicitly
+to $\mathcal R^R$, $\mathcal R^S$, and $\mathcal R^{RE}$ in Eq.~\eqref{eq:mdp}.
+The sets must then be frozen before training the models used for controlled encoder comparisons.
+Existing mixed-pool results below remain evidence for their original configuration until those
+models have been retrained and evaluated with the screened sets.
+
+The first proposed candidate pools contain six rules per head, listed in
+Table~\ref{tab:proposed_rule_design}. These are design proposals, not verified implementations
+or retained rules. Let $\widetilde{\mathcal R}^{R}=\{R1,\ldots,R6\}$,
+$\widetilde{\mathcal R}^{S}=\{S1,\ldots,S6\}$, and
+$\widetilde{\mathcal R}^{RE}=\{RE1,\ldots,RE6\}$ denote the pre-screening pools.
+The final sets $\mathcal R^{\vartheta}\subseteq\widetilde{\mathcal R}^{\vartheta}$ need not
+have equal sizes. Only the active head selects a rule, giving at most six candidates per decision
+in this proposed configuration, rather than a single 18-way action.
+
+\begin{table*}[t]
+\centering
+\caption{First-version candidate rule designs (implementation and validation pending).}
+\label{tab:proposed_rule_design}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llp{0.53\textwidth}l@{}}
+\toprule
+ID & Rule & Proposed decision criterion & Preference \\
+\midrule
+\multicolumn{4}{l}{\textit{Routing}} \\
+R1 & SPT-M & Minimum processing time & Efficiency \\
+R2 & ECT-M & Minimum estimated completion time & Completion \\
+R3 & LLM & Minimum queued workload & Load balance \\
+R4 & EAM & Earliest feasible start & Waiting \\
+R5 & BAM & Baseline machine first; feasible fallback & Stability \\
+R6 & ACR-M & Assembly-aware machine choice & Assembly \\
+\midrule
+\multicolumn{4}{l}{\textit{Sequencing}} \\
+S1 & SPT-O & Shortest processing time first & Throughput \\
+S2 & LPT-O & Longest processing time first & Long operations \\
+S3 & MWKR & Most remaining job work first & Long routes \\
+S4 & MSLK & Minimum target-based slack first & Urgency \\
+S5 & BAS-O & Baseline operation order first & Stability \\
+S6 & ACR-O & Assembly-blocking component first & Assembly \\
+\midrule
+\multicolumn{4}{l}{\textit{Recovery}} \\
+RE1 & WAIT & Wait for the original machine & Stability \\
+RE2 & EAR & Earliest completion: wait or reroute & Completion \\
+RE3 & MIN-DEV & Minimum estimated baseline deviation & Stability \\
+RE4 & ALT-ECT & Earliest completion on alternatives & Rerouting \\
+RE5 & LOAD-BAL & Least-loaded alternative machine & Load balance \\
+RE6 & ASM-REC & Recovery reducing assembly waiting & Assembly \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+SPT-M compares processing durations, whereas ECT-M includes feasible-start waiting; EAM uses
+start time alone. Queued workload must be defined consistently without double-counting unassigned
+operations. BAM requires a specified fallback when no baseline machine is available, including for
+new orders. Sequencing durations refer to the machine currently making the sequencing decision.
+MWKR requires an explicit remaining-work convention. MSLK requires a documented target completion
+time; a baseline target may be used only for tasks with a baseline record, with a specified fallback
+for new orders. BAS-O preserves baseline order heuristically; it does not directly minimize the
+start-time and assignment deviation in Eq.~\eqref{eq:objective_deviation}.
+
+Recovery rules compare feasible recovery plans, not merely machine labels. EAR includes waiting
+and rerouting; ALT-ECT restricts its primary comparison to alternative machines. With no feasible
+alternative, the environment forces waiting as in Section~\ref{subsec:mathematical_model}.
+Completion estimates must use the full updated restart duration and only revealed repair information;
+unknown repair completion times require an explicit convention. MIN-DEV requires a defined estimate
+of schedule deviation, rather than claiming knowledge of the final objective. ACR-M, ACR-O, and
+ASM-REC require observable assembly-readiness estimates and executable scoring definitions.
+In particular, a criticality score constant across a routing operation's machine choices would not
+distinguish those choices; its decision behavior must be checked against ECT-M.
+
+All rules require deterministic tie breaking, feasibility handling, and missing-input conventions
+before evaluation. Compare their decoded decisions on common feasible states to identify redundancy;
+report disagreement rates on states where both rules apply, together with two-objective performance.
+A conditional ranking alone need not capture complementary behavior under the learned selector.
+
+\begin{table}[t]
+\centering
+\caption{Offline candidate evaluation template (no results available).}
+\label{tab:offline_rule_screening}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Head & Rule ID & $C_{\max}\downarrow$ & $D_{\mathrm{dev}}\downarrow$ & Selected \\
+\midrule
+Routing & R1 & --- & --- & Pending \\
+Routing & R2 & --- & --- & Pending \\
+Routing & R3 & --- & --- & Pending \\
+Routing & R4 & --- & --- & Pending \\
+Routing & R5 & --- & --- & Pending \\
+Routing & R6 & --- & --- & Pending \\
+\midrule
+Sequencing & S1 & --- & --- & Pending \\
+Sequencing & S2 & --- & --- & Pending \\
+Sequencing & S3 & --- & --- & Pending \\
+Sequencing & S4 & --- & --- & Pending \\
+Sequencing & S5 & --- & --- & Pending \\
+Sequencing & S6 & --- & --- & Pending \\
+\midrule
+Recovery & RE1 & --- & --- & Pending \\
+Recovery & RE2 & --- & --- & Pending \\
+Recovery & RE3 & --- & --- & Pending \\
+Recovery & RE4 & --- & --- & Pending \\
+Recovery & RE5 & --- & --- & Pending \\
+Recovery & RE6 & --- & --- & Pending \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\parbox{\columnwidth}{\scriptsize IDs refer to proposed designs, not implemented rules.
+Dashes indicate unavailable measurements; Pending indicates no retention decision.}
+\end{table}
+
+
+% Temporarily hidden: Figure~\ref{fig:candidate_rule_selection} describes the rule-use patterns in the existing mixed-pool experiments.
+It provides behavioral context for the configuration study, rather than a performance comparison between alternative rule sets.
+%【完整中文译文｜5.2.2-P03】
+% 图~\ref{fig:candidate_rule_selection}描述现有混合规则池实验中的规则使用模式。它为配置研究提供策略行为方面的背景，
+% 而不是不同规则库之间的性能比较。
+
+% ---------------------------------------------------------------------------
+%【第 5.3 节｜Ablation Experiments】
+% ---------------------------------------------------------------------------
+\subsection{Evaluation of Enhanced HGNN Encoding}
+%【章节标题译文】
+% 消融实验
 \label{subsec:ablation}
 
-The ablation study focuses on the state encoder. HGNN-PPO-$\alpha$ examines the contribution of
-heterogeneous graph information, while HGNN-PPO-$\beta$ examines attention within the graph-based
-policy. Removing a representation component does not remove the corresponding physical constraint:
-technological precedence, assembly readiness, and machine capacity remain enforced by the environment.
-The instance-wise outcomes of these variants are included in
-Tables~\ref{tab:ch3_strategy_effectiveness_small}--\ref{tab:ch3_strategy_effectiveness_large}.
+\subsubsection{Comparison of State Encoders}
+\label{subsubsec:encoder_comparison}
+Table~\ref{tab:encoder_pending} and Fig.~\ref{fig:encoder_pending} reserve the comparison outputs. Compare MLP-PPO, GCN-PPO, GAT-PPO, and Enhanced HGNN-PPO with identical instances,
+event sequences, rule pools, rewards, PPO budgets, and paired evaluation seeds. Match the available
+raw state information and document any information lost by a baseline representation. Report parameter
+counts, training configurations, and mean and standard deviation of both objectives across independent
+training runs. Use a common normalization, reference point, and solution-set protocol if reporting HV.
+Any statistical comparisons must respect paired instances and the distinction between training and
+evaluation repetitions.
+\textit{[TODO: encoder implementations, matched checkpoints, seed-wise results, uncertainty,
+and the encoder comparison table. No new comparison has been run.]}
 
-% 只写大论文已定义的HGNN与注意力变体，不将未实施的静态图、删齐套边等
-% 新消融写成已有实验。表示消融不改变环境中的物理可行性。
 
-\begin{figure*}[!htbp]
-    \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F7lyk大中小有无注意力机制_原图.png}
-    \caption{Training performance with and without semantic attention at three instance scales.}
-    \label{fig:ablation_attention_convergence}
-\end{figure*}
+\begin{table}[t]
+\centering
+\caption{Controlled state-encoder comparison (results pending).}
+\label{tab:encoder_pending}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Encoder & $C_{\max}$ & $D_{\mathrm{dev}}$ & HV & Params \\
+\midrule
+MLP-PPO & --- & --- & --- & --- \\
+GCN-PPO & --- & --- & --- & --- \\
+GAT-PPO & --- & --- & --- & --- \\
+Enhanced HGNN-PPO & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\scriptsize Dashes denote missing measurements, not zero values.}
+\end{table}
 
-In Fig.~\ref{fig:ablation_attention_convergence}, both configurations improve rapidly during early
-training and then approach a plateau. The complete model generally reaches lower makespan and
-deviation curves. The late-training separation is more pronounced in the medium and large groups
-than in the small group. This pattern is consistent with a benefit from distinguishing resource and
-assembly semantics when the production state contains more interacting branches. It supports the
-attention configuration as a whole; it does not isolate the contribution of each individual meta-path.
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][32mm][c]{0.92\columnwidth}{\centering\small Paired encoder comparison; both objectives and uncertainty\\[4pt]\textit{Placeholder: verified experimental data required.}}}
+\caption{State-encoder comparison across independent runs (results pending).}
+\label{fig:encoder_pending}
+\end{figure}
 
-% 有无注意力图中，中大规模后期差距更明显，解释为与复杂状态语义区分相符。
-% 不把整体注意力消融夸大为六条元路径逐项均有效的证据。
-% TODO：明确无注意力版本采用均匀融合还是其他实现，并核验共享预算和种子。
+\subsubsection{Encoder Component and Role-readout Ablations}
+%【第 5.3 节｜第 01 段｜5.3-P01】
+The ablation study focuses on the state encoder. HGNN-PPO-$\alpha$ examines the contribution of heterogeneous graph information,
+while HGNN-PPO-$\beta$ examines attention within the graph-based policy. Removing a representation
+component does not remove the corresponding physical constraint: technological precedence,
+assembly readiness, and machine capacity remain enforced by the environment. The instance-wise outcomes
+of these variants are included in Table~\ref{tab:training_strategy_comparison}.
+%【完整中文译文｜5.3-P01】
+% 消融研究聚焦状态编码器。HGNN-PPO-$\alpha$考察异构图信息的贡献，HGNN-PPO-$\beta$考察图策略中的注意力作用。
+% 移除表征模块并不移除对应物理约束：工艺前序、装配就绪和机器容量仍由环境保证。这些变体的逐算例结果列于表~\ref{tab:training_strategy_comparison}。
 
-\begin{figure*}[!htbp]
-    \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F8lyk不同规模算例下各类规则的选择比例_原图.png}
-    \caption{Selection ratios of candidate rule families in the supplied rule-library configuration.}
-    \label{fig:candidate_rule_selection}
-\end{figure*}
+% 只写大论文已定义的HGNN与注意力变体，不将未实施的静态图、删齐套边等新消融写成已有实验。表示消融不改变环境中的物理可行性。
 
-Figure~\ref{fig:candidate_rule_selection} provides a complementary view of policy behavior under the
-supplied rule pool. The displayed families comprise manual rules, simple rules, CGP, DCGP, and
-DCGP-NCBE rules. Selection profiles vary across instances, while the DCGP-NCBE family occupies a
-larger share in the large-scale group. The display therefore describes how the recorded selector uses
-that particular candidate pool. It is not a separate ablation of the encoder, and selection frequency
-alone cannot establish the causal contribution of a rule family.
+%【第 5.3 节｜第 02 段｜5.3-P02】
+Figure~\ref{fig:ablation_attention_convergence} compares training with and without attention at three scales.
+The physical scheduling constraints and candidate rule sets must be held fixed to isolate the effect of semantic weighting.
+%【完整中文译文｜5.3-P02】
+% 图~\ref{fig:ablation_attention_convergence}比较三种规模下有无注意力的训练表现。为单独检验语义加权的作用，
+% 物理调度约束和候选规则集合必须保持不变。
 
-% 保留原规则来源名称，不将DCGP生成方法重新包装成本文创新。
-% 数据清单将此图标为未核验汇总：尚缺动作日志及各头统计分母。
-% TODO：若最终使用简单基础规则库，本图必须用对应动作日志重新统计，
-% 不能只替换图例或把原选择比例解释为新规则库行为。
+% 角色汇聚是尚需补充的消融，不能把现有注意力曲线当作其验证结果。
+%【第 5.3 节｜第 03 段｜5.3-P03】
+%【待补实验】以下为原有结果占位，须取得真实实验结果后填写。
+To isolate the role-readout mechanism, an additional variant should replace role-specific node selection
+and pooling with a common global graph readout while retaining the same rule heads and physical feasibility checks.
+\textit{[Results pending: compare role-specific and global readout under matched training and evaluation conditions,
+including independent runs.]}
+%【完整中文译文｜5.3-P03】
+% 为单独检验角色读出机制，应增加一个变体，将面向角色的节点选择与池化替换为统一的全局图读出，
+% 同时保留相同的规则决策头和物理可行性检查。［待补结果：在匹配的训练与评价条件下，比较角色读出与全局读出，并包含独立运行。］
 
-\subsection{Result Analysis}
+% ---------------------------------------------------------------------------
+%【第 5.4 节｜Comparative Experiments】
+% ---------------------------------------------------------------------------
+\subsection{Comparative Scheduling Performance}
+%【章节标题译文】
+% 对比实验
 \label{subsec:result_analysis}
-\subsubsection{Comparison on Training Instances}
+% ---------------------------------------------------------------------------
+%【第 5.4.1 节｜Comparison across Training Instance Sizes】
+% ---------------------------------------------------------------------------
+\subsubsection{Comparison across Training Instance Sizes}
+%【章节标题译文】
+% 不同规模训练算例上的比较
 \label{subsec:comparative_results}
 
-Figure~\ref{fig:training_convergence_random_instances} reports per-episode objective values and their
-20-episode moving averages. Both objectives decrease during the early training stage and improve more
-slowly thereafter at all three scales. Fluctuations remain around the smoothed trend, particularly
-under the larger workloads. The curves describe the learning trajectory; they are considered together
-with the instance-wise comparisons and the independent tests rather than treated as independent
-replications of final policy performance.
+%【第 5.4.1 节｜第 01 段｜5.4.1-P01】
+Table~\ref{tab:training_strategy_comparison} brings together the small-, medium-, and large-scale comparisons.
+HRS, ERS, and DQN provide reference selectors; HGNN-PPO-$\alpha$ and HGNN-PPO-$\beta$ support
+the component comparisons in Section~\ref{subsec:ablation}. Bold and underlined entries retain the best
+and second-best values, respectively. Shaded rows summarize best counts, top-two counts, and the supplied overall ranks.
+%【完整中文译文｜5.4.1-P01】
+% 表~\ref{tab:training_strategy_comparison}汇总小、中、大规模的比较。HRS、ERS和DQN提供参考选择器；
+% HGNN-PPO-$\alpha$和HGNN-PPO-$\beta$支持第~\ref{subsec:ablation}节的模块比较。
+% 粗体与下划线条目分别表示最优和次优值。灰色行汇总最优次数、前二次数及原始结果提供的综合排名。
 
-% F6图例明确给出逐回合值与20回合移动平均，因此采用这一准确描述。
-% TODO：补充代表算例编号、模型偏好及各曲线是否来自同一次训练。
+% 合并原Table 3、4、5；不从截图替换数字，沿用当前论文已核验的原始单元格。综合排名公式仍待核验，
+% 不用原表排名替代对两个目标的独立分析。
+% 【表格 5.4.1-T01｜tab:training_strategy_comparison, tab:ch3_strategy_effectiveness_small, tab:ch3_strategy_effectiveness_medium,tab:ch3_strategy_effectiveness_large】
+\begin{table*}[tp]
+\centering
+\captionsetup{name=Table}
+%【图表标题｜第 5.4.1 节；引用时保留后面的label】
+\caption{Comparison results of different strategies across training instance sizes.}
+%【图表或算法标题译文】
+% 不同策略在各规模训练算例上的比较结果。
+\label{tab:training_strategy_comparison}
+\label{tab:ch3_strategy_effectiveness_small}
+\label{tab:ch3_strategy_effectiveness_medium}
+\label{tab:ch3_strategy_effectiveness_large}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{0.90}
+\resizebox{\textwidth}{!}{%
+%【表格 5.4.1-T02｜见本块图注或标签】
+\begin{tabular}{@{}cl*{6}{rr}@{}}
+\toprule
+\multicolumn{2}{c}{Training instance}
+& \multicolumn{2}{c}{HRS} & \multicolumn{2}{c}{ERS}
+& \multicolumn{2}{c}{DQN} & \multicolumn{2}{c}{HGNN-PPO-$\alpha$}
+& \multicolumn{2}{c}{HGNN-PPO-$\beta$} & \multicolumn{2}{c}{HGNN-PPO} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+\cmidrule(lr){9-10}\cmidrule(lr){11-12}\cmidrule(lr){13-14}
+& & $C_{\max}$ & $D_{\mathrm{dev}}$ & $C_{\max}$ & $D_{\mathrm{dev}}$
+& $C_{\max}$ & $D_{\mathrm{dev}}$ & $C_{\max}$ & $D_{\mathrm{dev}}$
+& $C_{\max}$ & $D_{\mathrm{dev}}$ & $C_{\max}$ & $D_{\mathrm{dev}}$ \\
+\midrule
+\multirow{10}{*}{\rotatebox{90}{Small-scale}} & TR\_S01 & 99.40 & \underline{53.89} & 95.19 & 69.66 & 93.75 & 76.23 & 92.32 & 63.09 & \underline{90.89} & \textbf{49.95} & \textbf{89.46} & 57.83 \\
+%【表格文字译文】
+% Small-scale：小规模。
+ & TR\_S02 & 48.70 & 111.87 & \underline{41.76} & 100.51 & \textbf{40.69} & 80.06 & 43.90 & 89.15 & 44.97 & \underline{73.24} & 42.83 & \textbf{66.42} \\
+ & TR\_S03 & 57.38 & 121.34 & 54.94 & 80.39 & 54.12 & 106.72 & 53.29 & 92.09 & \underline{52.47} & \underline{71.62} & \textbf{51.64} & \textbf{62.84} \\
+ & TR\_S04 & 60.11 & 167.16 & 52.78 & 118.99 & 50.33 & 143.08 & \textbf{47.87} & \textbf{70.82} & 51.56 & \underline{85.27} & \underline{49.10} & 99.72 \\
+ & TR\_S05 & 76.80 & 135.92 & 73.54 & 90.29 & 72.44 & 72.03 & 71.33 & \textbf{44.65} & \underline{70.23} & 113.10 & \textbf{69.12} & \underline{58.34} \\
+ & TR\_S06 & 58.32 & 119.79 & 51.75 & 106.10 & 49.23 & \textbf{78.72} & \textbf{46.70} & 133.48 & \underline{47.97} & 95.15 & 50.49 & \underline{86.93} \\
+ & TR\_S07 & 92.15 & 91.85 & 88.67 & 81.51 & 87.49 & 62.89 & 86.31 & \underline{56.69} & \underline{85.12} & \textbf{50.48} & \textbf{83.94} & 71.17 \\
+ & TR\_S08 & 57.49 & 120.63 & 54.33 & 106.86 & 53.03 & \textbf{65.56} & \underline{50.45} & 82.08 & \textbf{49.15} & 93.10 & 51.74 & \underline{73.82} \\
+ & TR\_S09 & 70.16 & 126.88 & 66.93 & 145.17 & 64.40 & \underline{82.98} & \textbf{61.88} & 108.59 & 65.67 & 93.95 & \underline{63.14} & \textbf{72.00} \\
+ & TR\_S10 & 53.19 & 121.65 & 50.93 & 104.57 & 50.17 & 138.74 & 49.40 & 90.90 & \underline{48.64} & \underline{80.64} & \textbf{47.87} & \textbf{70.39} \\
+\rowcolor{black!7}
+\multicolumn{2}{l}{Best count} & 0/10 & 0/10 & 0/10 & 0/10 & 1/10 & 2/10 & 3/10 & 2/10 & 1/10 & 2/10 & 5/10 & 4/10 \\
+%【表格文字译文】
+% Best count：最优次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Top-two count} & 0/10 & 1/10 & 1/10 & 0/10 & 1/10 & 3/10 & 4/10 & 3/10 & 7/10 & 6/10 & 7/10 & 7/10 \\
+%【表格文字译文】
+% Top-two count：前二次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Overall rank} & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
+%【表格文字译文】
+% Overall rank：综合排名。
+\midrule
+\multirow{10}{*}{\rotatebox{90}{Medium-scale}} & TR\_M01 & \underline{59.07} & 123.29 & 61.86 & 148.19 & 60.93 & 78.48 & 60.00 & \underline{63.54} & 64.60 & \textbf{48.60} & \textbf{58.14} & 98.40 \\
+%【表格文字译文】
+% Medium-scale：中规模。
+ & TR\_M02 & 61.72 & 186.82 & 58.88 & 153.03 & \textbf{54.43} & 119.24 & 57.77 & \textbf{51.66} & 56.65 & \underline{71.93} & \underline{55.54} & 92.21 \\
+ & TR\_M03 & 68.00 & 181.16 & 65.12 & \underline{78.18} & 64.14 & \textbf{62.61} & 63.16 & 151.52 & \underline{62.18} & 80.39 & \textbf{61.20} & 94.89 \\
+ & TR\_M04 & 58.70 & 170.12 & 52.02 & 173.53 & 50.84 & 128.71 & 49.65 & \textbf{45.89} & \underline{48.47} & 95.58 & \textbf{47.29} & \underline{70.74} \\
+ & TR\_M05 & 64.90 & 177.08 & \textbf{53.30} & 138.10 & \underline{54.71} & 67.94 & 57.51 & 99.12 & 58.92 & \textbf{21.16} & 56.11 & \underline{44.55} \\
+ & TR\_M06 & 67.22 & 180.15 & 63.80 & 104.71 & 62.64 & 74.53 & 61.47 & 142.43 & \underline{60.31} & \underline{51.90} & \textbf{59.15} & \textbf{29.27} \\
+ & TR\_M07 & 72.72 & 88.41 & 69.02 & 136.39 & 67.76 & 109.73 & 66.50 & \underline{72.41} & \underline{65.25} & 163.04 & \textbf{63.99} & \textbf{56.42} \\
+ & TR\_M08 & 64.60 & 166.76 & 61.04 & 113.82 & 59.64 & 196.17 & 58.25 & 137.35 & \textbf{55.46} & \underline{96.17} & \underline{56.85} & \textbf{78.52} \\
+ & TR\_M09 & 59.71 & 205.13 & 56.67 & 107.39 & 55.64 & \textbf{65.50} & 54.61 & 135.32 & \underline{53.58} & 170.22 & \textbf{52.55} & \underline{86.44} \\
+ & TR\_M10 & 58.32 & \textbf{64.14} & 55.35 & 125.16 & 54.34 & 186.18 & 53.34 & \underline{82.45} & \underline{52.33} & 155.67 & \textbf{51.32} & 90.75 \\
+\rowcolor{black!7}
+\multicolumn{2}{l}{Best count} & 0/10 & 1/10 & 1/10 & 0/10 & 1/10 & 2/10 & 0/10 & 2/10 & 1/10 & 2/10 & 7/10 & 3/10 \\
+%【表格文字译文】
+% Best count：最优次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Top-two count} & 1/10 & 1/10 & 1/10 & 1/10 & 2/10 & 2/10 & 0/10 & 5/10 & 7/10 & 5/10 & 9/10 & 6/10 \\
+%【表格文字译文】
+% Top-two count：前二次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Overall rank} & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
+%【表格文字译文】
+% Overall rank：综合排名。
+\midrule
+\multirow{10}{*}{\rotatebox{90}{Large-scale}} & TR\_L01 & 89.70 & 176.84 & 84.75 & 216.54 & 82.81 & 105.39 & 80.88 & 137.15 & \textbf{77.00} & \textbf{57.75} & \underline{78.94} & \underline{81.57} \\
+%【表格文字译文】
+% Large-scale：大规模。
+ & TR\_L02 & 91.01 & \underline{67.95} & 78.60 & 121.21 & 76.81 & 197.29 & 75.02 & 90.77 & \underline{73.24} & 159.25 & \textbf{71.45} & \textbf{45.12} \\
+ & TR\_L03 & 88.10 & 185.26 & 75.59 & \underline{74.44} & 73.87 & 152.67 & 72.16 & 93.99 & \underline{70.44} & 80.07 & \textbf{68.72} & \textbf{54.88} \\
+ & TR\_L04 & 93.42 & 124.44 & 75.98 & \textbf{53.57} & \underline{70.55} & 134.15 & 74.17 & 101.92 & \textbf{68.74} & 179.73 & 72.36 & \underline{77.74} \\
+ & TR\_L05 & 89.30 & 179.28 & 85.12 & 149.46 & 83.70 & \underline{77.88} & 82.28 & 95.78 & \underline{80.86} & \textbf{59.99} & \textbf{79.44} & 87.64 \\
+ & TR\_L06 & 58.40 & 161.94 & 56.25 & 133.71 & 55.40 & 105.48 & \textbf{52.88} & \textbf{49.02} & 54.56 & 82.90 & \underline{53.72} & \underline{65.96} \\
+ & TR\_L07 & 92.00 & 109.66 & 80.96 & 205.17 & 79.12 & 171.06 & 77.28 & 136.95 & \underline{75.44} & \textbf{68.73} & \textbf{73.60} & \underline{89.20} \\
+ & TR\_L08 & 94.27 & 151.18 & 82.96 & \underline{94.36} & 81.08 & 218.06 & 79.19 & \textbf{84.29} & \underline{77.31} & 184.62 & \textbf{75.42} & 98.42 \\
+ & TR\_L09 & 109.37 & 125.51 & 99.44 & 209.43 & 94.81 & 91.94 & \textbf{90.19} & 167.47 & 97.13 & \textbf{41.59} & \underline{92.50} & \underline{66.77} \\
+ & TR\_L10 & 96.52 & 153.38 & 87.14 & 126.73 & 85.16 & \textbf{46.78} & 83.18 & 100.08 & \underline{81.20} & \underline{62.77} & \textbf{79.22} & 78.76 \\
+\rowcolor{black!7}
+\multicolumn{2}{l}{Best count} & 0/10 & 0/10 & 0/10 & 1/10 & 0/10 & 1/10 & 2/10 & 2/10 & 2/10 & 4/10 & 6/10 & 2/10 \\
+%【表格文字译文】
+% Best count：最优次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Top-two count} & 0/10 & 1/10 & 0/10 & 3/10 & 1/10 & 2/10 & 2/10 & 2/10 & 8/10 & 5/10 & 9/10 & 7/10 \\
+%【表格文字译文】
+% Top-two count：前二次数。
+\rowcolor{black!7}
+\multicolumn{2}{l}{Overall rank} & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
+%【表格文字译文】
+% Overall rank：综合排名。
+\bottomrule
+\end{tabular}}
 
-\begin{figure*}[!htbp]
-    \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F6lyk强化学习训练曲线1_原图.png}
-    \caption{Per-episode objectives and 20-episode moving averages during HGNN-PPO training.}
-    \label{fig:training_convergence_random_instances}
+% 截图的分析以当前表内数值为准：工期18次最优、25次前二；偏离度9次最优、20次前二。英文分析随合并表排出，
+% 避免其与表格、后续曲线图被浮动机制拆散。完整模型在小、中、大规模分别取得5、7、6次最优工期。
+% 随着任务规模扩大，工艺衔接与资源竞争更加复杂，完整模型仍较频繁地进入前二，说明结构状态表征与规则选择的结合具有应用价值，
+% 但不据此宣称每个算例均优于所有基线。在计划稳定性方面，完整模型取得9次最优、20次前二。
+% 两个目标分别反映生产执行效率与原计划保持要求，需结合考察，不能由较短工期推定更低偏离。
+% 后续注意力训练曲线与规则比例图分别解释训练过程及已有规则池的使用行为。
+\par\medskip
+\noindent\begin{minipage}[t]{0.485\textwidth}
+\normalsize
+%【第 5.4.1 节｜第 02 段｜5.4.1-P02】
+Table~\ref{tab:training_strategy_comparison} shows favorable makespan performance across training instance sizes.
+HGNN-PPO obtains 18 best and 25 top-two makespan values among 30 instances, including five, seven,
+and six best values in the small-, medium-, and large-scale groups. As scale increases,
+processing precedence and resource competition become more involved, while the complete model retains
+frequent top-two placements. These results are consistent with the value of representing production structure
+when selecting rules for routing, sequencing, and recovery.
+%【完整中文译文｜5.4.1-P02】
+% 表~\ref{tab:training_strategy_comparison}显示，HGNN-PPO在不同规模训练算例上具有较好的最大完工时间表现。
+% 在30个算例中，共取得18次最优和25次前二，其中小、中、大规模分别取得5、7、6次最优。随着规模增大，
+% 加工前序与资源竞争更加复杂，完整模型仍较频繁地取得前二。这些结果与以下判断相符：
+% 在选择机器分配、工序排序和故障恢复规则时，表征生产结构具有价值。
+\end{minipage}\hfill
+\begin{minipage}[t]{0.485\textwidth}
+\normalsize
+%【第 5.4.1 节｜第 03 段｜5.4.1-P03】
+For schedule stability, HGNN-PPO obtains nine best and 20 top-two deviation values.
+The complete model therefore combines favorable completion efficiency with competitive plan preservation on many instances,
+although neither objective improves uniformly. Makespan and deviation describe complementary efficiency--stability requirements.
+% Temporarily hidden: To relate these outcomes to policy learning and rule use, Figs.~\ref{fig:ablation_attention_convergence}
+% Temporarily hidden: and~\ref{fig:candidate_rule_selection} present the attention comparison and rule-family selection ratios, respectively.
+%【完整中文译文｜5.4.1-P03】
+% 在计划稳定性方面，HGNN-PPO取得9次最优和20次前二。因此，完整模型在许多算例上同时具有较好的完工效率和有竞争力的原计划保持能力，
+% 尽管两个目标均不是在所有算例上都得到改善。最大完工时间和偏离度反映相互补充的效率与稳定性要求。
+% 为将这些结果与策略学习和规则使用联系起来，图~\ref{fig:ablation_attention_convergence}和图~\ref{fig:candidate_rule_selection}分别给出注意力比较及规则族选择比例。
+\end{minipage}
+\end{table*}
+
+% 【图块 5.4.1-F01｜fig:ablation_attention_convergence, fig:candidate_rule_selection, fig:training_convergence_random_instances】
+% Temporarily hidden at author request; preserve original source and image.
+\begin{figure*}[tp]
+\centering
+\centering
+    \captionsetup{type=figure,name=Figure}
+    \includegraphics[width=0.98\textwidth,height=0.36\textheight,keepaspectratio]{figures/F7lyk大中小有无注意力机制_原图.png}
+%【图表标题｜第 5.4.1 节；引用时保留后面的label】
+    \caption{Training performance with and without semantic attention at three instance scales.}
+%【图表或算法标题译文】
+% 三种算例规模下有无语义注意力的训练表现。
+    \label{fig:ablation_attention_convergence}
+\par\smallskip
+\begin{minipage}{0.94\textwidth}
+\small
+%【第 5.4.1 节｜第 04 段｜5.4.1-P04】
+Both attention configurations improve early in training and then approach a plateau.
+The complete model generally reaches lower objective curves, with a more pronounced late-training
+separation in the medium- and large-scale groups. This comparison supports the attention configuration as a whole,
+rather than identifying each meta-path's effect.
+%【完整中文译文｜5.4.1-P04】
+% 两种注意力配置均在训练初期改善，随后趋于平台。完整模型通常达到更低的目标曲线，并且在中、大规模组中，
+% 训练后期的曲线差距更明显。该比较支持注意力配置整体的作用，而不是分别识别每条元路径的作用。
+\end{minipage}
+\par\medskip
 \end{figure*}
 
-\begin{table*}[!htbp]
-    \centering
-    \captionsetup{name=Table}
-    \songti\rmfamily
-% 小规模训练场景下不同策略的对比结果
-    \caption{Comparison Results of Different Strategies on Small-scale Training Scenarios}
-    \label{tab:ch3_strategy_effectiveness_small}
-    \zihao{-5}
-    \setlength{\tabcolsep}{0pt}
-    \renewcommand{\arraystretch}{0.95}
-    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} c cc cc cc cc cc cc @{}}
-        \toprule
-        \multirow{2}{*}{Instance}
-        & \multicolumn{2}{c}{HRS}
-        & \multicolumn{2}{c}{ERS}
-        & \multicolumn{2}{c}{DQN}
-        & \multicolumn{2}{c}{HGNN-PPO-$\alpha$}
-        & \multicolumn{2}{c}{HGNN-PPO-$\beta$}
-        & \multicolumn{2}{c}{HGNN-PPO}
-        \\
-        \cmidrule(lr){2-3}
-        \cmidrule(lr){4-5}
-        \cmidrule(lr){6-7}
-        \cmidrule(lr){8-9}
-        \cmidrule(lr){10-11}
-        \cmidrule(lr){12-13}
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        \\
-        \midrule
-        TR\_S01 & 99.40 & \underline{53.89} & 95.19 & 69.66 & 93.75 & 76.23 & 92.32 & 63.09 & \underline{90.89} & \textbf{49.95} & \textbf{89.46} & 57.83 \\
-        TR\_S02 & 48.70 & 111.87 & \underline{41.76} & 100.51 & \textbf{40.69} & 80.06 & 43.90 & 89.15 & 44.97 & \underline{73.24} & 42.83 & \textbf{66.42} \\
-        TR\_S03 & 57.38 & 121.34 & 54.94 & 80.39 & 54.12 & 106.72 & 53.29 & 92.09 & \underline{52.47} & \underline{71.62} & \textbf{51.64} & \textbf{62.84} \\
-        TR\_S04 & 60.11 & 167.16 & 52.78 & 118.99 & 50.33 & 143.08 & \textbf{47.87} & \textbf{70.82} & 51.56 & \underline{85.27} & \underline{49.10} & 99.72 \\
-        TR\_S05 & 76.80 & 135.92 & 73.54 & 90.29 & 72.44 & 72.03 & 71.33 & \textbf{44.65} & \underline{70.23} & 113.10 & \textbf{69.12} & \underline{58.34} \\
-        TR\_S06 & 58.32 & 119.79 & 51.75 & 106.10 & 49.23 & \textbf{78.72} & \textbf{46.70} & 133.48 & \underline{47.97} & 95.15 & 50.49 & \underline{86.93} \\
-        TR\_S07 & 92.15 & 91.85 & 88.67 & 81.51 & 87.49 & 62.89 & 86.31 & \underline{56.69} & \underline{85.12} & \textbf{50.48} & \textbf{83.94} & 71.17 \\
-        TR\_S08 & 57.49 & 120.63 & 54.33 & 106.86 & 53.03 & \textbf{65.56} & \underline{50.45} & 82.08 & \textbf{49.15} & 93.10 & 51.74 & \underline{73.82} \\
-        TR\_S09 & 70.16 & 126.88 & 66.93 & 145.17 & 64.40 & \underline{82.98} & \textbf{61.88} & 108.59 & 65.67 & 93.95 & \underline{63.14} & \textbf{72.00} \\
-        TR\_S10 & 53.19 & 121.65 & 50.93 & 104.57 & 50.17 & 138.74 & 49.40 & 90.90 & \underline{48.64} & \underline{80.64} & \textbf{47.87} & \textbf{70.39} \\
-        \midrule
-        Best count & 0/10 & 0/10 & 0/10 & 0/10 & 1/10 & 2/10 & 3/10 & 2/10 & 1/10 & 2/10 & 5/10 & 4/10 \\
-        Top-two count & 0/10 & 1/10 & 1/10 & 0/10 & 1/10 & 3/10 & 4/10 & 3/10 & 7/10 & 6/10 & 7/10 & 7/10 \\
-        Overall rank & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
-        \bottomrule
-    \end{tabular*}
-\end{table*}
+% Rule-use proportions and episode curves share the following block.
+% Temporarily hidden at author request; preserve original source and image.
+% \begin{figure*}[tp]
+% \centering
+%     \captionsetup{type=figure,name=Figure}
+%     \includegraphics[width=0.98\textwidth,height=0.31\textheight,keepaspectratio]{figures/F8lyk不同规模算例下各类规则的选择比例_原图.png}
+% %【图表标题｜第 5.4.1 节；引用时保留后面的label】
+%     \caption{Selection ratios of candidate rule families in the supplied rule-library configuration.}
+% %【图表或算法标题译文】
+% % 所提供规则库配置中各候选规则族的选择比例。
+%     \label{fig:candidate_rule_selection}
+% \par\smallskip
+% \begin{minipage}{0.94\textwidth}
+% \small
+% %【第 5.4.1 节｜第 05 段｜5.4.1-P05】
+% Rule-family selection profiles vary with instance scale in the supplied mixed pool.
+% DCGP-NCBE rules occupy a larger share in the large-scale group. These proportions describe policy
+% behavior within the available library; selection frequency alone does not establish a rule family's performance contribution.
+% %【完整中文译文｜5.4.1-P05】
+% % 在所提供的混合规则池中，规则族选择分布随算例规模变化。DCGP-NCBE规则在大规模组中占据较高比例。
+% % 这些比例描述策略在可用规则库中的行为；仅凭选择频率，不能确定某个规则族对性能的贡献。
+% \end{minipage}
+% \par\medskip
+% \end{figure*}
 
-For the small-scale group in Table~\ref{tab:ch3_strategy_effectiveness_small}, HGNN-PPO obtains the
-lowest makespan on five instances and the lowest deviation on four, with seven top-two placements
-for each objective. On TR\_S03, for example, its $(C_{\max},D_{\mathrm{dev}})$ values are
-$(51.64,62.84)$, compared with $(52.47,71.62)$ for the no-attention variant. The advantage is not
-uniform: DQN gives the shortest makespan on TR\_S02, and HGNN-PPO-$\alpha$ gives the best values
-for both objectives on TR\_S04. The results therefore favor adaptive state encoding in aggregate
-without implying dominance on every small instance.
+\begin{figure}[tb]
+\centering
+    \captionsetup{type=figure,name=Figure}
+    \includegraphics[width=\columnwidth,height=0.22\textheight,keepaspectratio]{figures/F6lyk强化学习训练曲线1_原图.png}
+%【图表标题｜第 5.4.1 节；引用时保留后面的label】
+    \caption{Per-episode objectives and 20-episode moving averages during HGNN-PPO training.}
+%【图表或算法标题译文】
+% HGNN-PPO训练过程中的逐回合目标值与20回合移动平均。
+    \label{fig:training_convergence_random_instances}
+\end{figure}
 
-% 本段数值直接来自当前小论文表，未照搬大论文中略有不同的工期数值。
+%【第 5.4.1 节｜第 06 段｜5.4.1-P06】
+Figure~\ref{fig:training_convergence_random_instances} additionally shows per-episode objectives
+and 20-episode moving averages. The early decrease and later plateau provide context for policy learning.
+Consecutive episodes are not independent replications of final policy performance;
+independent evaluation is reported in the next subsection.
+%【完整中文译文｜5.4.1-P06】
+% 图~\ref{fig:training_convergence_random_instances}还展示逐回合目标值及20回合移动平均。
+% 前期下降和后期平台为理解策略学习提供背景。连续训练回合并非最终策略性能的独立重复实验；独立评价将在下一小节报告。
 
-\begin{table*}[!htbp]
-    \centering
-    \captionsetup{name=Table}
-    \songti\rmfamily
-% 中规模训练场景下不同策略的对比结果
-    \caption{Comparison Results of Different Strategies on Medium-scale Training Scenarios}
-    \label{tab:ch3_strategy_effectiveness_medium}
-    \zihao{-5}
-    \setlength{\tabcolsep}{0pt}
-    \renewcommand{\arraystretch}{0.95}
-    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} c cc cc cc cc cc cc @{}}
-        \toprule
-        \multirow{2}{*}{Instance}
-        & \multicolumn{2}{c}{HRS}
-        & \multicolumn{2}{c}{ERS}
-        & \multicolumn{2}{c}{DQN}
-        & \multicolumn{2}{c}{HGNN-PPO-$\alpha$}
-        & \multicolumn{2}{c}{HGNN-PPO-$\beta$}
-        & \multicolumn{2}{c}{HGNN-PPO}
-        \\
-        \cmidrule(lr){2-3}
-        \cmidrule(lr){4-5}
-        \cmidrule(lr){6-7}
-        \cmidrule(lr){8-9}
-        \cmidrule(lr){10-11}
-        \cmidrule(lr){12-13}
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        \\
-        \midrule
-        TR\_M01 & \underline{59.07} & 123.29 & 61.86 & 148.19 & 60.93 & 78.48 & 60.00 & \underline{63.54} & 64.60 & \textbf{48.60} & \textbf{58.14} & 98.40 \\
-        TR\_M02 & 61.72 & 186.82 & 58.88 & 153.03 & \textbf{54.43} & 119.24 & 57.77 & \textbf{51.66} & 56.65 & \underline{71.93} & \underline{55.54} & 92.21 \\
-        TR\_M03 & 68.00 & 181.16 & 65.12 & \underline{78.18} & 64.14 & \textbf{62.61} & 63.16 & 151.52 & \underline{62.18} & 80.39 & \textbf{61.20} & 94.89 \\
-        TR\_M04 & 58.70 & 170.12 & 52.02 & 173.53 & 50.84 & 128.71 & 49.65 & \textbf{45.89} & \underline{48.47} & 95.58 & \textbf{47.29} & \underline{70.74} \\
-        TR\_M05 & 64.90 & 177.08 & \textbf{53.30} & 138.10 & \underline{54.71} & 67.94 & 57.51 & 99.12 & 58.92 & \textbf{21.16} & 56.11 & \underline{44.55} \\
-        TR\_M06 & 67.22 & 180.15 & 63.80 & 104.71 & 62.64 & 74.53 & 61.47 & 142.43 & \underline{60.31} & \underline{51.90} & \textbf{59.15} & \textbf{29.27} \\
-        TR\_M07 & 72.72 & 88.41 & 69.02 & 136.39 & 67.76 & 109.73 & 66.50 & \underline{72.41} & \underline{65.25} & 163.04 & \textbf{63.99} & \textbf{56.42} \\
-        TR\_M08 & 64.60 & 166.76 & 61.04 & 113.82 & 59.64 & 196.17 & 58.25 & 137.35 & \textbf{55.46} & \underline{96.17} & \underline{56.85} & \textbf{78.52} \\
-        TR\_M09 & 59.71 & 205.13 & 56.67 & 107.39 & 55.64 & \textbf{65.50} & 54.61 & 135.32 & \underline{53.58} & 170.22 & \textbf{52.55} & \underline{86.44} \\
-        TR\_M10 & 58.32 & \textbf{64.14} & 55.35 & 125.16 & 54.34 & 186.18 & 53.34 & \underline{82.45} & \underline{52.33} & 155.67 & \textbf{51.32} & 90.75 \\
-        \midrule
-        Best count & 0/10 & 1/10 & 1/10 & 0/10 & 1/10 & 2/10 & 0/10 & 2/10 & 1/10 & 2/10 & 7/10 & 3/10 \\
-        Top-two count & 1/10 & 1/10 & 1/10 & 1/10 & 2/10 & 2/10 & 0/10 & 5/10 & 7/10 & 5/10 & 9/10 & 6/10 \\
-        Overall rank & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
-        \bottomrule
-    \end{tabular*}
-\end{table*}
+% Training results flow into the independent evaluation without a forced page break.
 
-The medium-scale results in Table~\ref{tab:ch3_strategy_effectiveness_medium} show seven best
-makespan values and nine top-two placements for HGNN-PPO. Its deviation is best on three instances
-and among the top two on six. On TR\_M06, the complete model gives $(59.15,29.27)$, improving
-both displayed objectives relative to the no-attention values $(60.31,51.90)$. By contrast, on
-TR\_M01, the complete model gives the shortest makespan but a higher deviation than either
-HGNN-PPO variant. This contrast highlights the need to inspect both objectives rather than infer
-plan stability from completion time alone.
-
-% 中规模突出完工效率，并用M01说明两目标并非处处同步改善。
-
-\begin{table*}[!htbp]
-    \centering
-    \captionsetup{name=Table}
-    \songti\rmfamily
-% 大规模训练场景下不同策略的对比结果
-    \caption{Comparison Results of Different Strategies on Large-scale Training Scenarios}
-    \label{tab:ch3_strategy_effectiveness_large}
-    \zihao{-5}
-    \setlength{\tabcolsep}{0pt}
-    \renewcommand{\arraystretch}{0.95}
-    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}} c cc cc cc cc cc cc @{}}
-        \toprule
-        \multirow{2}{*}{Instance}
-        & \multicolumn{2}{c}{HRS}
-        & \multicolumn{2}{c}{ERS}
-        & \multicolumn{2}{c}{DQN}
-        & \multicolumn{2}{c}{HGNN-PPO-$\alpha$}
-        & \multicolumn{2}{c}{HGNN-PPO-$\beta$}
-        & \multicolumn{2}{c}{HGNN-PPO}
-        \\
-        \cmidrule(lr){2-3}
-        \cmidrule(lr){4-5}
-        \cmidrule(lr){6-7}
-        \cmidrule(lr){8-9}
-        \cmidrule(lr){10-11}
-        \cmidrule(lr){12-13}
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        & $C_{\max}$ & $D_{\mathrm{dev}}$
-        \\
-        \midrule
-        TR\_L01 & 89.70 & 176.84 & 84.75 & 216.54 & 82.81 & 105.39 & 80.88 & 137.15 & \textbf{77.00} & \textbf{57.75} & \underline{78.94} & \underline{81.57} \\
-        TR\_L02 & 91.01 & \underline{67.95} & 78.60 & 121.21 & 76.81 & 197.29 & 75.02 & 90.77 & \underline{73.24} & 159.25 & \textbf{71.45} & \textbf{45.12} \\
-        TR\_L03 & 88.10 & 185.26 & 75.59 & \underline{74.44} & 73.87 & 152.67 & 72.16 & 93.99 & \underline{70.44} & 80.07 & \textbf{68.72} & \textbf{54.88} \\
-        TR\_L04 & 93.42 & 124.44 & 75.98 & \textbf{53.57} & \underline{70.55} & 134.15 & 74.17 & 101.92 & \textbf{68.74} & 179.73 & 72.36 & \underline{77.74} \\
-        TR\_L05 & 89.30 & 179.28 & 85.12 & 149.46 & 83.70 & \underline{77.88} & 82.28 & 95.78 & \underline{80.86} & \textbf{59.99} & \textbf{79.44} & 87.64 \\
-        TR\_L06 & 58.40 & 161.94 & 56.25 & 133.71 & 55.40 & 105.48 & \textbf{52.88} & \textbf{49.02} & 54.56 & 82.90 & \underline{53.72} & \underline{65.96} \\
-        TR\_L07 & 92.00 & 109.66 & 80.96 & 205.17 & 79.12 & 171.06 & 77.28 & 136.95 & \underline{75.44} & \textbf{68.73} & \textbf{73.60} & \underline{89.20} \\
-        TR\_L08 & 94.27 & 151.18 & 82.96 & \underline{94.36} & 81.08 & 218.06 & 79.19 & \textbf{84.29} & \underline{77.31} & 184.62 & \textbf{75.42} & 98.42 \\
-        TR\_L09 & 109.37 & 125.51 & 99.44 & 209.43 & 94.81 & 91.94 & \textbf{90.19} & 167.47 & 97.13 & \textbf{41.59} & \underline{92.50} & \underline{66.77} \\
-        TR\_L10 & 96.52 & 153.38 & 87.14 & 126.73 & 85.16 & \textbf{46.78} & 83.18 & 100.08 & \underline{81.20} & \underline{62.77} & \textbf{79.22} & 78.76 \\
-        \midrule
-        Best count & 0/10 & 0/10 & 0/10 & 1/10 & 0/10 & 1/10 & 2/10 & 2/10 & 2/10 & 4/10 & 6/10 & 2/10 \\
-        Top-two count & 0/10 & 1/10 & 0/10 & 3/10 & 1/10 & 2/10 & 2/10 & 2/10 & 8/10 & 5/10 & 9/10 & 7/10 \\
-        Overall rank & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
-        \bottomrule
-    \end{tabular*}
-\end{table*}
-
-For large instances in Table~\ref{tab:ch3_strategy_effectiveness_large}, HGNN-PPO obtains six best
-makespan values and nine top-two placements. Its deviation is best on two instances but among the
-top two on seven. On TR\_L02, it achieves $(71.45,45.12)$, whereas the no-attention variant gives
-$(73.24,159.25)$. On TR\_L01, however, the no-attention variant is better on both objectives.
-Across the 30 displayed instances, the complete model records 18 best makespan values and nine
-best deviation values. Thus its most consistent instance-wise advantage concerns makespan, while
-the stability benefit depends more strongly on the scenario.
-
-% 最优次数按三张表逐行核算：工期18/30，偏离度9/30。
-% 综合排名原样保留，但排名公式尚缺，因此不以第一名替代目标值分析。
-% TODO：补齐代表值筛选规则、均值或中位数定义、独立运行及不确定性。
-
-\subsubsection{Generalization Experiment on Independent Test Instances}
+% ---------------------------------------------------------------------------
+%【第 5.5 节｜Generalization Experiments】
+% ---------------------------------------------------------------------------
+\subsection{Dynamic Adaptability and Generalization}
+%【章节标题译文】
+% 泛化实验
 \label{subsec:generalization_runtime}
 
-The independent evaluation applies frozen policies to 15 test instances, five at each scale. Unlike
-the training-instance analysis, it examines solution sets obtained on instances outside the learning
-partition. Table~\ref{tab:ch3_rl_generalization_result} summarizes HV and Spread, while
-Figs.~\ref{fig:pareto_front_unseen_scenarios} and~\ref{fig:objective_distributions_test_scenarios}
-show representative trade-offs and objective distributions. These plots serve different purposes:
-the front display identifies nondominated alternatives, whereas the distribution display shows
-where sampled objective values are concentrated.
+% ---------------------------------------------------------------------------
+%【第 5.5.1 节｜Performance on Independent Instances】
+% ---------------------------------------------------------------------------
+\subsubsection{Performance on Independent Instances}
+%【章节标题译文】
+% 独立算例上的性能
 
-% 未见算例不自动等同跨规模、跨拓扑或跨分布，正文不作这些未经证实的外推。
-% TODO：补齐训练模型到测试算例的对应关系与测试重复次数。
+%【第 5.5.1 节｜第 01 段｜5.5.1-P01】
+The independent evaluation applies frozen policies to 15 test instances, five at each scale.
+Unlike the training-instance analysis, it examines solution sets obtained on instances outside the learning partition.
+Table~\ref{tab:ch3_rl_generalization_result} summarizes HV and Spread, while Figs.~\ref{fig:pareto_front_unseen_scenarios}
+and~\ref{fig:objective_distributions_test_scenarios} show representative trade-offs and objective distributions.
+These plots serve different purposes: the front display identifies nondominated alternatives,
+whereas the distribution display shows where sampled objective values are concentrated.
+%【完整中文译文｜5.5.1-P01】
+% 独立评价将冻结策略应用于15个测试算例，每种规模5个。与训练算例分析不同，它考察学习划分之外算例上获得的解集。
+% 表~\ref{tab:ch3_rl_generalization_result}汇总HV与Spread，图~\ref{fig:pareto_front_unseen_scenarios}和图~\ref{fig:objective_distributions_test_scenarios}给出代表性的目标权衡与目标值分布。
+% 这些图用途不同：前沿图识别非支配备选方案，分布图展示采样目标值集中在哪些区域。
 
-\begin{table*}[!htbp]
-    \centering
-    \captionsetup{name=Table}
-    \songti\rmfamily
-% 不同算法在独立测试算例上的HV和Spread
-    \caption{HV and Spread of Different Algorithms on Independent Test Instances}
-    \label{tab:ch3_rl_generalization_result}
-    \zihao{-5}
-    \setlength{\tabcolsep}{0pt}
-    \renewcommand{\arraystretch}{0.95}
-    \begin{tabular*}{\textwidth}{
-        @{\extracolsep{\fill}} c
-        cc cc cc cc cc cc
-        @{}
-    }
-        \toprule
-        \multirow{2}{*}{Instance}
-        & \multicolumn{2}{c}{L2D}
-        & \multicolumn{2}{c}{\makecell[c]{MPGN-\\MPPO}}
-        & \multicolumn{2}{c}{\makecell[c]{GNN-\\DRL}}
-        & \multicolumn{2}{c}{\makecell[c]{HGNNR-\\DRL}}
-        & \multicolumn{2}{c}{\makecell[c]{MHGNN-\\SAC}}
-        & \multicolumn{2}{c}{HGNN-PPO} \\
-        \cmidrule(lr){2-3}
-        \cmidrule(lr){4-5}
-        \cmidrule(lr){6-7}
-        \cmidrule(lr){8-9}
-        \cmidrule(lr){10-11}
-        \cmidrule(lr){12-13}
-        & HV & Spread
-        & HV & Spread
-        & HV & Spread
-        & HV & Spread
-        & HV & Spread
-        & HV & Spread \\
-        \midrule
-        \multicolumn{13}{@{}l}{Small-scale instances} \\
-        S\_01 & 0.528 & 0.893 & 0.742 & 0.928 & 0.701 & 0.686 & 0.892 & \underline{0.658} & \textbf{1.130} & \textbf{0.529} & \underline{1.014} & 0.823 \\
-        S\_02 & \underline{1.117} & \underline{0.478} & 0.487 & 0.971 & 0.770 & 0.930 & 1.008 & 0.789 & 0.835 & 0.876 & \textbf{1.194} & \textbf{0.361} \\
-        S\_03 & 0.740 & 0.711 & 0.826 & 0.864 & 0.898 & \underline{0.557} & 0.953 & 0.636 & \textbf{1.134} & \textbf{0.549} & \underline{1.013} & 0.566 \\
-        S\_04 & 0.663 & 0.850 & 0.797 & 0.917 & 1.055 & \textbf{0.518} & 1.015 & 0.735 & \underline{1.072} & \underline{0.669} & \textbf{1.206} & 0.688 \\
-        S\_05 & 0.843 & \underline{0.750} & 0.524 & 0.942 & 0.930 & 0.815 & \textbf{1.142} & \textbf{0.411} & 0.922 & 0.807 & \underline{0.936} & 0.781 \\
-        \midrule
-        \multicolumn{13}{@{}l}{Medium-scale instances} \\
-        M\_01 & 0.674 & 0.733 & 0.888 & 0.859 & 0.896 & \textbf{0.636} & 1.103 & \underline{0.724} & \underline{1.143} & 0.734 & \textbf{1.180} & 0.889 \\
-        M\_02 & 0.918 & 0.768 & 0.992 & 0.809 & \underline{1.137} & 0.961 & 1.106 & \textbf{0.591} & \textbf{1.192} & \underline{0.660} & 1.135 & 0.702 \\
-        M\_03 & 0.697 & 0.863 & 0.880 & 0.773 & 0.932 & 0.802 & \underline{1.107} & 0.808 & 1.070 & \underline{0.625} & \textbf{1.206} & \textbf{0.000} \\
-        M\_04 & 1.064 & 0.716 & 0.863 & 0.729 & 1.105 & \textbf{0.425} & \underline{1.105} & 0.866 & 1.075 & \underline{0.622} & \textbf{1.131} & 0.728 \\
-        M\_05 & 0.849 & 0.884 & 0.808 & 0.810 & 0.916 & 0.903 & 0.982 & \textbf{0.702} & \underline{1.000} & 1.026 & \textbf{1.144} & \underline{0.728} \\
-        \midrule
-        \multicolumn{13}{@{}l}{Large-scale instances} \\
-        L\_01 & 0.598 & 0.902 & 0.834 & 0.828 & 1.114 & 0.801 & \textbf{1.208} & 0.803 & \underline{1.153} & \underline{0.713} & 1.134 & \textbf{0.668} \\
-        L\_02 & 0.577 & 0.867 & 0.836 & \underline{0.501} & \textbf{1.084} & 0.787 & 0.906 & \textbf{0.440} & 1.026 & 0.932 & \underline{1.060} & 0.927 \\
-        L\_03 & 0.735 & 0.766 & 0.925 & \textbf{0.721} & 0.825 & 0.812 & 1.007 & 0.889 & \textbf{1.157} & 0.800 & \underline{1.093} & \underline{0.760} \\
-        L\_04 & 0.600 & 0.773 & 0.806 & 0.879 & 1.019 & \underline{0.639} & 1.028 & 1.030 & \underline{1.091} & \textbf{0.363} & \textbf{1.142} & 0.964 \\
-        L\_05 & 0.919 & 0.822 & 0.685 & 0.817 & 1.080 & 0.799 & 0.980 & 0.841 & \underline{1.080} & \underline{0.764} & \textbf{1.195} & \textbf{0.679} \\
-        \midrule
-        Mean & 0.768 & 0.785 & 0.793 & 0.823 & 0.964 & 0.738 & 1.036 & 0.728 & \underline{1.072} & \underline{0.711} & \textbf{1.119} & \textbf{0.684} \\
-        Overall rank & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{4} & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
-        \bottomrule
-    \end{tabular*}
-\end{table*}
+% 未见算例不自动等同跨规模、跨拓扑或跨分布，正文不作这些未经证实的外推。TODO：补齐训练模型到测试算例的对应关系与测试重复次数。
 
+%【表格 5.5.1-T01｜tab:ch3_rl_generalization_result】
+\begin{table}[!tbp]
+\begin{minipage}{\columnwidth}
+\centering\captionsetup{type=table,name=Table}
+%【图表标题｜第 5.5.1 节；引用时保留后面的label】
+\caption{HV and Spread of Different Algorithms on Independent Test Instances}
+%【图表或算法标题译文】
+% 不同算法在独立测试算例上的HV与Spread
+\label{tab:ch3_rl_generalization_result}
+\fontsize{6.5}{7.5}\selectfont\setlength{\tabcolsep}{1pt}\renewcommand{\arraystretch}{0.80}
+\textit{(a) Reference policies}\par\smallskip
+%【表内分组译文】
+% （a）参考策略
+%【表格 5.5.1-T02｜见本块图注或标签】
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l cc cc cc@{}}
+\toprule
+Instance & \multicolumn{2}{c}{L2D} & \multicolumn{2}{c}{\makecell{MPGN-\\MPPO}} & \multicolumn{2}{c}{\makecell{GNN-\\DRL}} \\
+%【表格文字译文】
+% Instance：算例。
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & HV & Spread & HV & Spread & HV & Spread \\
+\midrule
+S\_01 & 0.528 & 0.893 & 0.742 & 0.928 & 0.701 & 0.686 \\
+S\_02 & \underline{1.117} & \underline{0.478} & 0.487 & 0.971 & 0.770 & 0.930 \\
+S\_03 & 0.740 & 0.711 & 0.826 & 0.864 & 0.898 & \underline{0.557} \\
+S\_04 & 0.663 & 0.850 & 0.797 & 0.917 & 1.055 & \textbf{0.518} \\
+S\_05 & 0.843 & \underline{0.750} & 0.524 & 0.942 & 0.930 & 0.815 \\
+\midrule
+M\_01 & 0.674 & 0.733 & 0.888 & 0.859 & 0.896 & \textbf{0.636} \\
+M\_02 & 0.918 & 0.768 & 0.992 & 0.809 & \underline{1.137} & 0.961 \\
+M\_03 & 0.697 & 0.863 & 0.880 & 0.773 & 0.932 & 0.802 \\
+M\_04 & 1.064 & 0.716 & 0.863 & 0.729 & 1.105 & \textbf{0.425} \\
+M\_05 & 0.849 & 0.884 & 0.808 & 0.810 & 0.916 & 0.903 \\
+\midrule
+L\_01 & 0.598 & 0.902 & 0.834 & 0.828 & 1.114 & 0.801 \\
+L\_02 & 0.577 & 0.867 & 0.836 & \underline{0.501} & \textbf{1.084} & 0.787 \\
+L\_03 & 0.735 & 0.766 & 0.925 & \textbf{0.721} & 0.825 & 0.812 \\
+L\_04 & 0.600 & 0.773 & 0.806 & 0.879 & 1.019 & \underline{0.639} \\
+L\_05 & 0.919 & 0.822 & 0.685 & 0.817 & 1.080 & 0.799 \\
+\midrule
+Mean & 0.768 & 0.785 & 0.793 & 0.823 & 0.964 & 0.738 \\
+%【表格文字译文】
+% Mean：均值。
+Overall rank & \multicolumn{2}{c}{5} & \multicolumn{2}{c}{6} & \multicolumn{2}{c}{4} \\
+%【表格文字译文】
+% Overall rank：综合排名。
+\bottomrule
+\end{tabular*}
+\par\medskip\textit{(b) Graph-based policies}\par\smallskip
+%【表格 5.5.1-T03｜见本块图注或标签】
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l cc cc cc@{}}
+\toprule
+Instance & \multicolumn{2}{c}{\makecell{HGNNR-\\DRL}} & \multicolumn{2}{c}{\makecell{MHGNN-\\SAC}} & \multicolumn{2}{c}{HGNN-PPO} \\
+%【表格文字译文】
+% Instance：算例。
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & HV & Spread & HV & Spread & HV & Spread \\
+\midrule
+S\_01 & 0.892 & \underline{0.658} & \textbf{1.130} & \textbf{0.529} & \underline{1.014} & 0.823 \\
+S\_02 & 1.008 & 0.789 & 0.835 & 0.876 & \textbf{1.194} & \textbf{0.361} \\
+S\_03 & 0.953 & 0.636 & \textbf{1.134} & \textbf{0.549} & \underline{1.013} & 0.566 \\
+S\_04 & 1.015 & 0.735 & \underline{1.072} & \underline{0.669} & \textbf{1.206} & 0.688 \\
+S\_05 & \textbf{1.142} & \textbf{0.411} & 0.922 & 0.807 & \underline{0.936} & 0.781 \\
+\midrule
+M\_01 & 1.103 & \underline{0.724} & \underline{1.143} & 0.734 & \textbf{1.180} & 0.889 \\
+M\_02 & 1.106 & \textbf{0.591} & \textbf{1.192} & \underline{0.660} & 1.135 & 0.702 \\
+M\_03 & \underline{1.107} & 0.808 & 1.070 & \underline{0.625} & \textbf{1.206} & \textbf{0.000} \\
+M\_04 & \underline{1.105} & 0.866 & 1.075 & \underline{0.622} & \textbf{1.131} & 0.728 \\
+M\_05 & 0.982 & \textbf{0.702} & \underline{1.000} & 1.026 & \textbf{1.144} & \underline{0.728} \\
+\midrule
+L\_01 & \textbf{1.208} & 0.803 & \underline{1.153} & \underline{0.713} & 1.134 & \textbf{0.668} \\
+L\_02 & 0.906 & \textbf{0.440} & 1.026 & 0.932 & \underline{1.060} & 0.927 \\
+L\_03 & 1.007 & 0.889 & \textbf{1.157} & 0.800 & \underline{1.093} & \underline{0.760} \\
+L\_04 & 1.028 & 1.030 & \underline{1.091} & \textbf{0.363} & \textbf{1.142} & 0.964 \\
+L\_05 & 0.980 & 0.841 & \underline{1.080} & \underline{0.764} & \textbf{1.195} & \textbf{0.679} \\
+\midrule
+Mean & 1.036 & 0.728 & \underline{1.072} & \underline{0.711} & \textbf{1.119} & \textbf{0.684} \\
+%【表格文字译文】
+% Mean：均值。
+Overall rank & \multicolumn{2}{c}{3} & \multicolumn{2}{c}{2} & \multicolumn{2}{c}{1} \\
+%【表格文字译文】
+% Overall rank：综合排名。
+\bottomrule
+\end{tabular*}
+\end{minipage}
+\end{table}
+
+%【第 5.5.1 节｜第 02 段｜5.5.1-P02】
 HGNN-PPO has the highest reported average HV, 1.119, and the lowest average Spread, 0.684.
-Relative to MHGNN-SAC, whose averages are 1.072 and 0.711, these correspond to approximately
-4.4\% higher HV and 3.8\% lower Spread. The complete method attains the highest HV on eight of
-the 15 instances, including four of the five medium-scale cases. The result is not uniform across
-metrics: it attains the lowest Spread on four cases, with other methods giving more uniform sets
-on several instances. Coverage and distribution should therefore be interpreted separately.
+Relative to MHGNN-SAC, whose averages are 1.072 and 0.711, these correspond to approximately 4.4\% higher HV
+and 3.8\% lower Spread. The complete method attains the highest HV on eight of the 15 instances,
+including four of the five medium-scale cases. The result is not uniform across metrics:
+it attains the lowest Spread on four cases, with other methods giving more uniform sets on several instances.
+Coverage and distribution should therefore be interpreted separately.
+%【完整中文译文｜5.5.1-P02】
+% HGNN-PPO具有所报告结果中最高的平均HV（1.119）和最低的平均Spread（0.684）。相对于平均值分别为1.072和0.711的MHGNN-SAC，
+% 其HV约提高4.4%，Spread约降低3.8%。完整方法在15个算例中的8个算例上取得最高HV，其中包括5个中规模算例中的4个。
+% 不同指标的结果并不一致：它仅在4个算例上取得最低Spread，其他方法在若干算例上得到更均匀的解集。
+% 因此，覆盖范围与分布情况应分别解释。
 
-% 均值、8次最优HV与4次最优Spread均按当前15行表格核算。
-% TODO：M03的Spread=0.000需结合公式、点数与退化解集规则解释，不能
-% 直接称为完美分布；表内原数值保留。
+% 均值、8次最优HV与4次最优Spread均按当前15行表格核算。TODO：M03的Spread=0.000需结合公式、点数与退化解集规则解释，
+% 不能直接称为完美分布；表内原数值保留。
 
-\begin{figure*}[!htbp]
+%【第 5.5.1 节｜第 03 段｜5.5.1-P03】
+Figure~\ref{fig:pareto_front_unseen_scenarios} examines the locations of the obtained trade-off
+solutions on three representative independent instances, complementing the aggregate HV and Spread values.
+%【完整中文译文｜5.5.1-P03】
+% 图~\ref{fig:pareto_front_unseen_scenarios}考察三个代表性独立算例中所得权衡解的位置，为总体HV和Spread数值提供补充。
+
+\begin{figure}[tb]
     \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F9lyk强化学习泛化实验帕累托前沿图_新版候选_原图.png}
+    \captionsetup{type=figure,name=Figure}
+    \includegraphics[width=\columnwidth,height=0.24\textheight,keepaspectratio]{figures/F9lyk强化学习泛化实验帕累托前沿图_新版候选_原图.png}
+%【图表标题｜第 5.5.1 节；引用时保留后面的label】
     \caption{Objective trade-offs on representative S03, M04, and L05 test instances.}
+%【图表或算法标题译文】
+% 代表性测试算例S03、M04和L05上的目标权衡。
     \label{fig:pareto_front_unseen_scenarios}
-\end{figure*}
+\end{figure}
 
+%【第 5.5.1 节｜第 04 段｜5.5.1-P04】
 Figure~\ref{fig:pareto_front_unseen_scenarios} illustrates the objective trade-offs on S03, M04,
-and L05. Several HGNN-PPO solutions contribute to the pooled nondominated front on M04 and L05,
-whose HV values are 1.131 and 1.195. On L05, the latter is approximately 10.6\% above the
-MHGNN-SAC value of 1.080. Along these fronts, lower deviation can require longer completion time,
-providing alternatives for different objective preferences. On S03, MHGNN-SAC has a stronger
-short-makespan region and a higher HV, 1.134 versus 1.013. The proposed policy consequently
-provides competitive trade-offs without covering every extreme of the objective space equally well.
+and L05. Several HGNN-PPO solutions contribute to the pooled nondominated front on M04
+and L05, whose HV values are 1.131 and 1.195. On L05, the latter is approximately 10.6\%
+above the MHGNN-SAC value of 1.080. Along these fronts, lower deviation can require longer completion time,
+providing alternatives for different objective preferences. On S03, MHGNN-SAC has a stronger short-makespan region
+and a higher HV, 1.134 versus 1.013. The proposed policy consequently provides competitive trade-offs
+without covering every extreme of the objective space equally well.
+%【完整中文译文｜5.5.1-P04】
+% 图~\ref{fig:pareto_front_unseen_scenarios}展示S03、M04和L05上的目标权衡。若干HGNN-PPO解参与构成M04和L05上的合并非支配前沿，
+% 其HV分别为1.131和1.195。在L05上，后者比MHGNN-SAC的1.080约高10.6%。沿这些前沿，较低偏离度可能需要较长完工时间，
+% 从而为不同目标偏好提供备选方案。在S03上，MHGNN-SAC在较短工期区域表现更强，HV也更高，为1.134，
+% 而HGNN-PPO为1.013。因此，所提策略能够提供有竞争力的权衡，但对目标空间各极端区域的覆盖并不均衡。
 
-% F9对应S03、M04、L05，按可见前沿与表格解释优点和失效边界。
-% 图中的全局前沿仅为比较方法所得点的合并非支配前沿，不是已知真实最优前沿。
+% F9对应S03、M04、L05，按可见前沿与表格解释优点和失效边界。图中的全局前沿仅为比较方法所得点的合并非支配前沿，
+% 不是已知真实最优前沿。
 
-\begin{figure*}[!htbp]
+%【第 5.5.1 节｜第 05 段｜5.5.1-P05】
+Figure~\ref{fig:objective_distributions_test_scenarios} compares the distributions of the two objectives
+on representative test instances. It complements the Pareto-front view by showing variation within
+the supplied objective samples.
+%【完整中文译文｜5.5.1-P05】
+% 图~\ref{fig:objective_distributions_test_scenarios}比较代表性测试算例上两个目标的分布。
+% 它通过展示所提供目标样本内部的变化，补充Pareto前沿视角。
+
+%【图块 5.5.1-F01｜fig:objective_distributions_test_scenarios】
+\begin{figure*}[t]
     \centering
-    \captionsetup{name=Figure}
-    \includegraphics[width=0.85\linewidth]{figures/F10lyk六算法_S03_M04_L05_Cmax_Dt_箱线图_2列3行_原图.png}
+    \captionsetup{type=figure,name=Figure}
+    \includegraphics[width=0.98\textwidth,height=0.50\textheight,keepaspectratio]{figures/F10lyk六算法_S03_M04_L05_Cmax_Dt_箱线图_2列3行_原图.png}
+%【图表标题｜第 5.5.1 节；引用时保留后面的label】
     \caption{Objective-value distributions on representative S03, M04, and L02 test instances.}
+%【图表或算法标题译文】
+% 代表性测试算例S03、M04和L02上的目标值分布。
     \label{fig:objective_distributions_test_scenarios}
 \end{figure*}
 
+%【第 5.5.1 节｜第 06 段｜5.5.1-P06】
 The distribution plots in Fig.~\ref{fig:objective_distributions_test_scenarios} concern S03, M04,
-and L02. HGNN-PPO places much of its deviation distribution in a lower region while maintaining
-competitive makespan values. On L02, its HV is 1.060 compared with 1.026 for MHGNN-SAC, whereas
-their Spread values, 0.927 and 0.932, are close. Here, the lower-deviation solutions do not imply
-a large improvement in distribution uniformity. These examples connect the aggregate indicators
-to the locations and ranges of the displayed objective values.
+and L02. HGNN-PPO places much of its deviation distribution in a lower region while maintaining competitive makespan values.
+On L02, its HV is 1.060 compared with 1.026 for MHGNN-SAC, whereas their Spread values, 0.927 and 0.932,
+are close. Here, the lower-deviation solutions do not imply a large improvement in distribution uniformity.
+These examples connect the aggregate indicators to the locations and ranges of the displayed objective values.
+%【完整中文译文｜5.5.1-P06】
+% 图~\ref{fig:objective_distributions_test_scenarios}中的分布图对应S03、M04和L02。
+% HGNN-PPO的大部分偏离度分布位于较低区域，同时保持有竞争力的最大完工时间。在L02上，其HV为1.060，
+% MHGNN-SAC为1.026；二者Spread分别为0.927和0.932，较为接近。这里，更低偏离度的方案并不意味着分布均匀性有较大改善。
+% 这些例子将总体指标与图示目标值的位置和范围联系起来。
 
-% F10实际面板为L02，文件名含L05不代表图内算例，图注和正文已按面板修正。
-% TODO：图中样本量、点的含义、重复训练与重复评价的层次须从日志核实。
-% TODO：现有泛化工作表含分布强化版名称，数据说明仅确认复制与数值校验，
-% 不能据此认定原始实验可追溯；补齐场景、运行和计算脚本对应。
+% F10实际面板为L02，文件名含L05不代表图内算例，图注和正文已按面板修正。TODO：图中样本量、点的含义、重复训练与重复评价的层次须从日志核实。
+% TODO：现有泛化工作表含分布强化版名称，数据说明仅确认复制与数值校验，不能据此认定原始实验可追溯；
+% 补齐场景、运行和计算脚本对应。
+
+% ---------------------------------------------------------------------------
+%【第 5.5.2 节｜Transfer across Disturbance Conditions and Decision Time】
+% ---------------------------------------------------------------------------
+\subsubsection{Performance under Different Disturbance Intensities}
+%【章节标题译文】
+% 跨扰动条件迁移与决策耗时
+
+% 未见算例与未见扰动分布分别验证；计时包含图更新、编码、选规则与解码。下面保留可见占位，待实际日志和场景映射核验后填写结果。
+%【第 5.5.2 节｜第 01 段｜5.5.2-P01】
+%【待补实验】以下为原有结果占位，须取得真实实验结果后填写。
+Independent instances assess transfer beyond the learning partition, but do not by themselves establish
+robustness to unseen disturbance distributions. Additional tests should separate processing-time variation,
+machine failure, and urgent arrivals before examining mixed scenarios and intensity changes.
+Each policy must remain frozen during evaluation, and all methods must receive the same revealed event sequence.
+\textit{[Results pending: verify scenario-to-instance mappings and report transfer under separate
+and mixed disturbances at specified intensity levels.]}
+%【完整中文译文｜5.5.2-P01】
+% 独立算例用于评价超出学习划分的迁移能力，但本身不能证明对未见扰动分布的鲁棒性。
+% 补充测试应先分别考察工时波动、机器故障和紧急订单到达，再考察混合场景和扰动强度变化。评价时各策略必须冻结，
+% 且所有方法接收相同的已揭示事件序列。［待补结果：核验场景与算例的映射，并报告指定强度水平下单类及混合扰动的迁移结果。］
+
+Figure~\ref{fig:intensity_pending} reserves the dual-objective trends. Specify supported levels separately for failure frequency, repair duration, and processing-time
+variation amplitude. Include urgent-arrival frequency and size only after simulator support and
+scenario provenance have been verified. Compare the frozen enhanced encoder against GAT or a
+basic HGNN with matched instances and seeds. Report objective means, variability, and relative
+changes against the same-intensity baseline; varying workloads require an explicit comparison basis.
+\textit{[TODO: verified intensity levels, scenario configuration, and dual-objective trend plots.]}
+
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][32mm][c]{0.92\columnwidth}{\centering\small Failure frequency / duration; processing-time variation; verified arrivals\\[4pt]\textit{Placeholder: verified experimental data required.}}}
+\caption{Scheduling performance under disturbance intensity changes (results pending).}
+\label{fig:intensity_pending}
+\end{figure}
+
+\subsubsection{Transfer across Instance Scales}
+Evaluate cross-scale transfer only with a documented training-scale to test-scale mapping and
+frozen checkpoints. Independent test instances alone do not establish cross-scale generalization.
+\textit{[TODO: checkpoint-to-instance mapping and scale-transfer results.]}
+
+\subsection{Computational Efficiency and Case Study}
+\label{subsec:efficiency_case}
+\subsubsection{Online Decision Time}
+%【第 5.5.2 节｜第 02 段｜5.5.2-P02】
+%【待补实验】以下为原有结果占位，须取得真实实验结果后填写。
+Online response should be measured per decision, including graph updating, state encoding, rule selection,
+and decoding. Training time is a separate cost and should not be mixed with inference latency.
+\textit{[Results pending: report decision-time distributions by instance scale on a common hardware platform,
+together with the measurement boundary and evaluation repetitions.]}
+%【完整中文译文｜5.5.2-P02】
+% 在线响应应按每次决策计时，包含图更新、状态编码、规则选择和解码。训练时间是另一项成本，
+% 不应与推理延迟混合。［待补结果：在相同硬件平台上，按算例规模报告决策耗时分布，并说明计时边界及评价重复次数。］
+
+% ---------------------------------------------------------------------------
+%【第 5.6 节｜Discussion】
+% ---------------------------------------------------------------------------
+Table~\ref{tab:latency_pending} and Fig.~\ref{fig:latency_pending} reserve latency outputs. Time graph updates, state encoding, policy inference, rule decoding, and complete decisions using
+consistent boundaries across models. State whether event advancement is included. Exclude model
+loading, perform warm-up, and synchronize GPU execution when applicable. Report mean, median,
+and P95 by instance scale, together with hardware, software, sample counts, and independent runs.
+\textit{[TODO: decision-level timing logs and comparison table; no real-time guarantee is claimed.]}
+
+
+\begin{table}[t]
+\centering
+\caption{Online decision latency by model and scale (results pending).}
+\label{tab:latency_pending}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Model / scale & Mean (ms) & Median (ms) & P95 (ms) \\
+\midrule
+Pending & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\scriptsize Dashes denote missing measurements, not zero values.}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][32mm][c]{0.92\columnwidth}{\centering\small Graph update / encoding / policy inference / decoding\\[4pt]\textit{Placeholder: verified experimental data required.}}}
+\caption{Breakdown of online decision time (results pending).}
+\label{fig:latency_pending}
+\end{figure}
+
+\subsubsection{Representative Dynamic Scheduling Case}
+\label{subsubsec:gantt_case}
+Figure~\ref{fig:gantt_pending} and Table~\ref{tab:case_pending} reserve the case outputs. Select a representative independent test case using a documented criterion. Compare the enhanced
+encoder with a baseline PPO encoder under the same initial schedule, disturbances, and rule pool.
+Generate Gantt charts from actual execution logs recording machine, operation, start and end times,
+failure intervals, and assembly stages or dependencies. Report makespan and baseline deviation for
+each schedule, and distinguish interrupted attempts from successful restarted execution. Include the
+baseline plan where available and disclose the case-selection rationale.
+\textit{[TODO: real schedule logs, feasibility checks, objective values, and vector Gantt figures.
+No illustrative schedule is substituted for experimental evidence.]}
+
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][32mm][c]{0.92\columnwidth}{\centering\small Baseline plan / baseline encoder / enhanced HGNN; machine rows and event intervals\\[4pt]\textit{Placeholder: verified experimental data required.}}}
+\caption{Representative scheduling case under identical disturbances (results pending).}
+\label{fig:gantt_pending}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Objectives of the representative scheduling case (results pending).}
+\label{tab:case_pending}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Schedule & $C_{\max}$ & $D_{\mathrm{dev}}$ \\
+\midrule
+Initial baseline & --- & --- \\
+Baseline encoder & --- & --- \\
+Enhanced HGNN & --- & --- \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\scriptsize Dashes denote missing measurements, not zero values.}
+\end{table}
 
 \subsection{Discussion}
+%【章节标题译文】
+% 讨论
 \label{subsec:experimental_discussion}
 
+%【第 5.6 节｜第 01 段｜5.6-P01】
 The results provide complementary views of the state encoder. Parameter analysis identifies a common
 configuration for the comparisons. Attention ablation shows lower late-training objective curves
 for the complete configuration, particularly on the larger groups. The instance-wise tables show
 that this advantage is more consistent for makespan than for deviation. Independent testing further
-shows favorable average solution-set coverage, while individual cases reveal limits in extreme
-trade-offs and distribution uniformity.
+shows favorable average solution-set coverage, while individual cases reveal limits in extreme trade-offs
+and distribution uniformity.
+%【完整中文译文｜5.6-P01】
+% 这些结果从互补角度考察状态编码器。参数分析为比较确定共同配置。注意力消融显示完整配置在训练后期具有较低目标曲线，
+% 尤其在较大规模组中。逐算例表格表明，这种优势在最大完工时间上比在偏离度上更一致。
+% 独立测试进一步显示其平均解集覆盖表现较好，而个别算例揭示了其在极端权衡与分布均匀性方面的局限。
 
 % 讨论按参数、消融、实例目标和独立解集四层证据归纳，不夸大逐例优势。
 
-The mechanism is consistent with the need to distinguish technological, resource, and assembly
-information before selecting a dispatching rule. Role-specific readout then exposes relevant
-information to routing, sequencing, and recovery. However, the current attention comparison does not
-separately identify every meta-path's effect, and the rule-selection display depends on the candidate
-pool used to produce it. Improvements in a selector and improvements in its available rules must
-therefore be distinguished when interpreting the method.
+%【第 5.6 节｜第 02 段｜5.6-P02】
+The mechanism is consistent with the need to distinguish technological, resource,
+and assembly information before selecting a dispatching rule. Role-specific readout then exposes
+relevant information to routing, sequencing, and recovery. However, the reported comparisons do not separately identify every meta-path's effect. Controlled encoder ablations remain necessary. Improvements in a selector and improvements in its available
+rules must therefore be distinguished when interpreting the method.
+%【完整中文译文｜5.6-P02】
+% 该机制与以下需求相符：在选择派工规则前，应区分工艺、资源和装配信息。面向角色的读出随后向机器分配、工序排序和故障恢复提供相关信息。
+% 然而，当前注意力比较没有分别识别每条元路径的作用，规则选择图也依赖于生成它时所采用的候选规则池。
+% 因此，解释方法时，应区分选择器本身的改善与其可用规则的改善。
 
 % 不将规则库质量提升归因于编码器，也不将一次整体消融解释为各路径因果作用。
 
+%【第 5.6 节｜第 03 段｜5.6-P03】
 The demonstrated scope is the supplied instance and disturbance configurations. Explicit urgent-order
 evaluation requires a verified mapping between arrival scenarios and the reported test instances.
 Likewise, real-time applicability requires measurements of graph updating, encoding, and rule decoding,
-which are not established by objective quality alone. Repeated-run uncertainty, fully specified
-normalization, and a documented baseline and rule pool are needed before extending these descriptive
-comparisons to broader reliability or industrial-deployment claims.
+which are not established by objective quality alone. Repeated-run uncertainty, fully specified normalization,
+and a documented baseline and rule pool are needed before extending these descriptive comparisons
+to broader reliability or industrial-deployment claims.
+%【完整中文译文｜5.6-P03】
+% 已经展示的适用范围限于所提供的算例和扰动配置。明确评价紧急订单需要核验订单到达场景与所报告测试算例之间的映射。
+% 同样，实时适用性需要测量图更新、编码和规则解码耗时，不能仅由目标质量证明。在将这些描述性比较扩展为更广泛的可靠性或工业部署结论前，
+% 还需要重复运行的不确定性、完整规定的归一化方法，以及有文档记录的基准计划与规则池。
 
-% 已有图表不自动证明新增插单场景或现场实时性；缺失项保留明确核验接口。
-% TODO：所有表格、模型版本、种子、训练偏好和完整日志需建立可追溯索引。
-\FloatBarrier
+% 已有图表不自动证明新增插单场景或现场实时性；缺失项保留明确核验接口。TODO：所有表格、模型版本、种子、训练偏好和完整日志需建立可追溯索引。

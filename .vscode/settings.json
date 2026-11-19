@@ -1,0 +1,7 @@
+{
+  "[latex]": {
+    "editor.wordWrap": "on",
+    "editor.wordWrapColumn": 96,
+    "editor.wrappingIndent": "same"
+  }
+}

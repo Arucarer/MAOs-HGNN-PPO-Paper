@@ -15,14 +15,20 @@
 \label{subsec:problem_description}
 
 %【第 3.1 节｜第 01 段｜3.1-P01】
-This study extends the flexible job shop scheduling problem with multi-level assembly operations (FJSP-MAOs) of Ning et al.~\cite{ning2027fjspmaos} to dynamic production. Jobs follow prescribed routes,
-operations use eligible processing or assembly machines, and compatible jobs can be matched flexibly to product requirements. Each assembly starts once its required components are ready, allowing processing and assembly to overlap.
-The base model supplies technological, machine-capacity, product-assignment,
-and assembly-matching constraints.
+This study extends the flexible job shop scheduling problem with multi-level assembly operations
+(FJSP-MAOs) of Ning et al.~\cite{ning2027fjspmaos} to dynamic production. Unlike conventional FJSP,
+products require hierarchical assemblies whose components may be basic jobs or subassemblies.
+Component requirements determine dependencies, allowing independent branches to progress in parallel.
+Jobs follow prescribed operation sequences and use eligible processing or assembly machines.
+Flexible matching associates jobs with products subject to job-style requirements and assembly
+qualifications; each job belongs to one product, and components are not arbitrarily interchangeable.
+Matched operations participating in one assembly share its machine and start time, and assembly
+waits for the required predecessors. These records represent a joint assembly activity rather than
+independent activities competing for machine capacity.
 %【完整中文译文｜3.1-P01】
-% 本文将Ning等提出的具有多级装配工序的柔性作业车间调度问题（FJSP-MAOs）扩展到动态生产场景~\cite{ning2027fjspmaos}。
-% 工件按照规定路线执行，工序在符合候选资格的加工或装配机器上完成，兼容工件可与产品需求进行柔性匹配。
-% 每项装配在其所需组成部分就绪后即可开始，从而允许加工与装配交叠执行。基础模型提供工艺、机器容量、产品分配和装配匹配约束。
+% 本文沿用Ning等的FJSP-MAOs基础模型并研究动态生产。产品具有由基础作业或子装配构成的层级装配关系，独立分支可并行推进。
+% 作业遵循规定工序顺序并使用候选加工或装配机器。柔性匹配服从作业类型需求及装配资格，每个作业只归属于一个产品，不表示任意组件可互换。
+% 同次装配的匹配工序共用装配机器及开始时刻，并等待所需前驱完成；这些记录表示联合活动，而非独立争用设备的活动。
 
 % 沿用Ning等的工艺、资源及柔性装配模型，保留分级齐套与加工装配并行。不再重复推导已有静态约束，后文仅定义动态执行所需的扩展。
 
@@ -41,16 +47,7 @@ and deviation from the initial baseline plan.
 % 只调整等待或中断任务，并兼顾效率与稳定性。
 
 %【图块 3.1-F01｜fig:problem_description】
-\begin{figure*}[!t]
- \centering
- \captionsetup{name=Figure}
- \includegraphics[width=0.98\textwidth,height=0.45\textheight,keepaspectratio]{figures/F1动态加工-装配调度场景图.png}
-%【图表标题｜第 3.1 节；引用时保留后面的label】
- \caption{Dynamic processing--assembly scheduling under duration changes, failures, and urgent arrivals.}
-%【图表或算法标题译文】
-% 工时变化、机器故障及紧急订单到达下的动态加工—装配调度。
- \label{fig:problem_description}
-\end{figure*}
+
 
 % ---------------------------------------------------------------------------
 %【第 3.2 节｜Reactive Scheduling Model】
@@ -74,7 +71,7 @@ The main model notation is summarized in Table~\ref{tab:reactive_model_notation}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{0.96}
-\begin{tabular}{@{}p{0.31\columnwidth}p{0.65\columnwidth}@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}p{0.31\columnwidth}p{0.65\columnwidth}@{}}
 \toprule
 Notation & Description \\
 %【表头译文】符号；含义。
@@ -93,10 +90,15 @@ $\mathcal O(t)$ & Admitted operations: $\mathcal O^0\cup\mathcal O^{\mathrm{new}
 $\mathcal O^R(t)$ & Waiting or failure-interrupted operations. \\
 % 可调整的等待工序与故障中断工序集合。
 $K_{ij}$ & Eligible machines for operation $O_{ij}$. \\
+$\mathcal O^{\mathrm{wait}}(t)$, $\mathcal O^{\mathrm{int}}(t)$ & Waiting and failure-interrupted subsets of $\mathcal O(t)$. \\
+$p_{ijk}$, $\varepsilon_{ij}(t)$ & Nominal processing time and observed duration perturbation coefficient. \\
+$\mathcal P^{\mathrm{pro}}_{ij}$, $\mathcal P^{\mathrm{asm}}_{ij}$ & Technological and assembly predecessor sets. \\
+$M$ & Sufficiently large constant in the machine non-overlap constraints. \\
+
 % 工序Oij具有候选资格的机器集合，不等同于当前可用机器集合。
 $r_i$ & Release time of job $i$. \\
 % 工件i的释放时间，不早于其所属订单的到达时刻。
-$\widetilde{pt}_{ijk}(t)$ & Current duration of $O_{ij}$ on machine $k$. \\
+$\widetilde p_{ijk}(t)$ & Current duration of $O_{ij}$ on machine $k$. \\
 % 时刻t用于机器k上该工序执行的当前加工或装配时长。
 $t_k^{\mathrm{ava}}(t)$ & Earliest availability of machine $k$ known at time $t$. \\
 % 时刻t已知的机器k最早可用时刻；未知维修恢复时刻的数值处理另待核验。
@@ -123,7 +125,7 @@ $D_{\mathrm{dev}}(S,S^0)$ & Deviation in baseline starts and assignments. \\
 $\lambda_B$, $\lambda_X$ & Nonnegative deviation weights; sum equals 1. \\
 % 非负偏离度权重，分别对应开始时刻与机器分配变化，二者之和为1。
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 
@@ -152,11 +154,11 @@ Waiting and failure-interrupted operations form the adjustable set
 %【第 3.2 节｜第 02 段｜3.2-P02】
 Variables $B_{ij},E_{ij}$ describe the next successful execution attempt; interrupted attempts remain in the log.
 Binary variables $X_{ijk}$ and $Y_{iji'j'}$ encode assignment and machine order. For eligible machines $K_{ij}$,
-current durations are $\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$, with $\varepsilon_{ij}(t)>-1$.
+where $p_{ijk}$ is the nominal processing time of $O_{ij}$ on machine $k$, current durations are $\widetilde p_{ijk}(t)=p_{ijk}[1+\varepsilon_{ij}(t)]$, with $\varepsilon_{ij}(t)>-1$.
 %【完整中文译文｜3.2-P02】
 % 变量$B_{ij},E_{ij}$描述下一次成功执行尝试的开始和完成时刻；中断的执行尝试仍保留在日志中。
 % 二元变量$X_{ijk}$和$Y_{iji'j'}$分别表示机器分配和同机执行顺序。对于候选机器集合$K_{ij}$，
-% 当前工时为$\widetilde{pt}_{ijk}(t)=pt_{ijk}[1+\varepsilon_{ij}(t)]$，其中$\varepsilon_{ij}(t)>-1$。
+% 当前工时为$\widetilde p_{ijk}(t)=p_{ijk}[1+\varepsilon_{ij}(t)]$，其中$\varepsilon_{ij}(t)>-1$。
 
 % 基准计划只覆盖原订单；插单到达后扩展工序集合。B和E表示成功执行段，中断历史仍保留。工时波动只使用当前已观测信息。
 
@@ -211,16 +213,20 @@ For $O_{ij}\in\mathcal O^R(t)$, assignment, completion, and release constraints 
 %【公式来源核对｜小论文式(4)｜继承并补充释放时间】
 % 大论文对应：式(3.2)，53页。
 % 对照说明：分配和完成约束来自原式；B>=max(t,r_i)及到达释放时间是小论文补充，需区分适用于可调整工序的约束与全任务的Cmax边界。
+
+
 \begin{equation}
  \begin{aligned}
  \sum_{k\in K_{ij}}X_{ijk}&=1, \\
- E_{ij}&=B_{ij}+\sum_{k\in K_{ij}}X_{ijk}\widetilde{pt}_{ijk}(t),
+ E_{ij}&=B_{ij}+\sum_{k\in K_{ij}}X_{ijk}\widetilde p_{ijk}(t),
  \\
  B_{ij}&\ge\max\{t,r_i\}, \\
  C_{\max}&\ge E_{ij},\quad O_{ij}\in\mathcal O(t).
  \end{aligned}
  \label{eq:execution_constraints}
 \end{equation}
+
+
 %【第 3.2 节｜第 07 段｜3.2-P07】
 Here $r_i$ is no earlier than the arrival of its order. Technological and assembly predecessor sets
 $\mathcal P^{\mathrm{pro}}_{ij}$ and $\mathcal P^{\mathrm{asm}}_{ij}$ impose
@@ -240,10 +246,14 @@ $\mathcal P^{\mathrm{pro}}_{ij}$ and $\mathcal P^{\mathrm{asm}}_{ij}$ impose
  \end{aligned}
  \label{eq:precedence_constraints}
 \end{equation}
+
+
 %【第 3.2 节｜第 08 段｜3.2-P08】
 Machine availability $t_k^{\mathrm{ava}}(t)$ includes running work and known repair intervals;
-machines with unknown recovery times remain unavailable until recovery. Assembly predecessors follow
-the selected feasible matching. Completed assemblies and committed component usage cannot be undone.
+machines with unknown recovery times remain unavailable until recovery. Assembly predecessors follow the selected feasible matching. The inherited component-matching
+and joint-assembly synchronization requirements remain in force during reactive adjustments;
+the constraints below do not reproduce the full base formulation. Completed assemblies and
+committed component usage cannot be undone.
 %【完整中文译文｜3.2-P08】
 % 机器最早可用时间$t_k^{\mathrm{ava}}(t)$包含正在执行的任务和已知维修区间；恢复时间未知的机器在实际恢复之前始终不可用。
 % 装配前驱关系服从已经选择的可行匹配。已经完成的装配和已经承诺使用的零部件均不可撤销。
@@ -258,6 +268,8 @@ For an interrupted operation, let $k^f_{ij}$ be its failed machine. Waiting for 
 ($u^{\mathrm{rec}}_{ij}=0$) or rerouting ($u^{\mathrm{rec}}_{ij}=1$) satisfies
 %【完整中文译文｜3.2-P09】
 % 对于被中断的工序，设$k^f_{ij}$为故障发生时所用机器。等待原机器维修（$u^{\mathrm{rec}}_{ij}=0$）或转移至其他机器（$u^{\mathrm{rec}}_{ij}=1$）应满足如下关系。
+
+
 %【公式 3.2-E06｜eq:recovery_constraints】
 %【公式来源核对｜小论文式(6)｜基本沿用】
 % 大论文对应：式(3.4)，53页。
@@ -269,13 +281,14 @@ For an interrupted operation, let $k^f_{ij}$ be its failed machine. Waiting for 
  \end{aligned}
  \label{eq:recovery_constraints}
 \end{equation}
+
+
 %【第 3.2 节｜第 10 段｜3.2-P10】
 Both alternatives restart the operation with its updated full duration. An empty alternative-machine set forces waiting.
 Records representing one joint assembly share the same recovery decision.
 %【完整中文译文｜3.2-P10】
 % 两种恢复方式均按更新后的完整工时重新开始该工序。若其他候选机器集合为空，则必须等待原机器恢复。
 % 表示同一次联合装配的各组成部分记录共享同一个恢复决策。
-
 % 故障工序可等待或改派，均按完整工时重新加工；联合装配一致恢复。
 
 
@@ -284,6 +297,8 @@ Records representing one joint assembly share the same recovery decision.
 For distinct adjustable execution activities and $k\in K_{ij}\cap K_{i'j'}$, non-overlap requires
 %【完整中文译文｜3.2-P11】
 % 对于不同的可调整执行活动及共同候选机器$k\in K_{ij}\cap K_{i'j'}$，不重叠执行要求如下。
+
+
 %【公式 3.2-E07｜eq:machine_capacity】
 %【公式来源核对｜小论文式(7)｜基本沿用】
 % 大论文对应：式(3.5)，54页。
@@ -297,6 +312,8 @@ For distinct adjustable execution activities and $k\in K_{ij}\cap K_{i'j'}$, non
  \end{aligned}
  \label{eq:machine_capacity}
 \end{equation}
+
+
 %【第 3.2 节｜第 12 段｜3.2-P12】
 with sufficiently large $M$. Component records of the same physical assembly instead obey the inherited
 synchronization constraints. Completed records are fixed; unaffected running operations retain their assignments
@@ -365,6 +382,10 @@ and order arrivals induce event transitions; executable scheduling decisions ind
 
 
 %【第 3.3 节｜第 02 段｜3.3-P02】
+Here $\mathcal E(t)$ is the set of events processed at physical time $t$;
+$\mathcal T_{\mathrm{evt}}$ and $\mathcal T_{\mathrm{dec}}$ denote event and decision transition operators.
+Decision index $n$ corresponds to physical time $t_n$; consecutive decisions may share that time.
+$\mathcal X_n$ is the internal state at decision $n$, and $d_n$ is its executed scheduling decision.
 The observation $x_n$ excludes unrevealed future events. At a shared timestamp, completion precedes failure,
 followed by recovery, duration updates, and arrivals. Failure cancels the interrupted attempt's completion event;
 a duration change replaces the affected completion prediction without scheduling an event in the past.
@@ -450,8 +471,10 @@ Outputs are the execution log, makespan, and baseline deviation.
  \While{$\mathcal D_n\ne\varnothing$}
 % 当可行集合$\mathcal D_n$非空时，重复循环。
 
-  \State Select $d_n\gets\pi(x_n,S^0,\mathcal D_n)$
-% 使用策略选择$d_n\gets\pi(x_n,S^0,\mathcal D_n)$。
+  \State Obtain $s_n$, $\vartheta_n$, and $\mathcal D_n^{\vartheta_n}$
+  \State Select rule $a_n\sim\pi_{\vartheta_n}(\cdot\mid s_n)$
+  \State Decode $a_n$ into $d_n$ using Eq.~\eqref{eq:rule_decoding}
+% 先按当前决策类型选择规则，再按既有规则解码得到实际决策。
 
   \State Execute $d_n$; update state and events
 % 执行$d_n$，并更新状态与事件。

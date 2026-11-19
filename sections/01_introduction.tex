@@ -88,7 +88,7 @@ To address this problem, this paper extends the FJSP-MAOs to reactive scheduling
 and develops a dynamic heterogeneous graph-based rule-selection method. An event-driven environment
 updates the observable production state, which is encoded by a heterogeneous graph neural network (HGNN).
 Meta-path semantic attention adaptively weights processing--assembly information,
-and decision-specific readout extracts state representations for the scheduling roles.
+and Role-aware Mean Pooling Fusion extracts state representations for the scheduling roles.
 Three proximal policy optimization (PPO) heads select rules for machine routing, operation sequencing, and failure recovery
 \cite{schulman2017ppo}. The selected rules then generate concrete decisions from the
 corresponding feasible sets. PPO and the three decision heads provide an established learning and execution interface; the methodological focus is the state encoder. The main contributions are summarized as follows:
@@ -104,13 +104,13 @@ corresponding feasible sets. PPO and the three decision heads provide an establi
 \begin{itemize}
 %【第 1 节｜条目 01】
 %【第 1 节｜第 05 段｜1-P05】
-\item A dynamic heterogeneous graph representation retains processing, resource, and multi-level assembly dependencies under observed disturbances, within a reactive model balancing makespan and baseline deviation.
+\item Six processing--assembly meta-paths distinguish technological, resource, and assembly semantics, with semantic attention combining their information into enhanced node representations.
 %【完整中文译文｜1-P05】
 % 在保留基础问题加工与装配约束的前提下，建立FJSP-MAOs的反应式扩展模型，以在工时波动、机器故障和紧急订单到达条件下兼顾最大完工时间与计划稳定性。
 
 %【第 1 节｜条目 02】
 %【第 1 节｜第 06 段｜1-P06】
-\item An attention-enhanced heterogeneous state encoder is developed to distinguish processing--assembly meta-path semantics and adaptively combine their information. Decision-specific readout connects the encoded state to the information needs of routing, sequencing, and recovery.
+\item Role-aware Mean Pooling Fusion groups and averages enhanced node embeddings by decision role, then fuses them into states for routing, sequencing, and recovery. Together with semantic node encoding, it connects shared graph information to distinct scheduling contexts.
 %【完整中文译文｜1-P06】
 % 构建注意力增强的异构状态编码器，用于区分加工—装配元路径的不同语义，并自适应地融合其信息。
 % 面向决策的读出机制使编码后的状态与机器分配、工序排序及故障恢复各自的信息需求相衔接。

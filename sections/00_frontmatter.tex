@@ -18,7 +18,7 @@ city={City}, postcode={Postcode}, country={Country}}
 
 % 摘要
 \begin{abstract}
-Reactive scheduling in flexible job shops with multi-level assembly operations requires production states that retain technological precedence, resource competition, and assembly dependencies. Processing-time variations, machine breakdowns, and urgent order arrivals can propagate through these relations, affecting both makespan and deviation from a baseline schedule. This study investigates dynamic heterogeneous graph state encoding within an HGNN-PPO rule-selection framework. Typed relation aggregation distinguishes production entities and dependencies, while six meta-path patterns represent complementary processing--assembly semantics. Semantic attention and residual fusion combine these representations, and decision-specific readout supplies routing, sequencing, and recovery states. PPO selects a dispatching rule for the active decision type; the environment decodes the rule into a feasible scheduling decision. Available comparative results are reported for the supplied mixed rule pool. An offline-screened pool of simple and manually designed rules is a planned configuration requiring separate implementation and training. Controlled encoder comparisons and verified disturbance coverage are needed to establish the scope of the representation benefit.
+Reactive scheduling in flexible job shops with multi-level assembly operations requires production states that retain technological precedence, resource competition, and assembly dependencies. Processing-time variations, machine breakdowns, and urgent order arrivals can propagate through these relations, affecting both makespan and deviation from a baseline schedule. This study investigates dynamic heterogeneous graph state encoding within an HGNN-PPO rule-selection framework. Typed relation aggregation distinguishes production entities and dependencies, while six meta-path patterns represent complementary processing--assembly semantics. Semantic attention and residual fusion combine these representations, and Role-aware Mean Pooling Fusion supplies routing, sequencing, and recovery states. PPO selects a dispatching rule for the active decision type; the environment decodes the rule into a feasible scheduling decision. Available comparative results are reported for the supplied mixed rule pool. An offline-screened pool of simple and manually designed rules is a planned configuration requiring separate implementation and training. Controlled encoder comparisons and verified disturbance coverage are needed to establish the scope of the representation benefit.
 \end{abstract}
 
 
@@ -38,5 +38,5 @@ heterogeneous graph neural network \sep proximal policy optimization \sep deep r
 \begin{highlights}
 \item Dynamic heterogeneous graphs retain processing and multi-level assembly dependencies.
 \item Meta-path semantic attention combines complementary production relations.
-\item Decision-specific readout supplies state encodings for reactive rule selection.
+\item Role-aware Mean Pooling Fusion supplies state encodings for reactive rule selection.
 \end{highlights}

@@ -156,7 +156,7 @@ and the configuration selected for subsequent comparisons.
     \setlength{\tabcolsep}{3pt}
     \renewcommand{\arraystretch}{1.15}
 %【表格 5.2.1-T01｜见本块图注或标签】
-    \begin{tabular}{@{}p{0.38\linewidth}p{0.36\linewidth}c@{}}
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}p{0.38\linewidth}p{0.36\linewidth}c@{}}
         \toprule
         Parameter & Candidate values & \makecell{Selected\\value} \\
 %【表格文字译文】
@@ -175,7 +175,7 @@ and the configuration selected for subsequent comparisons.
 %【表格文字译文】
 % PPO clipping parameter：PPO裁剪参数。
         \bottomrule
-    \end{tabular}
+    \end{tabular*}
 \end{minipage}\par\smallskip
 
 %【第 5.2.1 节｜第 02 段｜5.2.1-P02】
@@ -264,9 +264,9 @@ in this proposed configuration, rather than a single 18-way action.
 \centering
 \caption{First-version candidate rule designs (implementation and validation pending).}
 \label{tab:proposed_rule_design}
-\small
+\footnotesize
 \setlength{\tabcolsep}{5pt}
-\begin{tabular}{@{}llp{0.53\textwidth}l@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llp{0.53\textwidth}l@{}}
 \toprule
 ID & Rule & Proposed decision criterion & Preference \\
 \midrule
@@ -294,7 +294,7 @@ RE4 & ALT-ECT & Earliest completion on alternatives & Rerouting \\
 RE5 & LOAD-BAL & Least-loaded alternative machine & Load balance \\
 RE6 & ASM-REC & Recovery reducing assembly waiting & Assembly \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table*}
 
 SPT-M compares processing durations, whereas ECT-M includes feasible-start waiting; EAM uses
@@ -325,9 +325,9 @@ A conditional ranking alone need not capture complementary behavior under the le
 \centering
 \caption{Offline candidate evaluation template (no results available).}
 \label{tab:offline_rule_screening}
-\scriptsize
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lllll@{}}
 \toprule
 Head & Rule ID & $C_{\max}\downarrow$ & $D_{\mathrm{dev}}\downarrow$ & Selected \\
 \midrule
@@ -352,9 +352,9 @@ Recovery & RE4 & --- & --- & Pending \\
 Recovery & RE5 & --- & --- & Pending \\
 Recovery & RE6 & --- & --- & Pending \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \par\smallskip
-\parbox{\columnwidth}{\scriptsize IDs refer to proposed designs, not implemented rules.
+\parbox{\columnwidth}{\footnotesize IDs refer to proposed designs, not implemented rules.
 Dashes indicate unavailable measurements; Pending indicates no retention decision.}
 \end{table}
 
@@ -390,9 +390,9 @@ and the encoder comparison table. No new comparison has been run.]}
 \centering
 \caption{Controlled state-encoder comparison (results pending).}
 \label{tab:encoder_pending}
-\scriptsize
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lllll@{}}
 \toprule
 Encoder & $C_{\max}$ & $D_{\mathrm{dev}}$ & HV & Params \\
 \midrule
@@ -401,9 +401,9 @@ GCN-PPO & --- & --- & --- & --- \\
 GAT-PPO & --- & --- & --- & --- \\
 Enhanced HGNN-PPO & --- & --- & --- & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \par\smallskip
-{\scriptsize Dashes denote missing measurements, not zero values.}
+{\footnotesize Dashes denote missing measurements, not zero values.}
 \end{table}
 
 \begin{figure}[t]
@@ -726,7 +726,7 @@ whereas the distribution display shows where sampled objective values are concen
 %【图表或算法标题译文】
 % 不同算法在独立测试算例上的HV与Spread
 \label{tab:ch3_rl_generalization_result}
-\fontsize{6.5}{7.5}\selectfont\setlength{\tabcolsep}{1pt}\renewcommand{\arraystretch}{0.80}
+\footnotesize\setlength{\tabcolsep}{1pt}\renewcommand{\arraystretch}{0.80}
 \textit{(a) Reference policies}\par\smallskip
 %【表内分组译文】
 % （a）参考策略
@@ -958,17 +958,17 @@ and P95 by instance scale, together with hardware, software, sample counts, and 
 \centering
 \caption{Online decision latency by model and scale (results pending).}
 \label{tab:latency_pending}
-\scriptsize
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}llll@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llll@{}}
 \toprule
 Model / scale & Mean (ms) & Median (ms) & P95 (ms) \\
 \midrule
 Pending & --- & --- & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \par\smallskip
-{\scriptsize Dashes denote missing measurements, not zero values.}
+{\footnotesize Dashes denote missing measurements, not zero values.}
 \end{table}
 
 \begin{figure}[t]
@@ -1001,9 +1001,9 @@ No illustrative schedule is substituted for experimental evidence.]}
 \centering
 \caption{Objectives of the representative scheduling case (results pending).}
 \label{tab:case_pending}
-\scriptsize
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lll@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lll@{}}
 \toprule
 Schedule & $C_{\max}$ & $D_{\mathrm{dev}}$ \\
 \midrule
@@ -1011,9 +1011,9 @@ Initial baseline & --- & --- \\
 Baseline encoder & --- & --- \\
 Enhanced HGNN & --- & --- \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \par\smallskip
-{\scriptsize Dashes denote missing measurements, not zero values.}
+{\footnotesize Dashes denote missing measurements, not zero values.}
 \end{table}
 
 \subsection{Discussion}

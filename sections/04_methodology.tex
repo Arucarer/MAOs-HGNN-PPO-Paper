@@ -17,8 +17,10 @@
 %【第 4 节｜第 01 段｜4-P01】
 Dynamic processing--assembly scheduling requires a policy to distinguish changes in operation progress,
 resource availability, and assembly readiness. These changes have different implications for routing,
-sequencing, and recovery. The method therefore combines a dynamic heterogeneous graph,
-meta-path semantic attention, and decision-specific state readout with three PPO rule-selection heads.
+sequencing, and recovery. The dynamic heterogeneous graph provides a structured input to a two-stage state encoder.
+First, six processing--assembly meta-paths provide semantic information that attention combines
+into enhanced node embeddings. Second, Role-aware Mean Pooling Fusion aggregates those embeddings
+into decision-specific states for routing, sequencing, and recovery. Together, the two stages connect processing--assembly semantics to the information needs of each decision.
 The encoder supplies the state information used to select rules, while the environment enforces
 the physical constraints in Section~\ref{sec:problem}.
 %【完整中文译文｜4-P01】
@@ -30,78 +32,78 @@ the physical constraints in Section~\ref{sec:problem}.
 % 不把网络输出直接当成可执行安排。
 
 % ---------------------------------------------------------------------------
-%【第 4.1 节｜Overall Framework and MDP Formulation】
+%【第 4 节｜Overall Framework and MDP Formulation】
 % ---------------------------------------------------------------------------
 \subsection{Overall Framework and MDP Formulation}
 %【章节标题译文】
 % 总体框架
 \label{subsec:framework_overview}
 
-%【第 4.1 节｜第 01 段｜4.1-P01】
+\subsubsection{Overall Framework}
+\label{subsubsec:overall_framework}
+% 总体框架：观测、节点编码、角色融合、规则决策与环境反馈。
+
+%【第 4.1.1 节｜第 01 段｜4.1.1-P01】
 Figure~\ref{fig:framework} outlines the interaction between the environment and the policy.
-At decision index $n$, corresponding to physical time $t_n$, the environment supplies the observation $x_n$,
-decision type $\vartheta_n\in\{R,S,RE\}$, and feasible object set $\mathcal D_n^{\vartheta_n}$.
-The three types denote machine routing, operation sequencing, and failure recovery.
-Several decisions may occur at the same physical time because each dispatch changes the choices
-available to subsequent dispatches.
-%【完整中文译文｜4.1-P01】
-% 图~\ref{fig:framework}概括环境与策略的交互。在对应物理时刻$t_n$的决策索引$n$处，
-% 环境提供观测$x_n$、决策类型$\vartheta_n\in\{R,S,RE\}$和可行对象集合$\mathcal D_n^{\vartheta_n}$。
-% 这三类分别表示机器分配、工序排序和故障恢复。同一物理时刻可以发生多个决策，因为每次派工都会改变后续派工的可选对象。
+At decision index $n$, corresponding to physical time $t_n$, the environment supplies $x_n$,
+$\vartheta_n\in\{R,S,RE\}$, and $\mathcal D_n^{\vartheta_n}$. It determines the decision type
+from observed events and current scheduling needs, activating exactly one corresponding Actor head.
+Routing and Sequencing address machine-assignment and operation-ordering needs. A failure that
+requires recovery or reassignment of an allocated operation triggers Recovery (Re-routing).
+Urgent arrivals and duration changes update the state and may instead create Routing or Sequencing
+needs; they do not automatically trigger Recovery. Several decisions of different types may occur
+at the same physical time. PPO learns rule selection conditional on the environment-supplied type,
+not a policy for choosing the head.
+%【完整中文译文｜4.1.1-P01】
+% 图~\ref{fig:framework}概括环境与策略的交互。在对应物理时刻$t_n$的决策索引$n$处，环境提供$x_n$、
+% $\vartheta_n\in\{R,S,RE\}$及$\mathcal D_n^{\vartheta_n}$。环境依据已观测事件和当前调度需求确定决策类型，每次仅激活一个对应Actor头。
+% Routing与Sequencing分别处理机器分配和工序排序需求。故障导致已分配工序需要恢复或重新分配时，触发Recovery（重路由）。
+% 紧急插单和工时变化更新状态，并可能产生Routing或Sequencing需求，不会自动触发Recovery。同一物理时刻可连续发生不同类型的决策。
+% PPO学习以环境提供的决策类型为条件的规则选择，而不是选择决策头。
 
 % 环境提供状态、决策类型与可行对象集合。R、S、RE分别对应机器分配、工序排序与故障恢复。同一仿真时刻可以连续执行多个决策。
 
-%【第 4.1 节｜第 02 段｜4.1-P02】
+%【第 4.1.1 节｜第 02 段｜4.1.1-P02】
 The observation is mapped to a graph $G_n$. A shared HGNN aggregates typed relations and enhances node
-representations through attention over processing--assembly meta-paths. Role-based readout produces
-a representation for each decision type. Only the corresponding Actor head is activated to select
+representations through attention over processing--assembly meta-paths. Role-aware Mean Pooling
+Fusion, the decision-specific readout used here, groups and pools the enhanced node embeddings
+before fusing them into a state vector for each decision type. Only the corresponding Actor head is activated to select
 a rule from its fixed candidate set. The rule scores feasible objects and returns a concrete decision to the simulator.
 Trajectory rewards jointly train the encoder, Actor heads, and Critic.
-%【完整中文译文｜4.1-P02】
+%【完整中文译文｜4.1.1-P02】
 % 观测被映射为图$G_n$。共享HGNN聚合带类型的关系，并通过加工—装配元路径上的注意力机制增强节点表征。
 % 基于角色的读出为每种决策类型生成相应表征。仅激活对应的Actor头，从其固定候选集合中选择一条规则。
 % 该规则对可行对象评分，并将具体决策返回仿真器。轨迹奖励用于联合训练编码器、各Actor头和Critic。
 
 % 共享编码器先聚合异构关系，再进行元路径注意力增强和角色汇聚。对应Actor头选择规则，规则评价可行对象并生成实际调度决策。
 
-%【图块 4.1-F01｜fig:framework】
+%【图块 4.1.1-F01｜fig:framework】
 \begin{figure*}[t]
  \centering
  \captionsetup{name=Figure}
  \includegraphics[width=0.98\textwidth,height=0.56\textheight,keepaspectratio]{figures/F2基于规则级决策的反应式调度总体框架.png}
-%【图表标题｜第 4.1 节；引用时保留后面的label】
- \caption{Framework of dynamic graph encoding and adaptive dispatching rule selection in the supplied mixed-pool configuration. The offline rule-generation block describes the legacy pool, not the planned screened simple/manual pools.}
+%【图表标题｜第 4.1.1 节；引用时保留后面的label】
+ \caption{Framework of dynamic graph encoding and adaptive dispatching rule selection.}
 %【图表或算法标题译文】
 % 动态图编码与自适应派工规则选择框架。
  \label{fig:framework}
 \end{figure*}
 
-%【第 4.1 节｜第 03 段｜4.1-P03】
-A rule action $a_n$ is distinct from the resulting scheduling decision $d_n$. The policy learns
-which rule to invoke, rather than directly selecting an operation or machine. Feasibility,
-including flexible assembly matching and committed component usage, remains an environment constraint.
-Candidate rules are fixed before training and unchanged during evaluation; rule evolution is outside
-the scope of this state-encoding method.
-%【完整中文译文｜4.1-P03】
-% 规则动作$a_n$与由其产生的具体调度决策$d_n$不同。策略学习的是调用哪条规则，而不是直接选择工序或机器。
-% 包含柔性装配匹配和已承诺零部件使用的可行性条件仍由环境约束保证。候选规则在训练前固定，评价时保持不变；
-% 规则演化不属于本文状态编码方法的研究范围。
+%【第 4.1.1 节｜第 03 段｜4.1.1-P03】
+Offline training collects trajectories through simulated interaction and updates the shared
+encoder, Actor heads, and Critic. Online execution freezes the trained parameters and applies the
+policy to each newly observed decision state. The repeated observation--action--feedback cycle
+is formalized below as a Markov decision process.
+% 离线仿真采集轨迹并训练编码器、Actor与Critic；在线冻结参数。连续观测、动作及反馈引出MDP。
 
-% 动作是规则，具体决策是规则调用结果。规则库训练前固定，不展开规则演化。
-
-%【第 4.4 节｜第 01 段｜4.4-P01】
-Rule-level actions provide a finite interface across instance sizes. The planned fixed pools draw
-on simple and manually designed dispatching rules, screened offline for feasibility, both scheduling
-objectives, and complementary behavior. Section~\ref{subsubsec:offline_rule_evaluation} specifies
-the validation protocol and reserves Table~\ref{tab:offline_rule_screening} for the selected rules
-and final pool sizes. Screening and retraining remain pending; the existing mixed-pool results do
-not validate this planned configuration.
-% TODO: replace pending status only after candidate identities, validation data and checkpoints are verified.
+\subsubsection{MDP Formulation}
+\label{subsubsec:mdp_formulation}
+% MDP建模：状态、规则动作、转移、奖励与折扣因子。
 
 The rule-level decision process is
-%【完整中文译文｜4.4-P01】
+%【完整中文译文｜4.1.2-P01】
 % 规则层面的决策过程定义如下。
-%【公式 4.4-E01｜eq:mdp】
+%【公式 4.1.2-E01｜eq:mdp】
 %【公式来源核对｜小论文式(17)｜合并原有定义】
 % 大论文对应：式(3.9)、(3.12)，57、60页。
 % 对照说明：保持按决策类型选候选规则的动作含义。
@@ -110,28 +112,40 @@ The rule-level decision process is
  \qquad\mathcal U(s_n,\vartheta_n)=\mathcal R^{\vartheta_n},
  \label{eq:mdp}
 \end{equation}
-%【第 4.4 节｜第 02 段｜4.4-P02】
+%【第 4.1.2 节｜第 02 段｜4.1.2-P02】
 where $\mathcal R^R$, $\mathcal R^S$, and $\mathcal R^{RE}$ are fixed routing, sequencing,
-and recovery rule sets. A rule action is indexed as $a_n=R_\nu^{\vartheta_n}$.
-%【完整中文译文｜4.4-P02】
-% 其中，$\mathcal R^R$、$\mathcal R^S$和$\mathcal R^{RE}$分别为固定的机器分配、工序排序和故障恢复规则集合。
-% 规则动作记为$a_n=R_\nu^{\vartheta_n}$。
-The state space $\mathcal S$ contains $s_n=(G_n,\boldsymbol z_n,\vartheta_n)$,
-where $G_n$ represents the currently observed production network and $\boldsymbol z_n$
-contains observable global statistics. Section~\ref{subsec:temporal_graph} defines this representation.
-The action space $\mathcal U$ contains candidate rules for the active decision type, and
+and recovery/re-routing rule sets. The environment supplies $\vartheta_n$ as state information;
+the active head selects $a_n=R_\nu^{\vartheta_n}$ within its corresponding set. Each pool determines
+its Actor's output dimension, while the environment constructs the state-dependent feasible-object
+set $\mathcal D_n^{\vartheta_n}$. A selected rule evaluates these objects to produce $d_n$.
+Changes in the number of feasible machines or operations do not change the fixed rule pool.
+%【完整中文译文｜4.1.2-P02】
+% 其中，$\mathcal R^R$、$\mathcal R^S$和$\mathcal R^{RE}$分别为固定的机器分配、工序排序及故障恢复/重路由规则集合。
+% 环境将$\vartheta_n$作为状态信息提供；当前激活头在对应集合内选择$a_n=R_\nu^{\vartheta_n}$。
+% 规则池确定Actor的输出维度，环境则依据状态构造可行对象集合$\mathcal D_n^{\vartheta_n}$。所选规则评价这些对象并生成$d_n$。
+% 可行机器或工序数量变化不改变固定规则池。
+
+Rule-level actions provide a finite interface across instance sizes. The planned fixed pools draw
+on simple and manually designed dispatching rules, screened offline for feasibility, both scheduling
+objectives, and complementary behavior. Section~\ref{subsubsec:offline_rule_evaluation} specifies
+the validation protocol and reserves Table~\ref{tab:offline_rule_screening} for the selected rules
+and final pool sizes. Screening and retraining remain pending; the existing mixed-pool results do
+not validate this planned configuration.
+% TODO: replace pending status only after candidate identities, validation data and checkpoints are verified.
+
+For feedback,
 $\mathcal R_{\mathrm{rew}}$ supplies the scalar feedback $r_n$ for the transition from $n$ to $n+1$.
-The discount factor $\gamma$ applies per decision. Feedback accounts for makespan, baseline deviation,
+The discount factor $\gamma$ weights future cumulative rewards per decision. Feedback accounts for makespan, baseline deviation,
 and disturbance-related operating conditions through the reward in Section~\ref{subsec:ppo_policy}.
 The policy $\pi_{\vartheta_n}(a_n\mid s_n)$ selects a rule, which is decoded into $d_n$
 and executed by the environment in Section~\ref{subsec:dynamic_environment}.
 % 状态、规则动作、奖励和转移均使用决策索引n；物理时间为t_n。奖励具体公式保留在4.4。
 
-%【第 4.4 节｜第 04 段｜4.4-P04】
+%【第 4.1.2 节｜第 04 段｜4.1.2-P04】
 The simulator transition includes decoding and execution of the selected rule, followed by intervening observed events:
-%【完整中文译文｜4.4-P04】
+%【完整中文译文｜4.1.2-P04】
 % 仿真器的转移包括所选规则的解码与执行，以及其间观测事件的处理，具体如下。
-%【公式 4.4-E03｜eq:state_transition】
+%【公式 4.1.2-E03｜eq:state_transition】
 %【公式来源核对｜小论文式(19)｜标准MDP记法补写】
 % 大论文对应：式(3.9)中转移核及3.2.2节(2)，57、59页。
 % 对照说明：用条件转移分布表述同一环境过程，未新增独立学习的转移模型。
@@ -139,10 +153,10 @@ The simulator transition includes decoding and execution of the selected rule, f
  s_{n+1}\sim P(\cdot\mid s_n,a_n).
  \label{eq:state_transition}
 \end{equation}
-%【第 4.4 节｜第 05 段｜4.4-P05】
+%【第 4.1.2 节｜第 05 段｜4.1.2-P05】
 The next decision can occur at the same physical time. The transition kernel is induced by the environment
 and its fixed decoding conventions rather than learned separately.
-%【完整中文译文｜4.4-P05】
+%【完整中文译文｜4.1.2-P05】
 % 下一次决策可以发生在同一物理时刻。转移核由环境及其固定解码约定共同确定，而不是另行学习。
 
 % 规则级转移包含解码与执行，同一时刻可以继续触发下一个决策。
@@ -153,7 +167,7 @@ input before semantic encoding and rule selection.
 % MDP所需的结构化状态由下一节的动态图提供。
 
 % ---------------------------------------------------------------------------
-%【第 4.2 节｜Dynamic Heterogeneous Graph Representation】
+%【第 4.1.2 节｜Dynamic Heterogeneous Graph Representation】
 % ---------------------------------------------------------------------------
 \subsection{Dynamic Heterogeneous Graph Representation}
 %【章节标题译文】
@@ -168,6 +182,8 @@ input before semantic encoding and rule selection.
 % 带类型的图与可观测特征
 
 %【第 4.2 节｜第 01 段｜4.2-P01】
+Processing operations, assembly tasks, machines, and assembly junctions carry different production
+relations. Their execution status and resource conditions evolve as decisions and events are processed.
 The graph component of the state introduced in Section~\ref{subsec:framework_overview} is specified as
 %【完整中文译文｜4.2-P01】
 % 第$n$次决策时的状态表示如下。
@@ -181,7 +197,7 @@ The graph component of the state introduced in Section~\ref{subsec:framework_ove
  \label{eq:temporal_graph}
 \end{equation}
 %【第 4.2 节｜第 02 段｜4.2-P02】
-where $\phi$ and $\psi$ identify node and edge types, $\boldsymbol{X}_n$ contains node features,
+where $V_n$ and $E_n$ are the node and edge sets, $\phi$ and $\psi$ identify their types, $\boldsymbol{X}_n$ contains node features,
 and $\boldsymbol{z}_n$ contains observable global statistics. Nodes represent processing operations $O$,
 assembly operations $A$, processing and assembly machines $M$, and assembly junctions $S_\ell$.
 Start and end nodes delimit the production network. An assembly junction represents a structural dependency
@@ -195,8 +211,18 @@ rather than an additional executable task.
 
 %【第 4.2 节｜第 03 段｜4.2-P03】
 Edges distinguish technological precedence, machine eligibility, active assignments, and assembly dependencies.
+Technological routes, eligibility, and assembly requirements provide the structural context for admitted
+tasks, whereas execution status, assignments, readiness, and availability change during production.
+Newly admitted tasks extend that context. Joint assembly records retain the matching and synchronization
+semantics described in Section~\ref{subsec:problem_description}.
 Eligibility does not disappear when a machine becomes busy or fails: its current availability is recorded separately.
 Undecided assembly matches retain compatible relations, whereas selected matches are marked as committed.
+Operation-to-operation precedence supports the first pattern in Table~\ref{tab:meta_paths}.
+Operation--machine relations and their typed reverse relations support the second through fourth
+patterns. Operation--junction incidence supports assembly-branch coupling, while junction--assembly
+incidence represents the hierarchical dependency used by the sixth pattern. These are the semantic
+relations of the existing graph; exact directed instance extraction requires implementation verification.
+% 工序前序对应路径1，工序机器及反向消息对应路径2--4；工序连接点关联和连接点装配关联对应路径5、6。
 Reverse message-passing relations preserve their semantic types. This construction retains the flexible
 matching mechanism of the base problem.
 %【完整中文译文｜4.2-P03】
@@ -256,7 +282,7 @@ assembly structure, and machine-eligibility relations.
 % 第三章描述物理状态如何变化，本节描述事件如何更新图。完成、故障、恢复、工时波动、插单以及决策执行分别更新相关属性或关系。
 
 %【第 4.2 节｜第 03 段｜4.2-P03】
-Figure~\ref{fig:temporal_graph} illustrates graph evolution during production. Completed nodes may
+Figure~\ref{fig:temporal_graph} illustrates how shop-floor observations are represented as graphs during production; it is a state-evolution schematic. Completed nodes may
 remain as historical context but cannot be dispatch candidates. Order arrivals can increase graph size
 without changing the embedding dimension or the fixed rule-action sets. Dynamic updating here refers
 to event-dependent graph structure and features; it does not introduce a recurrent network or
@@ -274,16 +300,16 @@ an additional temporal-fusion module.
  \captionsetup{name=Figure}
  \includegraphics[width=0.98\textwidth,height=0.80\textheight,keepaspectratio]{figures/F4动态调度过程中的图状态演化.png}
 %【图表标题｜第 4.2 节；引用时保留后面的label】
- \caption{Evolution of the heterogeneous scheduling graph during production execution.}
+ \caption{Schematic evolution of the graph representation under production execution and observed disturbances.}
 %【图表或算法标题译文】
 % 生产执行过程中异构调度图的演化。
  \label{fig:temporal_graph}
 \end{figure*}
 
 % ---------------------------------------------------------------------------
-%【第 4.3 节｜Meta-path Semantic Attention-based State Encoding】
+%【第 4.2 节｜Meta-path Semantic Attention-based State Encoding】
 % ---------------------------------------------------------------------------
-\subsection{Meta-path Semantic Attention-based State Encoding}
+\subsection{Meta-path Semantic Attention and Role-aware State Fusion}
 %【章节标题译文】
 % 基于元路径语义注意力的状态编码
 \label{subsec:hgnn_state}
@@ -292,7 +318,9 @@ an additional temporal-fusion module.
 The encoder in Fig.~\ref{fig:attention_hgnn} distinguishes typed neighborhood aggregation from semantic fusion.
 A precedence chain, a shared machine, and an assembly junction convey different scheduling information even
 when they connect the same operations. Their representations are therefore formed separately before
-attention-based residual enhancement and decision-specific readout.
+attention-based residual enhancement. Meta-path semantic encoding determines what information each
+node receives and how its semantic channels are combined. Role-aware Mean Pooling Fusion then
+summarizes the enhanced nodes according to the active decision context. The following subsections define their respective node-level and decision-level computations.
 %【完整中文译文｜4.3-P01】
 % 图~\ref{fig:attention_hgnn}中的编码器区分带类型的邻域聚合与语义融合。即使连接相同工序，
 % 前序链、共享机器和装配连接点传递的调度信息也不同。因此，先分别形成这些关系的表征，
@@ -306,21 +334,21 @@ attention-based residual enhancement and decision-specific readout.
  \captionsetup{name=Figure}
  \includegraphics[width=0.98\textwidth,height=0.66\textheight,keepaspectratio]{figures/F3融合装配环境的原路径注意力机制(1).png}
 %【图表标题｜第 4.3 节；引用时保留后面的label】
- \caption{Meta-path semantic attention, role-based state readout, and multi-head rule selection.}
+ \caption{Meta-path semantic node encoding, Role-aware Mean Pooling Fusion, and subsequent multi-head rule selection.}
 %【图表或算法标题译文】
 % 元路径语义注意力、基于角色的状态读出与多头规则选择。
  \label{fig:attention_hgnn}
 \end{figure*}
 
 % ---------------------------------------------------------------------------
-%【第 4.3.1 节｜Heterogeneous Relation Aggregation】
+%【第 4.3 节｜Heterogeneous Relation Aggregation】
 % ---------------------------------------------------------------------------
-\subsubsection{Heterogeneous Relation and Meta-path Aggregation}
+\subsubsection{Meta-path Semantic Attention-based Node Encoding}
 %【章节标题译文】
 % 异构关系聚合
 
 %【第 4.3.1 节｜第 01 段｜4.3.1-P01】
-Type-specific projections map raw features into a common hidden space:
+Different node types carry different raw features. Type-specific projections map them into a common hidden space:
 %【完整中文译文｜4.3.1-P01】
 % 不同节点类型使用各自的投影，将原始特征映射到共同的隐空间，具体如下。
 %【公式 4.3.1-E01｜eq:type_projection】
@@ -365,7 +393,8 @@ Let $\boldsymbol{h}_{v,n}$ denote the final aggregated embedding.
 % 加工—装配元路径语义
 
 %【第 4.3.1 节｜第 01 段｜4.3.1-P01】
-Six typed patterns describe complementary scheduling semantics, as listed in Table~\ref{tab:meta_paths}.
+Typed neighbor aggregation supplies a base structural embedding, while resource competition and
+assembly coordination also involve typed multi-hop contexts. Six typed patterns describe complementary scheduling semantics, as listed in Table~\ref{tab:meta_paths}.
 Here $O/A$ denotes a processing or assembly operation. The patterns are computational information paths,
 not additional physical precedence constraints. The precedence pattern propagates progress along processing and assembly chains, indicating
 which downstream tasks depend on unfinished work. The shared-machine pattern exposes competition
@@ -391,10 +420,10 @@ convey dependencies between component groups and the assembly hierarchy.
 %【图表或算法标题译文】
 % 元路径模式与调度语义。
  \label{tab:meta_paths}
- \small
+ \footnotesize
  \setlength{\tabcolsep}{3pt}
 %【表格 4.3.1-T02｜见本块图注或标签】
- \begin{tabular}{@{}c p{0.39\linewidth} p{0.48\linewidth}@{}}
+ \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}c p{0.39\linewidth} p{0.48\linewidth}@{}}
  \toprule
  $k$ & Typed pattern & Scheduling semantics \\
 %【表格文字译文】
@@ -419,14 +448,25 @@ convey dependencies between component groups and the assembly hierarchy.
 %【表格文字译文】
 % Hierarchical assembly dependency：层级装配依赖。
  \bottomrule
- \end{tabular}
+ \end{tabular*}
 \end{table}
 
 %【第 4.3.1 节｜第 02 段｜4.3.1-P02】
-Let $\mathcal I_k(v,n)$ contain valid instances of pattern $k$ associated with node $v$,
-and let $\mathcal N_k(v,n)$ contain their participating nodes. The semantic representation is
+For each target node $v$, the encoder first identifies its type $\phi(v)$ and selects the
+applicable subset of the six predefined meta-path patterns. Let $\mathcal I_k(v,n)$ contain
+valid instances of pattern $k$ associated with $v$, and let $\mathcal N_k(v,n)$ contain their
+participating nodes. The valid pattern set $\mathcal K_v(n)$ is jointly determined by the target
+node type, pattern applicability, and the existence of valid instances in the current graph.
+Different node types can therefore use different subsets. For each $k\in\mathcal K_v(n)$,
+neighboring information is aggregated along its valid instances to form a semantic representation;
+semantic attention and the residual connection then update the target node embedding.
+The pattern-specific aggregation is
 %【完整中文译文｜4.3.1-P02】
-% 设$\mathcal I_k(v,n)$包含与节点$v$关联的模式$k$的有效实例，$\mathcal N_k(v,n)$包含这些实例中参与的节点。语义表征定义如下。
+% 对于每个目标节点$v$，编码器首先识别其类型$\phi(v)$，并从六类预定义元路径模式中筛选适用子集。
+% 设$\mathcal I_k(v,n)$包含与$v$关联的模式$k$的有效实例，$\mathcal N_k(v,n)$包含这些实例中参与的节点。
+% 有效模式集合$\mathcal K_v(n)$由目标节点类型、路径适用性及当前图中有效实例的存在性共同确定，因此不同节点类型可以使用不同子集。
+% 对每个$k\in\mathcal K_v(n)$，沿其有效实例聚合周边信息形成语义表征，再通过语义注意力与残差连接更新目标节点嵌入。
+% 模式专用聚合定义如下。
 %【公式 4.3.1-E01｜eq:meta_path_embedding】
 %【公式来源核对｜小论文式(13)｜图示机制公式化】
 % 大论文对应：图3.2及其说明，58—59页。
@@ -438,6 +478,10 @@ and let $\mathcal N_k(v,n)$ contain their participating nodes. The semantic repr
 \end{equation}
 %【第 4.3.1 节｜第 03 段｜4.3.1-P03】
 The pattern-specific operator retains semantic identity when aggregating participating nodes.
+The notation identifies participating nodes through valid typed instances; it does not specify
+whether repeated instances contribute multiple times. The reduction, duplicate handling, and
+parameter sharing of $\operatorname{AGG}_k$ remain implementation details to be confirmed.
+% AGG_k的归约、重复实例计数与参数共享尚待实现核实，不自行假定mean、sum或attention。
 Absent patterns are excluded from attention normalization. Thus a missing assembly branch or
 an inapplicable routing pattern is not interpreted as an informative zero-valued observation.
 %【完整中文译文｜4.3.1-P03】
@@ -447,21 +491,24 @@ an inapplicable routing pattern is not interpreted as an informative zero-valued
 % AGG是对F3路径聚合模块的接口表达，不虚构尚未核验的具体实现。TODO：核验路径实例、方向、重复计数及AGG算子，补齐可复现定义。
 
 % ---------------------------------------------------------------------------
-%【第 4.3.2 节｜Semantic Attention and Residual Enhancement】
+%【第 4.3.1 节｜Semantic Attention and Residual Enhancement】
 % ---------------------------------------------------------------------------
-\subsubsection{Semantic Attention and Decision-specific Readout}
+% Semantic attention remains part of node encoding in Section 4.3.1.
 %【章节标题译文】
 % 语义注意力与残差增强
 
-%【第 4.3.2 节｜第 01 段｜4.3.2-P01】
+%【第 4.3.1 节｜第 01 段｜4.3.1-P01】
 The operator in Eq.~\eqref{eq:meta_path_embedding} aggregates nodes within one semantic pattern;
 attention then combines the representations of different patterns. For valid pattern set
 $\mathcal K_v(n)$, the learnable scalar scoring function $g$ maps each pattern representation
-to an unnormalized importance score:
+to an unnormalized importance score. As written, $\beta_{v,k,n}$ is node- and state-indexed,
+and normalization is over the valid patterns for that node; this does not assert that the unprovided
+code implements the same granularity. The internal structure of $g$ remains to be verified:
+% 现有公式按节点及状态索引，在当前节点有效模式间归一化；g内部结构和代码粒度仍待核实。
 % g为语义向量到标量评分的可学习映射；现有资料未确定其内部结构，不另加Q-K-V机制。
-%【完整中文译文｜4.3.2-P01】
+%【完整中文译文｜4.3.1-P01】
 % 对于有效模式集合$\mathcal K_v(n)$，可学习评分函数$g$给出如下结果。
-%【公式 4.3.2-E01｜eq:relation_semantic_attention】
+%【公式 4.3.1-E01｜eq:relation_semantic_attention】
 %【公式来源核对｜小论文式(14)｜图内公式展开并编号】
 % 大论文对应：图3.2中softmax(g(m_v^(k)))表达，58页。
 % 对照说明：大论文图中已有语义注意力表达；小论文展开评分、归一化和有效模式集合。
@@ -473,11 +520,11 @@ to an unnormalized importance score:
  \end{aligned}
  \label{eq:relation_semantic_attention}
 \end{equation}
-%【第 4.3.2 节｜第 02 段｜4.3.2-P02】
+%【第 4.3.1 节｜第 02 段｜4.3.1-P02】
 The enhanced representation follows the residual construction in Fig.~\ref{fig:attention_hgnn}:
-%【完整中文译文｜4.3.2-P02】
+%【完整中文译文｜4.3.1-P02】
 % 增强后的表征遵循图~\ref{fig:attention_hgnn}中的残差构建方式，具体如下。
-%【公式 4.3.2-E02｜eq:hgnn_update】
+%【公式 4.3.1-E02｜eq:hgnn_update】
 %【公式来源核对｜小论文式(15)｜图内公式整理并编号】
 % 大论文对应：图3.2中的h_v加权残差表达，58页。
 % 对照说明：eta对应图中残差系数alpha，换名和补下标不构成新机制。
@@ -486,13 +533,13 @@ The enhanced representation follows the residual construction in Fig.~\ref{fig:a
  +\eta\sum_{k\in\mathcal K_v(n)}\beta_{v,k,n}\boldsymbol{m}^{(k)}_{v,n}.
  \label{eq:hgnn_update}
 \end{equation}
-%【第 4.3.2 节｜第 03 段｜4.3.2-P03】
+%【第 4.3.1 节｜第 03 段｜4.3.1-P03】
 Coefficient $\eta$ corresponds to the residual coefficient $\alpha$ in the figure and is distinct
 from the neighbor weights in Eq.~\eqref{eq:relation_aggregation}. When no pattern is valid,
 the residual contribution is zero. The original node embedding is preserved, while semantic weights
 respond to changing operation and resource features. Whether this mechanism improves scheduling,
 rather than merely changing the representation, is examined through controlled ablations.
-%【完整中文译文｜4.3.2-P03】
+%【完整中文译文｜4.3.1-P03】
 % 系数$\eta$对应图中的残差系数$\alpha$，与式~\eqref{eq:relation_aggregation}中的邻居权重不同。
 % 当没有有效模式时，残差贡献为零。原始节点嵌入予以保留，语义权重则响应工序和资源特征的变化。
 % 该机制是否改善实际调度，而不只是改变表征，将通过受控消融实验加以检验。
@@ -501,31 +548,46 @@ rather than merely changing the representation, is examined through controlled a
 % 具体作用由消融验证。TODO：评分函数g的结构及残差系数的取值方式须与代码核对。
 
 % ---------------------------------------------------------------------------
-%【第 4.3.2 节｜Decision-specific Role Readout】
+%【第 4.3.1 节｜Decision-specific Role Readout】
 % ---------------------------------------------------------------------------
 % 内容块：Decision-specific Role Readout
 %【章节标题译文】
 % 面向决策的角色读出
 
-%【第 4.3.2 节｜第 01 段｜4.3.2-P01】
-Routing uses the current operation, eligible machines, predecessors, and assembly context.
-Sequencing uses the current machine, candidate operations, and their precedence and assembly context.
-Recovery uses the failed machine, interrupted operation, alternative machines, and dependent tasks.
-The corresponding node sets $V_n^R$, $V_n^S$, and $V_n^{RE}$ need not coincide.
+%【第 4.3.1 节｜第 01 段｜4.3.1-P01】
+\subsubsection{Role-aware Mean Pooling Fusion}
+Enhanced node embeddings must next be summarized for the environment-supplied decision type
+$\vartheta\in\{R,S,RE\}$. Role-aware Mean Pooling Fusion aggregates these embeddings between
+the shared node encoder and the corresponding Actor; it does not select actions.
+The current description associates Routing with the current operation, eligible machines,
+predecessors, and assembly context; Sequencing with the current machine, candidate operations,
+and their dependencies; and Recovery with the failed machine, interrupted operation,
+alternative machines, and dependent tasks. These are contextual descriptions, not a verified
+enumeration of role slots. The corresponding decision-context node sets
+$V_n^R$, $V_n^S$, and $V_n^{RE}$ need not coincide.
 %【完整中文译文｜4.3.2-P01】
-% 机器分配使用当前工序、候选机器、前驱及装配背景；工序排序使用当前机器、候选工序及其前序与装配背景；
-% 故障恢复使用故障机器、被中断工序、其他候选机器和依赖任务。相应节点集合$V_n^R$、$V_n^S$与$V_n^{RE}$不必相同。
+% 增强节点嵌入需要针对环境提供的决策类型$\vartheta\in\{R,S,RE\}$进行汇总。
+% Role-aware Mean Pooling Fusion位于共享节点编码器与对应Actor之间，负责聚合嵌入而不选择动作。
+% 当前描述将Routing与当前工序、候选机器、前驱及装配上下文关联；将Sequencing与当前机器、候选工序及其依赖关联；
+% 将Recovery与故障机器、中断工序、替代机器及依赖任务关联。这些是上下文描述，不是已经核实的角色槽位清单。
+% 相应决策上下文节点集合$V_n^R$、$V_n^S$和$V_n^{RE}$不必相同。
 
 % 三类角色集合关注不同决策对象，可以不同，但不要求每次两两不相等。
 
 %【第 4.3.2 节｜第 02 段｜4.3.2-P02】
-These sets focus on different objects: routing compares resource choices, sequencing compares
-operations competing for a machine, and recovery compares responses to interrupted execution.
-Within each decision context, $\mathcal C_{\vartheta}$ indexes the readout roles and
-$V_{n,c}^{\vartheta}\subseteq V_n^{\vartheta}$ contains nodes assigned to role $c$.
-Role-wise mean pooling and fusion produce
+For decision type $\vartheta$, $V_n^{\vartheta}\subseteq V_n$ denotes its decision-context
+nodes, $\mathcal C_{\vartheta}$ indexes the readout roles, and
+$V_{n,c}^{\vartheta}\subseteq V_n^{\vartheta}$ contains the nodes associated with role
+$c\in\mathcal C_{\vartheta}$. These subsets are not required to be mutually exclusive;
+the present definition does not require them to partition $V_n^{\vartheta}$.
+The exact role inventory, membership rules, and context extent remain to be verified against code.
+Equation~\eqref{eq:graph_readout} computes a mean for each nonempty role subset, concatenates
+the role summaries with $\boldsymbol z_n$, and applies the decision-specific fusion MLP:
 %【完整中文译文｜4.3.2-P02】
-% 对于角色子集$V_{n,c}^{\vartheta}$，按角色进行均值池化并融合，得到如下结果。
+% 对于决策类型$\vartheta$，$V_n^{\vartheta}\subseteq V_n$表示其决策上下文节点，$\mathcal C_{\vartheta}$索引读出角色，
+% $V_{n,c}^{\vartheta}\subseteq V_n^{\vartheta}$包含属于角色$c\in\mathcal C_{\vartheta}$的节点。
+% 各子集不要求互斥，当前定义也不要求其构成$V_n^{\vartheta}$的划分。具体角色清单、成员筛选规则及上下文范围仍需代码核实。
+% 式~\eqref{eq:graph_readout}对每个非空角色子集计算均值，将各角色汇总与$\boldsymbol z_n$拼接后输入对应决策类型的融合MLP。
 %【公式 4.3.2-E01｜eq:graph_readout】
 %【公式来源核对｜小论文式(16)｜文字与图示公式化】
 % 大论文对应：图3.2步骤4—5及正文，58—59页。
@@ -544,32 +606,34 @@ Role-wise mean pooling and fusion produce
  \label{eq:graph_readout}
 \end{equation}
 %【第 4.3.2 节｜第 03 段｜4.3.2-P03】
-An empty role subset is represented by a zero vector with a presence indicator. The readout therefore
-has fixed dimension and yields $\boldsymbol{h}_n^R$, $\boldsymbol{h}_n^S$, and $\boldsymbol{h}_n^{RE}$.
-The fixed set of role slots makes the output size independent of the number of graph nodes.
-These decision-specific vectors provide the inputs to the corresponding PPO heads in
-Section~\ref{subsec:ppo_policy}.
+The mean in Eq.~\eqref{eq:graph_readout} is defined only for
+$|V_{n,c}^{\vartheta}|>0$, so the displayed expression does not divide by zero; it leaves
+empty-role outputs unspecified. Earlier text proposed a zero vector and a presence indicator,
+but neither has been verified in code, and the indicator is absent from the displayed fusion input.
+They are therefore not treated as established implementation details here.
+A fixed-dimensional fusion input requires a fixed ordered role-slot layout for each decision type
+and a defined treatment of empty slots; both require implementation confirmation.
+With those conventions specified, the fused vectors $\boldsymbol h_n^R$,
+$\boldsymbol h_n^S$, and $\boldsymbol h_n^{RE}$ feed the corresponding Actor heads in
+Section~\ref{subsubsec:rule_execution}. Only the environment-activated head selects a rule.
 %【完整中文译文｜4.3.2-P03】
-% 空角色子集以带有存在性指示的零向量表示。因此，读出结果维度固定，并生成$\boldsymbol{h}_n^R$、$\boldsymbol{h}_n^S$和$\boldsymbol{h}_n^{RE}$。
-% 这一步采用均值池化，而不是另一层注意力。
+% 式~\eqref{eq:graph_readout}中的均值仅对$|V_{n,c}^{\vartheta}|>0$定义，因此所示表达式不进行除零计算，但未定义空角色的输出。
+% 先前文字提出零向量和存在性指示量，然而二者均未从代码核实，指示量也未出现在所示融合输入中，因此此处不将其视为已确认的实现细节。
+% 固定维度融合输入需要各决策类型具有固定且有序的角色槽位，并明确定义空槽处理；二者均待实现确认。
+% 在这些约定确定后，融合向量$\boldsymbol h_n^R$、$\boldsymbol h_n^S$和$\boldsymbol h_n^{RE}$传入第~\ref{subsubsec:rule_execution}节对应Actor头，
+% 仅由环境激活的决策头选择规则。
 
 % 按角色均值池化后融合为三个状态向量，与F3保持一致。TODO：角色类别、空集处理与全局统计量按程序核验。
 
 % ---------------------------------------------------------------------------
-%【第 4.4 节｜Multi-head PPO-based Adaptive Rule Selection】
-% ---------------------------------------------------------------------------
-\subsection{Multi-head PPO-based Adaptive Rule Selection}
-%【章节标题译文】
-% 基于多头PPO的自适应规则选择
-\label{subsec:ppo_policy}
+\subsubsection{Multi-head Rule Selection and Scheduling Decision Execution}
+\label{subsubsec:rule_execution}
+% 三头规则选择与调度决策执行：共享编码、环境触发、头内选规则、规则执行与状态更新。
 
-% ---------------------------------------------------------------------------
-%【第 4.4 节｜Rule Actions and Scheduling Decisions】
-% ---------------------------------------------------------------------------
-% 内容块：Rule Actions and Scheduling Decisions
-%【章节标题译文】
-% 规则动作与调度决策
-
+The environment determines $\vartheta_n$, activates its Actor, and obtains a rule from that
+head's fixed pool; the environment then decodes and executes the scheduling decision.
+The three Actors share the state encoder and output separate rule distributions.
+% 环境确定类型并激活对应Actor，选择规则后由环境解码、执行；三个Actor共享编码器，分别输出规则概率。
 The Routing, Sequencing, and Recovery heads use the state vectors
 $\boldsymbol h_n^R$, $\boldsymbol h_n^S$, and $\boldsymbol h_n^{RE}$, respectively.
 Their outputs are distributions over $\mathcal R^R$, $\mathcal R^S$, and $\mathcal R^{RE}$
@@ -582,7 +646,7 @@ rank feasible operations, and recovery rules determine a response consistent wit
 or rerouting alternatives in Eq.~\eqref{eq:recovery_constraints}.
 Selecting a rule action $a_n=R_\nu^{\vartheta_n}$ from the active head induces
 % 由当前决策头选出的规则动作解码为实际调度决策。
-%【公式 4.4-E02｜eq:rule_decoding】
+%【公式 4.3.3-E02｜eq:rule_decoding】
 %【公式来源核对｜小论文式(18)｜原有决策过程公式化】
 % 大论文对应：式(3.12)后正文及算法3.2第11—12行，60、62页。
 % 对照说明：Select表达规则评分后的对象选取，未形成新的动作空间机制。
@@ -591,12 +655,17 @@ Selecting a rule action $a_n=R_\nu^{\vartheta_n}$ from the active head induces
  R_\nu^{\vartheta_n}(d;x_n,S^0).
  \label{eq:rule_decoding}
 \end{equation}
-%【第 4.4 节｜第 03 段｜4.4-P03】
-Each rule specifies its ranking direction and deterministic tie breaking. An empty object set does
+%【第 4.3.3 节｜第 03 段｜4.3.3-P03】
+The sets $\mathcal D_n^{\vartheta_n}$ contain different object types: eligible machines for
+Routing, executable operations for Sequencing, and feasible waiting or rerouting plans for Recovery
+under Eq.~\eqref{eq:recovery_constraints}. The operator $\operatorname{Select}$ applies the chosen
+rule's selection convention; it does not impose a common object representation or a universal
+maximization/minimization direction. Each rule specifies its ranking direction and deterministic tie breaking.
+% 各类型候选对象分别为可行机器、可执行工序及既有恢复约束下的等待或重路由方案；Select遵循被选规则，不强制统一对象表示或评分方向。 An empty object set does
 not trigger a rule action. Rules with unavailable inputs require an explicit fallback or applicability mask;
 newly arrived orders have no fictitious baseline records. Assembly compatibility and committed component
 usage are checked before execution.
-%【完整中文译文｜4.4-P03】
+%【完整中文译文｜4.3.3-P03】
 % 每条规则规定其排序方向和确定性的并列处理方式。对象集合为空时，不触发规则动作。若规则所需输入不可用，
 % 则必须明确提供备用处理方式或适用性掩码；新到达订单不能使用虚构的基准记录。执行前检查装配兼容性及已承诺的零部件使用情况。
 
@@ -604,17 +673,17 @@ usage are checked before execution.
 % 不将讨论中的3/4/3配置或DCGP规则写成已采用事实。TODO：明确环境中柔性装配匹配的生成与提交步骤。
 
 % ---------------------------------------------------------------------------
-%【第 4.4 节｜Three Actor Heads and Dual-objective Reward】
+%【第 4.3.3 节｜Three Actor Heads and Dual-objective Reward】
 % ---------------------------------------------------------------------------
 % 内容块：Three Actor Heads and Dual-objective Reward
 %【章节标题译文】
 % 三个Actor决策头与双目标奖励
 
-%【第 4.4 节｜第 01 段｜4.4-P01】
+%【第 4.3.3 节｜第 01 段｜4.3.3-P01】
 Only the Actor head for the current decision type is activated:
-%【完整中文译文｜4.4-P01】
+%【完整中文译文｜4.3.3-P01】
 % 仅激活与当前决策类型对应的Actor头，具体如下。
-%【公式 4.4-E01｜eq:actor_policy】
+%【公式 4.3.3-E01｜eq:actor_policy】
 %【公式来源核对｜小论文式(20)｜原式统一并补掩码】
 % 大论文对应：式(3.14)，61页。
 % 对照说明：三头合为按当前类型索引的统一表达；规则适用性掩码mu为当前稿显式补充，需与实现核实。
@@ -624,15 +693,36 @@ Only the Actor head for the current decision type is activated:
  +\boldsymbol{b}_{\vartheta_n}+\boldsymbol\mu_n^{\vartheta_n}\right),
  \label{eq:actor_policy}
 \end{equation}
-%【第 4.4 节｜第 02 段｜4.4-P02】
-where the rule applicability mask is zero for applicable rules and $-\infty$ otherwise.
-Training samples from this distribution. The evaluation convention and candidate rules are held fixed
-when comparing different selectors.
-%【完整中文译文｜4.4-P02】
-% 其中，规则适用性掩码对可用规则取零，对其余规则取$-\infty$。训练时从该分布采样。在比较不同选择器时，
-% 评价约定和候选规则保持固定。
+%【第 4.3.3 节｜第 02 段｜4.3.3-P02】
+where $\boldsymbol\mu_n^{\vartheta_n}$ acts only within the already activated head: it is zero
+for applicable rules and $-\infty$ otherwise. It neither determines $\vartheta_n$ nor triggers an Actor.
+The mask is retained as a manuscript convention pending implementation verification. If every rule
+is always applicable, an all-zero mask is sufficient; removal requires confirmation.
+Training samples from this distribution. Evaluation conventions and candidate pools are held fixed
+when comparing selectors.
+%【完整中文译文｜4.3.3-P02】
+% 其中，$\boldsymbol\mu_n^{\vartheta_n}$仅在已经激活的决策头内部生效：适用规则取零，其余取$-\infty$。
+% 它既不确定$\vartheta_n$，也不触发Actor。掩码作为当前稿件约定保留，实际实现仍待核实。
+% 若全部规则始终适用，使用全零掩码即可；删除仍需确认。训练从该分布采样，选择器比较保持评价约定和候选池固定。
 
 % 三个Actor头独立输出，编码器共享；掩码针对规则适用性。TODO：测试采用最大概率还是采样，按实际实验报告。
+
+After the selected rule yields $d_n$, the environment checks and executes the decision,
+updates production status and the event calendar, and supplies the next decision context.
+The next decision may occur at the same physical time; its type is again determined by the environment.
+%【完整中文译文｜4.3.3-执行闭环】
+% 所选规则产生$d_n$后，环境检查并执行该决策，更新生产状态与事件日历，再提供下一决策上下文。
+% 下一决策可以处于同一物理时刻，其类型仍由环境确定。
+
+\subsection{PPO Training and Policy Optimization}
+\label{subsec:ppo_policy}
+% PPO训练与策略优化；保留原标签以兼容已有奖励及训练引用。
+Section~\ref{subsubsec:rule_execution} defines the encoded states, multi-head rule selection,
+and scheduling decision execution. This section describes the reward feedback and PPO updates
+used to train that policy through interaction with the scheduling environment.
+%【完整中文译文｜4.4-引言】
+% 第~\ref{subsubsec:rule_execution}节定义编码状态、三头规则选择及调度决策执行。
+% 本节介绍通过调度环境交互训练该策略所用的奖励反馈及PPO更新。
 
 %【第 4.4 节｜第 03 段｜4.4-P03】
 Following Section~\ref{subsec:mathematical_model}, feedback combines potential shaping, exception penalties,
@@ -653,19 +743,33 @@ and dual-objective terminal evaluation:
  \label{eq:reward}
 \end{equation}
 %【第 4.4 节｜第 04 段｜4.4-P04】
-The terminal expression in Eq.~\eqref{eq:reward} applies at normal termination and is zero otherwise.
-Positive references $D_{\mathrm{ref}}$ and $C_{\mathrm{ref}}$ are fixed independently of test outcomes.
-Weights $\alpha_T,\beta_T\ge0$ specify the objective preference. The potential summarizes observable deviation,
-completion estimates, remaining workload, load imbalance, assembly blocking, and recovery waiting.
-Its terminal value is zero. Invalid execution, deadlock, and simulation failure receive exception penalties
-rather than normal terminal scores.
+The terminal term in Eq.~\eqref{eq:reward} is evaluated only when all admitted orders in the
+finite scenario have arrived and completed normally; it is zero at other transitions.
+Invalid decisions, deadlock, and simulation failure are handled by $r_n^{\mathrm{pen}}$ and do
+not receive the normal-completion terminal score. Here $D_{\mathrm{dev}}(S,S^0)$ is the final
+schedule deviation defined in Eq.~\eqref{eq:objective_deviation}, corresponding to the dissertation's
+terminal deviation $D_{\mathrm{term}}^{\mathrm{dev}}$ in Eq.~(3.13), rather than a separate metric.
+The English formulation retains its initial-baseline operation set when urgent orders are admitted.
+Positive references $D_{\mathrm{ref}}$ and $C_{\mathrm{ref}}$ rescale the terminal objectives;
+$D_{\mathrm{ref}}$ does not replace the baseline normalization in Eq.~\eqref{eq:objective_deviation}.
+They are fixed independently of test outcomes. Weights $\alpha_T,\beta_T\ge0$ express objective
+preferences without assigning specific values here. The potential $\Phi$ reflects current deviation,
+estimated completion performance, remaining work, machine-load imbalance, assembly blocking,
+and failure waiting. Its detailed parameterization and the numerical exception penalties require
+implementation verification; no additional weights, penalty values, or terminal-potential boundary
+condition are specified here.
 %【完整中文译文｜4.4-P04】
-% 式~\eqref{eq:reward}中的终止项仅在正常终止时使用，其余情况下为零。正的参考值$D_{\mathrm{ref}}$和$C_{\mathrm{ref}}$独立于测试结果预先固定。
-% 权重$\alpha_T,\beta_T\ge0$规定目标偏好。势函数汇总可观测的计划偏离、完工时间估计、剩余负载、负载不均衡、装配阻塞及恢复等待，
-% 其终止值为零。无效执行、死锁和仿真失败接受异常惩罚，而不是正常的终止得分。
+% 式~\eqref{eq:reward}的终端项仅在有限场景中的全部订单均已到达并正常完成时计算，其他转移处为零。
+% 非法决策、死锁及仿真失败由$r_n^{\mathrm{pen}}$处理，不使用正常完工的终端得分。
+% 这里$D_{\mathrm{dev}}(S,S^0)$是式~\eqref{eq:objective_deviation}定义的最终计划偏离度，对应大论文式(3.13)中的
+% 终止偏离度$D_{\mathrm{term}}^{\mathrm{dev}}$，并非另一个指标；英文稿接纳紧急订单时仍保留初始基准工序集合。
+% 正参考值$D_{\mathrm{ref}}$和$C_{\mathrm{ref}}$对终端目标进行缩放；$D_{\mathrm{ref}}$不替代式~\eqref{eq:objective_deviation}的基准归一化。
+% 这些参考值独立于测试结果固定。$\alpha_T,\beta_T\ge0$表示目标偏好，此处不指定具体数值。
+% 势函数$\Phi$反映当前偏离、预计完工性能、剩余工作量、机器负载不均衡、装配阻塞及故障等待。
+% 其具体参数化和异常惩罚数值需实现核实；此处不补充权重、惩罚值或终态势函数边界条件。
 
 % 奖励沿用大论文的塑形、异常惩罚与双目标终端评价结构。TODO：完整势函数及异常惩罚数值须按程序补齐，
-% 不能用指标罗列代替定义。终态势函数置零，归一化参照不使用测试结果回填。
+% 不能用指标罗列代替定义。大论文式(3.13)未明确终态势函数边界条件，待实现核实；归一化参照不使用测试结果回填。
 
 %【第 4.4 节｜第 05 段｜4.4-P05】
 For trade-off evaluation, different pairs $(\alpha_T,\beta_T)$ are trained independently.
@@ -797,9 +901,9 @@ and applicability masks are stored so the same action distribution is used when 
   \While{the episode has not terminated}
 %【伪代码中文】
 % 当当前回合尚未终止时执行循环。
-   \State Process events; obtain $x_n$, $\vartheta_n$, $\mathcal D_n^{\vartheta_n}$
+   \State Environment processes events; determines $\vartheta_n$, $x_n$, $\mathcal D_n^{\vartheta_n}$
 %【伪代码中文】
-% 处理事件，取得观测$x_n$、决策类型$\vartheta_n$和可行对象集合$\mathcal D_n^{\vartheta_n}$。
+% 环境处理事件，确定决策类型$\vartheta_n$、观测$x_n$和可行对象集合$\mathcal D_n^{\vartheta_n}$。
    \If{$\mathcal D_n^{\vartheta_n}=\varnothing$}
 %【伪代码中文】
 % 若当前决策类型的可行对象集合为空。
@@ -815,12 +919,12 @@ and applicability masks are stored so the same action distribution is used when 
     \State Read out $\boldsymbol{h}_n^{\vartheta_n}$
 %【伪代码中文】
 % 读出当前决策角色的状态向量$\boldsymbol{h}_n^{\vartheta_n}$。
-    \State Sample rule $a_n$ from the active head
+    \State Activate Actor $\vartheta_n$; sample $a_n$ from $\mathcal R^{\vartheta_n}$
 %【伪代码中文】
-% 从当前激活的决策头中采样规则$a_n$。
-    \State Decode and execute decision $d_n$
+% 激活Actor $\vartheta_n$，从其固定规则池$\mathcal R^{\vartheta_n}$中采样$a_n$。
+    \State Environment decodes $a_n$, executes $d_n$; updates state
 %【伪代码中文】
-% 解码并执行具体决策$d_n$。
+% 环境解码$a_n$并执行$d_n$，更新状态。
     \State Store transition, head type, and mask
 %【伪代码中文】
 % 存储状态转移、决策头类型和掩码。
@@ -852,10 +956,12 @@ Online execution freezes all parameters and candidate rule sets. After observed 
 decision, the environment updates the dynamic graph, the HGNN encodes its nodes, and role readout
 forms the active decision state. The corresponding PPO head selects a rule, which is decoded into
 a feasible scheduling decision; execution updates the environment for the next decision.
-No online rule evolution is performed. Comparisons that isolate the encoder or selector use identical rules,
+Comparisons that isolate the encoder or selector use identical rules,
 decoding conventions, scenarios, and evaluation budgets.
 %【完整中文译文｜4.4-P07】
 % 在线执行时冻结全部参数和候选规则集合。每次决策依次更新图、编码当前激活角色的状态、选择规则，
 % 再将其解码为可行调度决策。不进行在线规则演化。为单独检验编码器或选择器，相关比较使用相同的规则、解码约定、场景和评价预算。
 
 % 在线固定网络与规则库，只执行图更新、编码、选择和解码。TODO：训练超参数、Critic输入、完整规则与势函数、推理耗时待程序核验。
+
+% TODO：核实同刻多类决策的优先顺序、Recovery精确触发范围及掩码实现；不新增触发策略。
